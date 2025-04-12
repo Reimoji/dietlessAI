@@ -20,8 +20,19 @@ import { ArrowRight,
 import { Terminal } from './terminal';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { PricingSection } from '@/components/ui/pricing-section';
+import { getStripePrices, getStripeProducts } from '@/lib/payments/stripe';
+import { checkoutAction } from '@/lib/payments/actions';
 
-export default function HomePage() {
+// Prices are fresh for one hour max
+export const revalidate = 3600;
+
+export default async function HomePage() {
+  // Fetch pricing data for the pricing section
+  const [prices, products] = await Promise.all([
+    getStripePrices(),
+    getStripeProducts(),
+  ]);
   return (
     <main>
       <section className="py-20">
@@ -252,9 +263,16 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <PricingSection
+        prices={prices}
+        products={products}
+        checkoutAction={checkoutAction}
+      />
+
       {/* FAQ Section */}
       <section className="py-24 bg-background">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center mb-16 text-foreground">
             Frequently Asked Questions
           </h2>
@@ -377,7 +395,7 @@ export default function HomePage() {
           </h2>
 
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Start Your <span className="bg-primary text-primary-foreground opacity-75 px-1 py-0.5 rounded-sm font-medium">Free 7-Day Trial</span> and Discover the Simplicity of Dietless AI Today
+            Start Your <span className="bg-primary text-primary-foreground opacity-75 px-1 py-0.5 rounded-sm font-medium">Free 3-Day Trial</span> and Discover the Simplicity of Dietless AI Today
           </p>
 
           <a href="#" className="inline-block">
@@ -408,10 +426,10 @@ export default function HomePage() {
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  className="flex-1 rounded-full px-4 py-4 h-auto border-primary/20 focus-visible:ring-primary group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300"
+                  className="flex-1 rounded-3xl px-4 py-4 h-auto border-primary/20 focus-visible:ring-primary group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300"
                 />
                 <Button
-                  className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full px-5 py-2 h-auto group-hover:shadow-lg group-hover:shadow-primary/20 transition-all duration-300 relative overflow-hidden cursor-pointer"
+                  className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-3xl px-5 py-2 h-auto group-hover:shadow-lg group-hover:shadow-primary/20 transition-all duration-300 relative overflow-hidden cursor-pointer"
                   style={{ minHeight: '44px' }}
                 >
                   <span className="relative z-10 flex items-center">Subscribe
