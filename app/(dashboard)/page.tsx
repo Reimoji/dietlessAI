@@ -1,9 +1,25 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { ArrowRight, Brain, Leaf, MessageSquare, Check, Citrus, Apple, Banana, Cherry, Grape, EggFried, Mail } from 'lucide-react';
+import { ArrowRight, 
+  Brain, 
+  Leaf, 
+  MessageSquare, 
+  Citrus, 
+  Apple, 
+  Banana, 
+  Cherry, 
+  Grape, 
+  EggFried, 
+  Mail, 
+  CreditCard, 
+  HelpCircle, 
+  AlertCircle, 
+  Clock, 
+  Settings } from 'lucide-react';
 import { Terminal } from './terminal';
 import Image from 'next/image';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function HomePage() {
   return (
@@ -117,7 +133,7 @@ export default function HomePage() {
                 />
               </div>
             </div>
-            
+
             {/* Bullet points side */}
             <div className="flex-1">
               <ul className="space-y-6">
@@ -130,7 +146,7 @@ export default function HomePage() {
                     <p className="text-muted-foreground">Shop quickly and avoid impulse buys, helping you keep those extra calories at bay</p>
                   </div>
                 </li>
-                
+
                 <li className="flex items-start gap-4">
                   <div className="mt-1 rounded-full bg-primary/10 p-1">
                     <Apple className="h-7 w-7 text-primary" />
@@ -140,7 +156,7 @@ export default function HomePage() {
                     <p className="text-muted-foreground">Chef-curated meals that taste amazing while keeping you on track for healthy weight loss</p>
                   </div>
                 </li>
-                
+
                 <li className="flex items-start gap-4">
                   <div className="mt-1 rounded-full bg-primary/10 p-1">
                     <Cherry className="h-7 w-7 text-primary" />
@@ -150,7 +166,7 @@ export default function HomePage() {
                     <p className="text-muted-foreground">Use Dietless AI on your own or involve the whole family—everyone gets meal plans tailored to their unique goals</p>
                   </div>
                 </li>
-                
+
                 <li className="flex items-start gap-4">
                   <div className="mt-1 rounded-full bg-primary/10 p-1">
                     <Banana className="h-7 w-7 text-primary" />
@@ -160,7 +176,7 @@ export default function HomePage() {
                     <p className="text-muted-foreground">Switch out ingredients to suit your cravings, allergies, or time constraints—no more feeling trapped in a rigid diet</p>
                   </div>
                 </li>
-                
+
                 <li className="flex items-start gap-4">
                   <div className="mt-1 rounded-full bg-primary/10 p-1">
                     <Grape className="h-7 w-7 text-primary" />
@@ -173,20 +189,20 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
-          
+
           {/* Heading and paragraph underneath */}
           <div className="mt-20 w-full">
             <h3 className="text-2xl font-bold text-foreground mb-6">
               Storytime...
             </h3>
             <p className="text-muted-foreground text-base mb-6">
-              You're juggling long work hours, family responsibilities, and maybe a workout or two—only to realize your eating habits are all over the place. 
+              You're juggling long work hours, family responsibilities, and maybe a workout or two—only to realize your eating habits are all over the place.
               You want to feel healthier, perhaps lose a bit of weight, but conflicting advice and busy schedules keep you stuck.
               Following rigid meal plans feels overwhelming, and those fad diets never seem to fit into your real life.
             </p>
             <p className="text-muted-foreground text-base">
-              Enter <strong>Dietless AI</strong> - an app inspired by years of experience from a leading nutritionist, Erik Orgu and his work of helping people 
-              overcome the same struggles you face today. Dietless AI is designed to simplify nutrition, learn your tastes, and adapt to your daily routine, 
+              Enter <strong>Dietless AI</strong> - an app inspired by years of experience from a leading nutritionist, Erik Orgu and his work of helping people
+              overcome the same struggles you face today. Dietless AI is designed to simplify nutrition, learn your tastes, and adapt to your daily routine,
               giving you the expert guidance you need to build a healthier, more balanced lifestyle.
             </p>
           </div>
@@ -198,7 +214,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-center mb-16 text-foreground">
             What Our Users Say
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             {/* First Testimonial */}
             <div className="bg-card p-6 rounded-xl shadow-md">
@@ -236,33 +252,193 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
-            <div>
-              <div className="flex items-center mb-4">
-                <EggFried className="h-6 w-6 " />
-                <span className="ml-2 text-3xl font-bold">DietlessAI</span>
-              </div>
-              <p className="mt-3 max-w-3xl text-lg text-muted-foreground">
-              Personalized Meal Plans That Evolve with Your Lifestyle
-              </p>
-            </div>
-            <div className="mt-8 lg:mt-0 flex justify-center lg:justify-end">
-              <a href="#" target="_blank">
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer rounded-full text-xl px-12 py-6 inline-flex items-center justify-center">
-                  Subscribe to newsletter
-                  <ArrowRight className="ml-3 h-6 w-6" />
-                </Button>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div className="mt-12 pt-8 border-t border-secondary-foreground/10 text-center text-medium text-secondary-foreground/40">
-          © 2025 DietlessAI. All rights reserved.
+      {/* FAQ Section */}
+      <section className="py-24 bg-background">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center mb-16 text-foreground">
+            Frequently Asked Questions
+          </h2>
+
+          <Accordion type="single" collapsible className="space-y-4">
+            <AccordionItem value="item-1" className="bg-card rounded-lg overflow-hidden border-none shadow-sm">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary">
+                    <HelpCircle className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium">How does DietlessAI work?</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 text-muted-foreground">
+              DietlessAI uses advanced artificial intelligence to analyze your preferences, dietary requirements, and goals. It then creates personalized nutrition plans and provides real-time advice to help you achieve optimal health and wellness.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2" className="bg-card rounded-lg overflow-hidden border-none shadow-sm">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium">What makes Dietless AI different from other nutrition apps?</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 text-muted-foreground">
+                Dietless AI adapts to your day-to-day routine, offering real-life solutions instead of rigid rules. Whether you’re on the go or making a home-cooked meal, the app adjusts to your lifestyle.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3" className="bg-card rounded-lg overflow-hidden border-none shadow-sm">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary">
+                    <AlertCircle className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium">Is Dietless AI suitable for specific dietary needs?</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 text-muted-foreground">
+                Absolutely. Whether you’re gluten-free, vegan, or focusing on moderate weight management, Dietless AI personalizes plans to fit your unique requirements.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4" className="bg-card rounded-lg overflow-hidden border-none shadow-sm">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary">
+                    <CreditCard className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium">How often does the app update my meal plan?</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 text-muted-foreground">
+                Dietless AI monitors your progress and can update recommendations daily. It ensures your plan remains relevant, flexible, and aligned with your goals.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5" className="bg-card rounded-lg overflow-hidden border-none shadow-sm">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary">
+                    <CreditCard className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium">Can I cancel my subscription at any time?</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 text-muted-foreground">
+              You can cancel your subscription at any time with no long-term commitments. If you cancel, you will continue to have access to DietlessAI until the end of your current billing period
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-6" className="bg-card rounded-lg overflow-hidden border-none shadow-sm">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium">How accurate is the AI nutrition advice?</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 text-muted-foreground">
+              Our AI is trained on extensive, up-to-date nutrition data and provides evidence-based recommendations. While highly accurate for general nutrition advice, we always recommend consulting with healthcare professionals for specific medical conditions or concerns.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-7" className="bg-card rounded-lg overflow-hidden border-none shadow-sm">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary">
+                    <Settings className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium">What makes Dietless AI reliable?</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 text-muted-foreground">
+              Dietless AI is built on a foundation of rigorously researched, science-based nutrition principles. Its recommendations are informed by the most trusted insights in the field of nutrition, ensuring that your personalized plan is both effective and sustainable. Whether your goal is weight loss, maintaining your current weight, or simply eating healthier, you can feel confident that Dietless AI is designed to deliver evidence-backed results.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
-      
+
+      {/* Footer */}
+      <section className="py-16 bg-card border-t">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Newsletter Subscription with Animation */}
+          <div className="mb-16 p-8 bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl border border-primary/10 relative overflow-hidden group">
+            {/* Animated elements */}
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-primary/10 rounded-full blur-3xl opacity-50 group-hover:scale-150 transition-transform duration-1000 ease-in-out"></div>
+            <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-primary/10 rounded-full blur-3xl opacity-50 group-hover:scale-150 transition-transform duration-1000 ease-in-out delay-100"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/5 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-1000 ease-in-out scale-0 group-hover:scale-100"></div>
+
+            <div className="max-w-3xl mx-auto text-center relative z-10">
+              <h3 className="text-2xl font-bold mb-4 group-hover:scale-105 transition-transform duration-300">Stay Updated with DietlessAI</h3>
+              <p className="text-muted-foreground mb-6">Get the latest nutrition tips, recipes, and updates delivered straight to your inbox.</p>
+              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="flex-1 rounded-full px-4 py-4 h-auto border-primary/20 focus-visible:ring-primary group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300"
+                />
+                <Button
+                  className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full px-5 py-2 h-auto group-hover:shadow-lg group-hover:shadow-primary/20 transition-all duration-300 relative overflow-hidden cursor-pointer"
+                  style={{ minHeight: '44px' }}
+                >
+                  <span className="relative z-10 flex items-center">Subscribe
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
+                  <span className="absolute inset-0 bg-primary/90 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Content - Simplified */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {/* Column 1: Logo & About */}
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <EggFried className="h-6 w-6 text-primary" />
+                <span className="ml-2 text-xl font-bold">DietlessAI</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Personalized Meal Plans That Evolve with Your Lifestyle—No Guesswork, No Strict Rules, Just Sustainable Results
+              </p>
+              <div className="flex space-x-4 pt-4">
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors hover:scale-110 transform duration-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-twitter"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                </a>
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors hover:scale-110 transform duration-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </a>
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors hover:scale-110 transform duration-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-instagram"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                </a>
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors hover:scale-110 transform duration-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-linkedin"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                </a>
+              </div>
+            </div>
+
+            {/* Column 2: About */}
+            <div className="flex flex-col items-end justify-end h-full">
+              <div className="flex space-x-6">
+                <a href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors duration-200">Privacy Policy</a>
+                <a href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors duration-200">Terms of Service</a>
+                <a href="#" className="text-xs text-muted-foreground hover:text-primary transition-colors duration-200">Cookie Policy</a>
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="pt-8 border-t border-border text-center">
+            <p className="text-sm text-muted-foreground">
+              © 2025 DietlessAI. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </section>
+
     </main>
   );
 }
