@@ -1,21 +1,21 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { ArrowRight, 
-  Brain, 
-  Leaf, 
-  MessageSquare, 
-  Citrus, 
-  Apple, 
-  Banana, 
-  Cherry, 
-  Grape, 
-  EggFried, 
-  Mail, 
-  CreditCard, 
-  HelpCircle, 
-  AlertCircle, 
-  Clock, 
+import { ArrowRight,
+  Brain,
+  Leaf,
+  MessageSquare,
+  Citrus,
+  Apple,
+  Banana,
+  Cherry,
+  Grape,
+  EggFried,
+  Mail,
+  CreditCard,
+  HelpCircle,
+  AlertCircle,
+  Clock,
   Settings } from 'lucide-react';
 import { Terminal } from './terminal';
 import Image from 'next/image';
@@ -358,6 +358,36 @@ export default function HomePage() {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="py-20 bg-gradient-to-b from-background to-card">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+          {/* Decorative elements */}
+          <div className="absolute top-0 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-70 -z-10"></div>
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-70 -z-10"></div>
+
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
+            Take the First Step Toward<br />
+            <span className="relative inline-block">
+              <span className="relative z-10">Effortless Nutrition</span>
+              <span className="absolute bottom-2 left-0 w-full h-3 bg-primary/20 -z-10 rounded-full"></span>
+            </span>
+          </h2>
+
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Start Your <span className="bg-primary text-primary-foreground opacity-75 px-1 py-0.5 rounded-sm font-medium">Free 7-Day Trial</span> and Discover the Simplicity of Dietless AI Today
+          </p>
+
+          <a href="#" className="inline-block">
+            <Button
+              className="bg-background hover:bg-primary text-foreground hover:text-secondary cursor-pointer border border-border rounded-full text-lg px-8 py-4 inline-flex items-center justify-center group"
+            >
+              GET STARTED!
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+            </Button>
+          </a>
         </div>
       </section>
 
