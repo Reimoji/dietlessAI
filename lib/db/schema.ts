@@ -140,3 +140,22 @@ export enum ActivityType {
   INVITE_TEAM_MEMBER = 'INVITE_TEAM_MEMBER',
   ACCEPT_INVITATION = 'ACCEPT_INVITATION',
 }
+
+export const chats = pgTable('chats', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const chatMessages = pgTable('chat_messages', {
+  id: serial('id').primaryKey(),
+  chatId: integer('chat_id')
+    .notNull()
+    .references(() => chats.id),
+  content: text('content').notNull(),
+  role: varchar('role', { length: 20 }).notNull(), // 'user' or 'assistant'
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
