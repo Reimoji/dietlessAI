@@ -11,3 +11,4 @@ export type ChatSession = {
   createdAt?: Date;
   updatedAt?: Date;
 };
+
