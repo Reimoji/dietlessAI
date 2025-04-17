@@ -1,68 +1,51 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 import { useChatStore } from '@/lib/stores/chat';
+import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 
-// Move components outside of the main component
-const TypingIndicator = () => (
-  <div className="flex space-x-2 p-3 bg-muted rounded-lg w-16">
-    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-  </div>
-);
-
-// Single message box skeleton
-const MessageBoxSkeleton = ({ align = "left" }) => (
-  <div className={`mb-4 ${align === "right" ? "text-right" : "text-left"}`}>
-    <div 
-      className={`inline-block p-3 rounded-lg ${
-        align === "right" ? "bg-primary/10" : "bg-muted"
-      }`}
-    >
-      <Skeleton className="h-8 w-[200px]" />
+function SubscriptionRequired() {
+  const router = useRouter();
+  
+  return (
+    <div className="h-full p-4">
+      <Card className="h-full flex flex-col items-center justify-center p-6">
+        <h2 className="text-2xl font-bold mb-4">Subscription Required</h2>
+        <p className="text-muted-foreground mb-6">
+          Chat feature is only available for subscribed users.
+        </p>
+        <Button onClick={() => router.push('/pricing')}>
+          View Pricing Plans
+        </Button>
+      </Card>
     </div>
-    <div className="mt-1">
-      <Skeleton className="h-3 w-12 inline-block" />
-    </div>
-  </div>
-);
-
-// Conversation skeleton showing multiple messages
-const ConversationSkeleton = () => (
-  <div className="space-y-4">
-    {/* First message (left) */}
-    <MessageBoxSkeleton align="left" />
-
-    {/* Second message (right) */}
-    <MessageBoxSkeleton align="right" />
-
-    {/* Third message (left) */}
-    <MessageBoxSkeleton align="left" />
-
-    {/* Fourth message (right) */}
-    <MessageBoxSkeleton align="right" />
-
-    {/* Fifth message (left) */}
-    <MessageBoxSkeleton align="left" />
-  </div>
-);
-
-// Format date safely
-const formatTime = (date: Date | string | undefined) => {
-  if (!date) return '';
-  try {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    return d.toLocaleTimeString();
-  } catch (e) {
-    return '';
-  }
-};
+  );
+}
 
 function ChatPage() {
+  const [hasSubscription, setHasSubscription] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    async function checkSubscription() {
+      try {
+        const response = await fetch('/api/teams/subscription');
+        setHasSubscription(response.ok);
+      } catch (error) {
+        setHasSubscription(false);
+      }
+    }
+    
+    checkSubscription();
+  }, []);
+
+  if (hasSubscription === false) {
+    return <SubscriptionRequired />;
+  }
+
   const [input, setInput] = useState('');
   const { 
     messages, 
@@ -177,11 +160,17 @@ function ChatPage() {
       <div className="h-full p-4">
         <Card className="h-full flex flex-col">
           <div className="flex-1 overflow-y-auto p-4">
-            <ConversationSkeleton />
+            <Skeleton className="h-12 w-full mb-4" />
+            <Skeleton className="h-12 w-full mb-4" />
+            <Skeleton className="h-12 w-full mb-4" />
           </div>
         </Card>
       </div>
     );
+  }
+
+  function formatTime(createdAt: Date): import("react").ReactNode {
+    throw new Error('Function not implemented.');
   }
 
   return (
@@ -211,7 +200,11 @@ function ChatPage() {
           ))}
           {isTyping && (
             <div className="mb-4">
-              <TypingIndicator />
+              <div className="flex space-x-2">
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+              </div>
             </div>
           )}
         </div>
@@ -242,6 +235,10 @@ function ChatPage() {
 }
 
 export default ChatPage;
+
+
+
+
 
 
 

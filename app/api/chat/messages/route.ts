@@ -4,12 +4,30 @@ import { ChatMessage, chatMessages, chats } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth/session';
 import { eq, desc } from 'drizzle-orm';
 import { Message } from '@/lib/types/chat';
+import { teams, teamMembers } from '@/lib/db/schema';
+
+async function checkSubscription(userId: number) {
+  const team = await db.query.teams.findFirst({
+    where: (teams) => 
+      eq(teamMembers.userId, userId),
+    with: {
+      teamMembers: true
+    }
+  });
+  
+  return team?.subscriptionStatus === 'active';
+}
 
 export async function GET(request: Request) {
   try {
     const session = await getSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const hasSubscription = await checkSubscription(session.user.id);
+    if (!hasSubscription) {
+      return NextResponse.json({ error: 'Subscription required' }, { status: 403 });
     }
 
     // Get the user's most recent chat
@@ -110,6 +128,8 @@ export async function POST(request: Request) {
     );
   }
 }
+
+
 
 
 

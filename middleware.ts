@@ -3,14 +3,34 @@ import type { NextRequest } from 'next/server';
 import { signToken, verifyToken } from '@/lib/auth/session';
 
 const protectedRoutes = '/dashboard';
+const subscriberRoutes = '/dashboard/chat';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get('session');
   const isProtectedRoute = pathname.startsWith(protectedRoutes);
+  const isSubscriberRoute = pathname.startsWith(subscriberRoutes);
 
   if (isProtectedRoute && !sessionCookie) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+  if (isSubscriberRoute) {
+    try {
+      const parsed = await verifyToken(sessionCookie?.value || '');
+      // Add subscription check from team data
+      const response = await fetch(`${request.nextUrl.origin}/api/teams/subscription`, {
+        headers: {
+          Cookie: request.headers.get('cookie') || '',
+        },
+      });
+      
+      if (!response.ok) {
+        return NextResponse.redirect(new URL('/pricing', request.url));
+      }
+    } catch (error) {
+      return NextResponse.redirect(new URL('/pricing', request.url));
+    }
   }
 
   let res = NextResponse.next();
