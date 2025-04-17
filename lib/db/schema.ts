@@ -7,6 +7,7 @@ import {
   integer,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { InferModel } from 'drizzle-orm';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -159,3 +160,6 @@ export const chatMessages = pgTable('chat_messages', {
   role: varchar('role', { length: 20 }).notNull(), // 'user' or 'assistant'
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+export type Chat = InferModel<typeof chats>;
+export type ChatMessage = InferModel<typeof chatMessages>;

@@ -2,7 +2,7 @@ export type Message = {
   id?: string;
   content: string;
   role: 'user' | 'assistant';
-  createdAt?: Date;
+  createdAt: Date;
 };
 
 export type ChatSession = {
@@ -11,4 +11,6 @@ export type ChatSession = {
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+
 
