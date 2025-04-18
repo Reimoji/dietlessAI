@@ -40,7 +40,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {teamData.subscriptionStatus === 'active'
-                    ? 'Billed monthly'
+                    ? 'Active subscription'
                     : teamData.subscriptionStatus === 'trialing'
                       ? 'Trial period'
                       : 'No active subscription'}

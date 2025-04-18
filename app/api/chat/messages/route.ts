@@ -2,20 +2,28 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { ChatMessage, chatMessages, chats } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth/session';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, asc } from 'drizzle-orm';
 import { Message } from '@/lib/types/chat';
 import { teams, teamMembers } from '@/lib/db/schema';
 
 async function checkSubscription(userId: number) {
-  const team = await db.query.teams.findFirst({
-    where: (teams) => 
-      eq(teamMembers.userId, userId),
+  const teamMember = await db.query.teamMembers.findFirst({
+    where: eq(teamMembers.userId, userId),
     with: {
-      teamMembers: true
+      team: {
+        columns: {
+          id: true,
+          subscriptionStatus: true
+        }
+      }
     }
   });
-  
-  return team?.subscriptionStatus === 'active';
+
+  if (!teamMember?.team) {
+    return false;
+  }
+
+  return ['active', 'trialing'].includes(teamMember.team.subscriptionStatus ?? '');
 }
 
 export async function GET(request: Request) {
@@ -32,11 +40,11 @@ export async function GET(request: Request) {
 
     // Get the user's most recent chat
     const chat = await db.query.chats.findFirst({
-      where: (chats, { eq }) => eq(chats.userId, session.user.id),
-      orderBy: (chats, { desc }) => [desc(chats.createdAt)],
+      where: eq(chats.userId, session.user.id),
+      orderBy: [desc(chats.createdAt)],
       with: {
         messages: {
-          orderBy: (messages: { createdAt: any; }, { asc }: any) => [asc(messages.createdAt)]
+          orderBy: [asc(chatMessages.createdAt)]
         }
       }
     });
@@ -100,6 +108,9 @@ export async function POST(request: Request) {
       chat = newChat;
     }
 
+    // Ensure proper date handling
+    const createdAt = message.createdAt ? new Date(message.createdAt) : new Date();
+
     // Save the message
     const [savedMessage] = await db
       .insert(chatMessages)
@@ -107,7 +118,7 @@ export async function POST(request: Request) {
         chatId: chat.id,
         content: message.content,
         role: message.role,
-        createdAt: message.createdAt || new Date(),
+        createdAt
       })
       .returning();
 
@@ -128,16 +139,4 @@ export async function POST(request: Request) {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

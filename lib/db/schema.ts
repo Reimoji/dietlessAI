@@ -29,7 +29,10 @@ export const teams = pgTable('teams', {
   stripeSubscriptionId: text('stripe_subscription_id').unique(),
   stripeProductId: text('stripe_product_id'),
   planName: varchar('plan_name', { length: 50 }),
-  subscriptionStatus: varchar('subscription_status', { length: 20 }),
+  subscriptionStatus: varchar('subscription_status', { 
+    length: 20,
+    enum: ['active', 'trialing', 'base', 'canceled', 'unpaid']
+  }),
 });
 
 export const teamMembers = pgTable('team_members', {
@@ -163,3 +166,14 @@ export const chatMessages = pgTable('chat_messages', {
 
 export type Chat = InferModel<typeof chats>;
 export type ChatMessage = InferModel<typeof chatMessages>;
+
+export const chatsRelations = relations(chats, ({ many }) => ({
+  messages: many(chatMessages)
+}));
+
+export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
+  chat: one(chats, {
+    fields: [chatMessages.chatId],
+    references: [chats.id]
+  })
+}));

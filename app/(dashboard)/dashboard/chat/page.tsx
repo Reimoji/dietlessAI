@@ -33,8 +33,17 @@ function ChatPage() {
     async function checkSubscription() {
       try {
         const response = await fetch('/api/teams/subscription');
-        setHasSubscription(response.ok);
+        if (!response.ok) {
+          const data = await response.json();
+          console.error('Subscription check failed:', data.error);
+          setHasSubscription(false);
+          return;
+        }
+        const data = await response.json();
+        // Accept both 'trialing' and 'active' statuses
+        setHasSubscription(['active', 'trialing'].includes(data.status));
       } catch (error) {
+        console.error('Subscription check error:', error);
         setHasSubscription(false);
       }
     }
@@ -94,12 +103,15 @@ function ChatPage() {
     const userMessage = {
       content: input.trim(),
       role: 'user' as const,
-      createdAt: new Date()
+      createdAt: new Date().toISOString() // Ensure we send ISO string
     };
 
     try {
       setLoading(true);
-      addMessage(userMessage);
+      addMessage({
+        ...userMessage,
+        createdAt: new Date()
+      });
       setInput('');
 
       // Save user message
@@ -169,17 +181,13 @@ function ChatPage() {
     );
   }
 
-  function formatTime(createdAt: Date): import("react").ReactNode {
-    throw new Error('Function not implemented.');
-  }
-
   return (
     <div className="h-full p-4">
       <Card className="h-full flex flex-col">
         <div className="flex-1 overflow-y-auto p-4">
           {messages.map((message, index) => (
             <div
-              key={index}
+              key={`${message.role}-${index}-${message.createdAt.getTime()}`}
               className={`mb-4 ${
                 message.role === 'user' ? 'text-right' : 'text-left'
               }`}
@@ -188,45 +196,49 @@ function ChatPage() {
                 className={`inline-block p-3 rounded-lg ${
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
+                    : 'bg-muted text-muted-foreground'
                 }`}
               >
                 {message.content}
               </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {formatTime(message.createdAt)}
+              <div className="text-xs text-muted-foreground mt-1">
+                {new Date(message.createdAt).toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  hour12: true
+                })}
               </div>
             </div>
           ))}
-          {isTyping && (
-            <div className="mb-4">
+          {isLoading && (
+            <div className="flex justify-center p-4">
               <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]" />
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:0.2s]" />
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:0.4s]" />
               </div>
             </div>
           )}
         </div>
         
-        <form onSubmit={handleSubmit} className="border-t p-4 bg-card">
+        <form onSubmit={handleSubmit} className="border-t border-border p-4">
           <div className="flex gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask anything..."
-              className="flex-1 rounded-lg border px-4 py-2 focus:outline-none focus:ring-2"
+              className="flex-1 rounded-lg border border-input bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
               disabled={isLoading}
             />
-            <button
+            <Button 
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg disabled:opacity-50 flex items-center gap-2"
+              className="flex items-center gap-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               {isLoading ? 'Sending...' : 'Send'}
-            </button>
+            </Button>
           </div>
         </form>
       </Card>
@@ -235,6 +247,17 @@ function ChatPage() {
 }
 
 export default ChatPage;
+
+
+
+
+
+
+
+
+
+
+
 
 
 

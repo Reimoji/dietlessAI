@@ -11,24 +11,45 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = pathname.startsWith(protectedRoutes);
   const isSubscriberRoute = pathname.startsWith(subscriberRoutes);
 
+  console.log('Middleware: Processing request for path:', pathname);
+  console.log('Is subscriber route:', isSubscriberRoute);
+
   if (isProtectedRoute && !sessionCookie) {
+    console.log('Middleware: No session cookie found, redirecting to sign-in');
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
   if (isSubscriberRoute) {
     try {
       const parsed = await verifyToken(sessionCookie?.value || '');
-      // Add subscription check from team data
-      const response = await fetch(`${request.nextUrl.origin}/api/teams/subscription`, {
+      console.log('Middleware: Session verified for user:', parsed);
+      
+      const subscriptionResponse = await fetch(`${request.nextUrl.origin}/api/teams/subscription`, {
         headers: {
           Cookie: request.headers.get('cookie') || '',
         },
       });
       
-      if (!response.ok) {
+      console.log('Middleware: Subscription check response status:', subscriptionResponse.status);
+      
+      const subscriptionData = await subscriptionResponse.json();
+      console.log('Middleware: Subscription data:', subscriptionData);
+
+      if (!subscriptionResponse.ok) {
+        console.log('Middleware: Subscription check failed:', subscriptionData);
         return NextResponse.redirect(new URL('/pricing', request.url));
       }
+
+      // Accept trialing status
+      if (subscriptionData.status !== 'active' && subscriptionData.status !== 'trialing') {
+        console.log('Middleware: Invalid subscription status:', subscriptionData.status);
+        return NextResponse.redirect(new URL('/pricing', request.url));
+      }
+
+      console.log('Middleware: Subscription check passed');
+
     } catch (error) {
+      console.error('Middleware: Error during subscription check:', error);
       return NextResponse.redirect(new URL('/pricing', request.url));
     }
   }
