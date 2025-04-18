@@ -15,21 +15,16 @@ type ActionState = {
 };
 
 export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
-  const [removeState, removeAction, isRemovePending] = useActionState<
-    ActionState,
-    FormData
-  >(removeTeamMember, { error: '', success: '' });
-
   const getUserDisplayName = (user: Pick<User, 'id' | 'name' | 'email'>) => {
     return user.name || user.email || 'Unknown User';
   };
 
   return (
     <section className="flex-1 p-4 lg:p-8">
-      <h1 className="text-lg lg:text-2xl font-medium mb-6">Team Settings</h1>
+      <h1 className="text-lg lg:text-2xl font-medium mb-6">User Settings</h1>
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Team Subscription</CardTitle>
+          <CardTitle>User Subscription</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -57,7 +52,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
       </Card>
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Team Members</CardTitle>
+          <CardTitle>User</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-4">
@@ -85,28 +80,12 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
                     </p>
                   </div>
                 </div>
-                {index > 1 ? (
-                  <form action={removeAction}>
-                    <input type="hidden" name="memberId" value={member.id} />
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      size="sm"
-                      disabled={isRemovePending}
-                    >
-                      {isRemovePending ? 'Removing...' : 'Remove'}
-                    </Button>
-                  </form>
-                ) : null}
               </li>
             ))}
           </ul>
-          {removeState?.error && (
-            <p className="text-red-500 mt-4">{removeState.error}</p>
-          )}
         </CardContent>
       </Card>
-      <InviteTeamMember />
+      {/* Remove InviteTeamMember component */}
     </section>
   );
 }
