@@ -182,31 +182,35 @@ function ChatPage() {
   }
 
   return (
-    <div className="h-full p-4">
+    <div className="h-[calc(100vh-4rem)] p-4">
       <Card className="h-full flex flex-col">
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message, index) => (
             <div
               key={`${message.role}-${index}-${message.createdAt.getTime()}`}
-              className={`mb-4 ${
-                message.role === 'user' ? 'text-right' : 'text-left'
+              className={`flex mb-4 ${
+                message.role === 'user' ? 'justify-end' : 'justify-start'
               }`}
             >
-              <div
-                className={`inline-block p-3 rounded-lg ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
-                }`}
-              >
-                {message.content}
-              </div>
-              <div className="text-xs text-muted-foreground mt-1">
-                {new Date(message.createdAt).toLocaleTimeString('en-US', {
-                  hour: 'numeric',
-                  minute: 'numeric',
-                  hour12: true
-                })}
+              <div className="max-w-[75%]">
+                <div
+                  className={`inline-block p-3 rounded-lg whitespace-pre-wrap ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {message.content}
+                </div>
+                <div className={`text-xs text-muted-foreground mt-1 ${
+                  message.role === 'user' ? 'text-right' : 'text-left'
+                }`}>
+                  {new Date(message.createdAt).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true
+                  })}
+                </div>
               </div>
             </div>
           ))}

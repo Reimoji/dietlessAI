@@ -1,18 +1,25 @@
-import { redirect } from 'next/navigation';
+'use client';
+
 import { Settings } from './settings';
-import { getTeamForUser, getUser } from '@/lib/db/queries';
+import { useEffect, useState } from 'react';
+import { TeamDataWithMembers } from '@/lib/db/schema';
 
-export default async function SettingsPage() {
-  const user = await getUser();
+export default function SettingsPage() {
+  const [teamData, setTeamData] = useState<TeamDataWithMembers | null>(null);
 
-  if (!user) {
-    redirect('/sign-in');
-  }
-
-  const teamData = await getTeamForUser(user.id);
+  useEffect(() => {
+    async function fetchTeamData() {
+      const response = await fetch('/api/team');
+      if (response.ok) {
+        const data = await response.json();
+        setTeamData(data);
+      }
+    }
+    fetchTeamData();
+  }, []);
 
   if (!teamData) {
-    throw new Error('User not found');
+    return <div>Loading...</div>;
   }
 
   return <Settings teamData={teamData} />;
