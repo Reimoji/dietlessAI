@@ -84,7 +84,9 @@ function Header() {
     <header className="border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
-          <EggFried className="h-6 w-6 text-primary" />
+          <div className="transition-all duration-300 hover:scale-110 hover:rotate-12">
+            <EggFried className="h-6 w-6 text-primary" />
+          </div>
           <span className="ml-2 text-xl font-semibold text-foreground">dietlessAI</span>
         </Link>
         <div className="flex items-center space-x-4">

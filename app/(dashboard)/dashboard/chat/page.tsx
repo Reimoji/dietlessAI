@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -67,6 +67,30 @@ function ChatPage() {
   
   const [isTyping, setIsTyping] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  // Add ref for the messages container
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    const timeoutId = setTimeout(scrollToBottom, 100); // Small delay to ensure content is rendered
+    return () => clearTimeout(timeoutId);
+  }, [messages]);
+
+  // Scroll to bottom on initial load
+  useEffect(() => {
+    if (!isInitialLoading) {
+      const timeoutId = setTimeout(scrollToBottom, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isInitialLoading]);
 
   // Load messages on mount
   useEffect(() => {
@@ -181,10 +205,18 @@ function ChatPage() {
     );
   }
 
+  const formatMessage = (content: string) => {
+    // Replace **text** with <strong>text</strong>
+    return content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  };
+
   return (
     <div className="h-[calc(100vh-4rem)] p-4">
       <Card className="h-full flex flex-col">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div 
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
+        >
           {messages.map((message, index) => (
             <div
               key={`${message.role}-${index}-${message.createdAt.getTime()}`}
@@ -199,9 +231,8 @@ function ChatPage() {
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
                   }`}
-                >
-                  {message.content}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
+                />
                 <div className={`text-xs text-muted-foreground mt-1 ${
                   message.role === 'user' ? 'text-right' : 'text-left'
                 }`}>
@@ -223,6 +254,8 @@ function ChatPage() {
               </div>
             </div>
           )}
+          {/* Add this div as the last element in the messages container */}
+          <div ref={messagesEndRef} />
         </div>
         
         <form onSubmit={handleSubmit} className="border-t border-border p-4">
