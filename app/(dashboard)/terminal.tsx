@@ -4,45 +4,40 @@ import { useState, useEffect } from 'react';
 import { Copy, Check } from 'lucide-react';
 
 export function Terminal() {
-  const [terminalStep, setTerminalStep] = useState(0);
+  const [chatStep, setChatStep] = useState(0);
   const [copied, setCopied] = useState(false);
-  const terminalSteps = [
-    'git clone https://github.com/nextjs/saas-starter',
-    'pnpm install',
-    'pnpm db:setup',
-    'pnpm db:migrate',
-    'pnpm db:seed',
-    'pnpm dev 🎉',
+  const chatSteps = [
+    { sender: 'user', text: 'Can you help me get started with DietlessAI?' },
+    { sender: 'dietlessAI', text: 'Absolutely! Let’s build a plan that fits your lifestyle and goals. First, tell me your weight, height, and your goal.' },
+    { sender: 'user', text: 'I weigh 84 kg, I’m 172 cm tall, and I want to lose fat.' },
+    { sender: 'dietlessAI', text: 'Got it. We’ll focus on fat loss while keeping your muscle sharp 💪' },
+    { sender: 'dietlessAI', text: 'Next, I’ll generate your macros, meal plan, and weekly tweaks to keep you on track 🔁' },
   ];
+  
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setTerminalStep((prev) =>
-        prev < terminalSteps.length - 1 ? prev + 1 : prev
+      setChatStep((prev) =>
+        prev < chatSteps.length - 1 ? prev + 1 : prev
       );
-    }, 500);
-
+    }, 1000);
     return () => clearTimeout(timer);
-  }, [terminalStep]);
+  }, [chatStep]);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(terminalSteps.join('\n'));
+    navigator.clipboard.writeText(chatSteps.map(s => `${s.sender}: ${s.text}`).join('\n'));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="w-full rounded-lg shadow-lg overflow-hidden bg-gray-900 text-white font-mono text-sm relative">
+    <div className="w-full rounded-lg shadow-lg overflow-hidden bg-white text-gray-800 font-sans text-sm relative border border-gray-200">
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
-          <div className="flex space-x-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          </div>
+          <h2 className="text-lg font-semibold">Chat Example</h2>
           <button
             onClick={copyToClipboard}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-black transition-colors"
             aria-label="Copy to clipboard"
           >
             {copied ? (
@@ -52,13 +47,16 @@ export function Terminal() {
             )}
           </button>
         </div>
-        <div className="space-y-2">
-          {terminalSteps.map((step, index) => (
+        <div className="space-y-3">
+          {chatSteps.map((step, index) => (
             <div
               key={index}
-              className={`${index > terminalStep ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+              className={`${index > chatStep ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}
             >
-              <span className="text-green-400">$</span> {step}
+              <div className={`p-2 rounded-md max-w-xs ${step.sender === 'user' ? 'bg-blue-100 ml-auto' : 'bg-gray-100'}`}>
+                <strong className="block text-xs text-gray-500">{step.sender}</strong>
+                <p>{step.text}</p>
+              </div>
             </div>
           ))}
         </div>
