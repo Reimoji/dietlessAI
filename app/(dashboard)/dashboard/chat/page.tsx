@@ -236,7 +236,10 @@ function ChatPage() {
                 <div className={`text-xs text-muted-foreground mt-1 ${
                   message.role === 'user' ? 'text-right' : 'text-left'
                 }`}>
-                  {new Date(message.createdAt).toLocaleTimeString('en-US', {
+                  {new Date(message.createdAt).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                  })} {new Date(message.createdAt).toLocaleTimeString('en-US', {
                     hour: 'numeric',
                     minute: 'numeric',
                     hour12: true

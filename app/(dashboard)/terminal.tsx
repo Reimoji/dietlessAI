@@ -24,28 +24,11 @@ export function Terminal() {
     return () => clearTimeout(timer);
   }, [chatStep]);
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(chatSteps.map(s => `${s.sender}: ${s.text}`).join('\n'));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
-    <div className="w-full rounded-lg shadow-lg overflow-hidden bg-white text-gray-800 font-sans text-sm relative border border-gray-200">
+    <div className="w-full rounded-lg shadow-lg overflow-hidden bg-card text-card-foreground font-sans text-sm relative border border-border">
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Chat Example</h2>
-          <button
-            onClick={copyToClipboard}
-            className="text-gray-400 hover:text-black transition-colors"
-            aria-label="Copy to clipboard"
-          >
-            {copied ? (
-              <Check className="h-5 w-5" />
-            ) : (
-              <Copy className="h-5 w-5" />
-            )}
-          </button>
         </div>
         <div className="space-y-3">
           {chatSteps.map((step, index) => (
