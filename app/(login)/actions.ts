@@ -458,28 +458,33 @@ export const deleteChatHistory = validatedActionWithUser(
       return { error: 'Incorrect password. Chat history deletion failed.' };
     }
 
-    // Delete all chat messages first
-    await db
-      .delete(chatMessages)
-      .where(
-        eq(chatMessages.chatId, 
-          db.select({ id: chats.id })
-            .from(chats)
-            .where(eq(chats.userId, user.id))
-        )
+    try {
+      // Delete all chat messages first
+      await db
+        .delete(chatMessages)
+        .where(
+          eq(chatMessages.chatId, 
+            db.select({ id: chats.id })
+              .from(chats)
+              .where(eq(chats.userId, user.id))
+          )
+        );
+
+      // Then delete all chats for this user
+      await db
+        .delete(chats)
+        .where(eq(chats.userId, user.id));
+
+      await logActivity(
+        (await getUserWithTeam(user.id))?.teamId,
+        user.id,
+        ActivityType.DELETE_CHAT_HISTORY,
       );
 
-    // Then delete all chats for this user
-    await db
-      .delete(chats)
-      .where(eq(chats.userId, user.id));
-
-    await logActivity(
-      (await getUserWithTeam(user.id))?.teamId,
-      user.id,
-      ActivityType.DELETE_CHAT_HISTORY,
-    );
-
-    return { success: 'Chat history deleted successfully.' };
+      return { success: 'Chat history deleted successfully' };
+    } catch (error) {
+      console.error('Error deleting chat history:', error);
+      return { error: 'Failed to delete chat history. Please try again.' };
+    }
   },
 );

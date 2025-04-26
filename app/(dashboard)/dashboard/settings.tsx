@@ -53,9 +53,12 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
 
   const handleDeleteChatSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    startTransition(() => {
-      deleteChatAction(new FormData(event.currentTarget));
-    });
+    await deleteChatAction(new FormData(event.currentTarget));
+    
+    // Clear the form if successful
+    if (deleteChatState.success) {
+      (event.target as HTMLFormElement).reset();
+    }
   };
 
   return (
@@ -218,10 +221,12 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
             {deleteChatState.error && (
               <p className="text-red-500 text-sm">{deleteChatState.error}</p>
             )}
-            <Button
-              type="submit"
-              variant="destructive"
-              className="bg-red-600 hover:bg-red-700"
+            {deleteChatState.success && (
+              <p className="text-green-500 text-sm">{deleteChatState.success}</p>
+            )}
+            <Button 
+              variant="destructive" 
+              type="submit" 
               disabled={isDeleteChatPending}
             >
               {isDeleteChatPending ? (
@@ -230,10 +235,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
                   Deleting...
                 </>
               ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Chat History
-                </>
+                'Delete Chat History'
               )}
             </Button>
           </form>
