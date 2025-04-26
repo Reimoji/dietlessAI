@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { customerPortalAction } from '@/lib/payments/actions';
 import { useActionState } from 'react';
 import { TeamDataWithMembers, User } from '@/lib/db/schema';
-import { updatePassword, deleteAccount } from '@/app/(login)/actions';
+import { updatePassword, deleteAccount, deleteChatHistory } from '@/app/(login)/actions';
 import { Lock, Trash2, Loader2 } from 'lucide-react';
 import { startTransition } from 'react';
 
@@ -32,6 +32,11 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
     FormData
   >(deleteAccount, { error: '', success: '' });
 
+  const [deleteChatState, deleteChatAction, isDeleteChatPending] = useActionState<
+    ActionState,
+    FormData
+  >(deleteChatHistory, { error: '', success: '' });
+
   const handlePasswordSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(() => {
@@ -43,6 +48,13 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
     event.preventDefault();
     startTransition(() => {
       deleteAction(new FormData(event.currentTarget));
+    });
+  };
+
+  const handleDeleteChatSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    startTransition(() => {
+      deleteChatAction(new FormData(event.currentTarget));
     });
   };
 
@@ -175,6 +187,52 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
                 <>
                   <Lock className="mr-2 h-4 w-4" />
                   Update Password
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Delete Chat History Section */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Delete Chat History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-500 mb-4">
+            Chat history deletion is non-reversable. Please proceed with caution.
+          </p>
+          <form onSubmit={handleDeleteChatSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="delete-chat-password">Confirm Password</Label>
+              <Input
+                id="delete-chat-password"
+                name="password"
+                type="password"
+                required
+                minLength={8}
+                maxLength={100}
+              />
+            </div>
+            {deleteChatState.error && (
+              <p className="text-red-500 text-sm">{deleteChatState.error}</p>
+            )}
+            <Button
+              type="submit"
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isDeleteChatPending}
+            >
+              {isDeleteChatPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Chat History
                 </>
               )}
             </Button>

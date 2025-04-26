@@ -15,6 +15,8 @@ import {
   type NewActivityLog,
   ActivityType,
   invitations,
+  chats,
+  chatMessages,
 } from '@/lib/db/schema';
 import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
@@ -441,5 +443,43 @@ export const inviteTeamMember = validatedActionWithUser(
     // await sendInvitationEmail(email, userWithTeam.team.name, role)
 
     return { success: 'Invitation sent successfully' };
+  },
+);
+
+export const deleteChatHistory = validatedActionWithUser(
+  z.object({
+    password: z.string().min(8).max(100),
+  }),
+  async (data, _, user) => {
+    const { password } = data;
+
+    const isPasswordValid = await comparePasswords(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return { error: 'Incorrect password. Chat history deletion failed.' };
+    }
+
+    // Delete all chat messages first
+    await db
+      .delete(chatMessages)
+      .where(
+        eq(chatMessages.chatId, 
+          db.select({ id: chats.id })
+            .from(chats)
+            .where(eq(chats.userId, user.id))
+        )
+      );
+
+    // Then delete all chats for this user
+    await db
+      .delete(chats)
+      .where(eq(chats.userId, user.id));
+
+    await logActivity(
+      (await getUserWithTeam(user.id))?.teamId,
+      user.id,
+      ActivityType.DELETE_CHAT_HISTORY,
+    );
+
+    return { success: 'Chat history deleted successfully.' };
   },
 );

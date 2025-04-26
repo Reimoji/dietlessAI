@@ -18,7 +18,6 @@ export default function DashboardLayout({
     { href: '/dashboard/chat', icon: MessageSquare, label: 'Chat' },
     { href: '/dashboard', icon: Users, label: 'User Settings' },
     { href: '/dashboard/general', icon: Settings, label: 'General' },
-    { href: '/dashboard/activity', icon: Activity, label: 'Activity' },
     // Removed Security nav item
   ];
 
