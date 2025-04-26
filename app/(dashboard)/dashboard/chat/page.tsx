@@ -215,8 +215,20 @@ function ChatPage() {
       <Card className="h-full flex flex-col">
         <div 
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
+          className={`flex-1 p-4 ${messages.length > 0 ? 'overflow-y-auto space-y-4' : ''} scroll-smooth`}
         >
+          {messages.length === 0 && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-muted-foreground max-w-md">
+                <h3 className="text-lg font-semibold mb-2">
+                  Hey! I'm your nutrition coach - dietlessAI
+                </h3>
+                <p>
+                  Ask me anything — from daily meal tips to long-term goals.
+                </p>
+              </div>
+            </div>
+          )}
           {messages.map((message, index) => (
             <div
               key={`${message.role}-${index}-${message.createdAt.getTime()}`}
