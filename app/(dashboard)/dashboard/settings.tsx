@@ -9,7 +9,7 @@ import { customerPortalAction } from '@/lib/payments/actions';
 import { useActionState } from 'react';
 import { TeamDataWithMembers, User } from '@/lib/db/schema';
 import { updatePassword, deleteAccount, deleteChatHistory } from '@/app/(login)/actions';
-import { Lock, Trash2, Loader2 } from 'lucide-react';
+import { Lock, Shredder, Loader2, Trash2 } from 'lucide-react';
 import { startTransition } from 'react';
 
 type ActionState = {
@@ -235,7 +235,10 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
                   Deleting...
                 </>
               ) : (
-                'Delete Chat History'
+                <>
+                  <Shredder className="mr-2 h-4 w-4" />
+                  Delete Chat History
+                </>
               )}
             </Button>
           </form>
