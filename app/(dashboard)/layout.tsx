@@ -1,25 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import { use, useState, Suspense } from 'react';
+import { Suspense, use, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { EggFried, Home, LogOut } from 'lucide-react';
+import { EggFried, Home, LogOut, MessageSquare, Settings, Users } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUser } from '@/lib/auth';
 import { signOut } from '@/app/(login)/actions';
 import { useRouter } from 'next/navigation';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { AnimatedMenuIcon } from '@/components/ui/animated-menu-icon';
 
 function UserMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { userPromise } = useUser();
   const user = use(userPromise);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const navItems = [
+    { href: '/dashboard/chat', icon: MessageSquare, label: 'Chat' },
+    { href: '/dashboard', icon: Users, label: 'User Settings' },
+    { href: '/dashboard/general', icon: Settings, label: 'General' },
+  ];
 
   async function handleSignOut() {
     await signOut();
@@ -47,35 +58,57 @@ function UserMenu() {
   }
 
   return (
-    <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-      <DropdownMenuTrigger>
-        <Avatar className="cursor-pointer size-9">
-          <AvatarImage alt={user.name || ''} />
-          <AvatarFallback>
-            {user.email
-              .split(' ')
-              .map((n) => n[0])
-              .join('')}
-          </AvatarFallback>
-        </Avatar>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="flex flex-col gap-1">
-        <DropdownMenuItem className="cursor-pointer">
-          <Link href="/dashboard" className="flex w-full items-center">
-            <Home className="mr-2 h-4 w-4" />
-            <span>Dashboard</span>
-          </Link>
-        </DropdownMenuItem>
-        <form action={handleSignOut} className="w-full">
-          <button type="submit" className="flex w-full">
-            <DropdownMenuItem className="w-full flex-1 cursor-pointer">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sign out</span>
+    <div className="flex items-center gap-2">
+      <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="icon"
+          >
+            <AnimatedMenuIcon isOpen={isMenuOpen} />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <div className="py-4 flex flex-col items-center gap-2">
+            <Avatar className="size-16">
+              <AvatarImage alt={user.name || ''} />
+              <AvatarFallback>
+                {user.email
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium">{user.name || user.email}</span>
+          </div>
+          <DropdownMenuSeparator />
+          {navItems.map((item) => (
+            <DropdownMenuItem
+              key={item.href}
+              className="cursor-pointer"
+              asChild
+            >
+              <Link 
+                href={item.href}
+                className="flex items-center w-full"
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                <span>{item.label}</span>
+              </Link>
             </DropdownMenuItem>
-          </button>
-        </form>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          ))}
+          <DropdownMenuSeparator />
+          <form action={handleSignOut} className="w-full">
+            <button type="submit" className="flex w-full">
+              <DropdownMenuItem className="w-full flex-1 cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </button>
+          </form>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 

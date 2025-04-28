@@ -211,11 +211,11 @@ function ChatPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] p-4">
+    <div className="h-full p-4">
       <Card className="h-full flex flex-col">
         <div 
           ref={messagesContainerRef}
-          className={`flex-1 p-4 ${messages.length > 0 ? 'overflow-y-auto space-y-4' : ''} scroll-smooth`}
+          className={`flex-1 p-4 ${messages.length > 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}
         >
           {messages.length === 0 && (
             <div className="flex items-center justify-center h-full">
