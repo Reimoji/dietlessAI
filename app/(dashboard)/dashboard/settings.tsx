@@ -62,234 +62,240 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
   };
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
-      <h1 className="text-lg lg:text-2xl font-medium mb-6">User Settings</h1>
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>User Subscription</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-              <div className="mb-4 sm:mb-0">
-                <p className="font-medium">
-                  Current Plan: {teamData.planName || 'Free'}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {teamData.subscriptionStatus === 'active'
-                    ? 'Active subscription'
-                    : teamData.subscriptionStatus === 'trialing'
-                      ? 'Trial period'
-                      : 'No active subscription'}
-                </p>
-              </div>
-              <form action={customerPortalAction}>
-                <Button type="submit" variant="outline">
-                  Manage Subscription
-                </Button>
-              </form>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>User</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-4">
-            {teamData.teamMembers.map((member) => (
-              <li key={member.id} className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarImage
-                      src={`/placeholder.svg?height=32&width=32`}
-                      alt={getUserDisplayName(member.user)}
-                    />
-                    <AvatarFallback>
-                      {getUserDisplayName(member.user)
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
+    <section className="flex-1 overflow-y-auto h-[calc(100vh-4rem)]"> {/* Adjust 4rem based on your header height */}
+      <div className="p-4 lg:p-8">
+        <h1 className="text-lg lg:text-2xl font-medium mb-6">User Settings</h1>
+        
+        {/* All your Card components wrapped in this div */}
+        <div className="space-y-8">
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>User Subscription</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                  <div className="mb-4 sm:mb-0">
                     <p className="font-medium">
-                      {getUserDisplayName(member.user)}
+                      Current Plan: {teamData.planName || 'Free'}
                     </p>
-                    <p className="text-sm text-muted-foreground capitalize">
-                      {member.role}
+                    <p className="text-sm text-muted-foreground">
+                      {teamData.subscriptionStatus === 'active'
+                        ? 'Active subscription'
+                        : teamData.subscriptionStatus === 'trialing'
+                          ? 'Trial period'
+                          : 'No active subscription'}
                     </p>
                   </div>
+                  <form action={customerPortalAction}>
+                    <Button type="submit" variant="outline">
+                      Manage Subscription
+                    </Button>
+                  </form>
                 </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>User</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-4">
+                {teamData.teamMembers.map((member) => (
+                  <li key={member.id} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <Avatar>
+                        <AvatarImage
+                          src={`/placeholder.svg?height=32&width=32`}
+                          alt={getUserDisplayName(member.user)}
+                        />
+                        <AvatarFallback>
+                          {getUserDisplayName(member.user)
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">
+                          {getUserDisplayName(member.user)}
+                        </p>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {member.role}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
 
-      {/* Password Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Password</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={handlePasswordSubmit}>
-            <div>
-              <Label htmlFor="current-password">Current Password</Label>
-              <Input
-                id="current-password"
-                name="currentPassword"
-                type="password"
-                autoComplete="current-password"
-                required
-                minLength={8}
-                maxLength={100}
-              />
-            </div>
-            <div>
-              <Label htmlFor="new-password">New Password</Label>
-              <Input
-                id="new-password"
-                name="newPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                maxLength={100}
-              />
-            </div>
-            <div>
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
-              <Input
-                id="confirm-password"
-                name="confirmPassword"
-                type="password"
-                required
-                minLength={8}
-                maxLength={100}
-              />
-            </div>
-            {passwordState.error && (
-              <p className="text-red-500 text-sm">{passwordState.error}</p>
-            )}
-            {passwordState.success && (
-              <p className="text-green-500 text-sm">{passwordState.success}</p>
-            )}
-            <Button
-              type="submit"
-              className="bg-orange-500 hover:bg-orange-600 text-white"
-              disabled={isPasswordPending}
-            >
-              {isPasswordPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                <>
-                  <Lock className="mr-2 h-4 w-4" />
-                  Update Password
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          {/* Password Section */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Password</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form className="space-y-4" onSubmit={handlePasswordSubmit}>
+                <div>
+                  <Label htmlFor="current-password">Current Password</Label>
+                  <Input
+                    id="current-password"
+                    name="currentPassword"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    minLength={8}
+                    maxLength={100}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="new-password">New Password</Label>
+                  <Input
+                    id="new-password"
+                    name="newPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    maxLength={100}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Input
+                    id="confirm-password"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    minLength={8}
+                    maxLength={100}
+                  />
+                </div>
+                {passwordState.error && (
+                  <p className="text-red-500 text-sm">{passwordState.error}</p>
+                )}
+                {passwordState.success && (
+                  <p className="text-green-500 text-sm">{passwordState.success}</p>
+                )}
+                <Button
+                  type="submit"
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
+                  disabled={isPasswordPending}
+                >
+                  {isPasswordPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="mr-2 h-4 w-4" />
+                      Update Password
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
-      {/* Delete Chat History Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Delete Chat History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500 mb-4">
-            Chat history deletion is non-reversable. Please proceed with caution.
-          </p>
-          <form onSubmit={handleDeleteChatSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="delete-chat-password">Confirm Password</Label>
-              <Input
-                id="delete-chat-password"
-                name="password"
-                type="password"
-                required
-                minLength={8}
-                maxLength={100}
-              />
-            </div>
-            {deleteChatState.error && (
-              <p className="text-red-500 text-sm">{deleteChatState.error}</p>
-            )}
-            {deleteChatState.success && (
-              <p className="text-green-500 text-sm">{deleteChatState.success}</p>
-            )}
-            <Button 
-              variant="destructive" 
-              type="submit" 
-              disabled={isDeleteChatPending}
-            >
-              {isDeleteChatPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Shredder className="mr-2 h-4 w-4" />
-                  Delete Chat History
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          {/* Delete Chat History Section */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Delete Chat History</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500 mb-4">
+                Chat history deletion is non-reversable. Please proceed with caution.
+              </p>
+              <form onSubmit={handleDeleteChatSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="delete-chat-password">Confirm Password</Label>
+                  <Input
+                    id="delete-chat-password"
+                    name="password"
+                    type="password"
+                    required
+                    minLength={8}
+                    maxLength={100}
+                  />
+                </div>
+                {deleteChatState.error && (
+                  <p className="text-red-500 text-sm">{deleteChatState.error}</p>
+                )}
+                {deleteChatState.success && (
+                  <p className="text-green-500 text-sm">{deleteChatState.success}</p>
+                )}
+                <Button 
+                  variant="destructive" 
+                  type="submit" 
+                  disabled={isDeleteChatPending}
+                >
+                  {isDeleteChatPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Shredder className="mr-2 h-4 w-4" />
+                      Delete Chat History
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
-      {/* Delete Account Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Delete Account</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500 mb-4">
-            Account deletion is non-reversable. Please proceed with caution.
-          </p>
-          <form onSubmit={handleDeleteSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="delete-password">Confirm Password</Label>
-              <Input
-                id="delete-password"
-                name="password"
-                type="password"
-                required
-                minLength={8}
-                maxLength={100}
-              />
-            </div>
-            {deleteState.error && (
-              <p className="text-red-500 text-sm">{deleteState.error}</p>
-            )}
-            <Button
-              type="submit"
-              variant="destructive"
-              className="bg-red-600 hover:bg-red-700"
-              disabled={isDeletePending}
-            >
-              {isDeletePending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Account
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          {/* Delete Account Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Delete Account</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500 mb-4">
+                Account deletion is non-reversable. Please proceed with caution.
+              </p>
+              <form onSubmit={handleDeleteSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="delete-password">Confirm Password</Label>
+                  <Input
+                    id="delete-password"
+                    name="password"
+                    type="password"
+                    required
+                    minLength={8}
+                    maxLength={100}
+                  />
+                </div>
+                {deleteState.error && (
+                  <p className="text-red-500 text-sm">{deleteState.error}</p>
+                )}
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700"
+                  disabled={isDeletePending}
+                >
+                  {isDeletePending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Account
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </section>
   );
 }

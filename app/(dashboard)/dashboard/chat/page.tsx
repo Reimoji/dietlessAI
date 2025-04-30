@@ -1,12 +1,14 @@
+
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, KeyboardEvent } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import { useChatStore } from '@/lib/stores/chat';
 import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2 } from 'lucide-react';
+import { Loader2, SendHorizontal } from 'lucide-react';
 
 function SubscriptionRequired() {
   const router = useRouter();
@@ -274,22 +276,31 @@ function ChatPage() {
         </div>
         
         <form onSubmit={handleSubmit} className="border-t border-border p-4">
-          <div className="flex gap-2">
-            <input
-              type="text"
+          <div className="flex items-center gap-2">
+            <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
               placeholder="Ask anything..."
-              className="flex-1 rounded-lg border border-input bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
+              className="min-h-[40px] max-h-[96px] resize-none overflow-auto leading-[24px] py-2"
               disabled={isLoading}
             />
             <Button 
               type="submit"
+              size="icon"
               disabled={isLoading}
-              className="flex items-center gap-2"
+              className="h-10 w-10 shrink-0 rounded-full transition-transform duration-200 hover:scale-110 active:scale-95"
             >
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isLoading ? 'Sending...' : 'Send'}
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <SendHorizontal className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              )}
             </Button>
           </div>
         </form>
