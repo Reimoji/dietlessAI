@@ -47,10 +47,7 @@ export default async function HomePage() {
                 Personalized Meal Plans That Evolve with Your Lifestyle—No Guesswork, No Strict Rules, Just Sustainable Results
               </p>
               <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
-                <a
-                  href="https://vercel.com/templates/next.js/next-js-saas-starter"
-                  target="_blank"
-                >
+                <a href="#pricing">
                   <Button className="bg-background hover:bg-primary text-foreground hover:text-secondary cursor-pointer border border-border rounded-full text-lg px-8 py-4 inline-flex items-center justify-center">
                     Get Started
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -119,7 +116,7 @@ export default async function HomePage() {
           <h2 className="text-3xl font-bold text-center mb-20 text-foreground">Science You Can Trust</h2>
             <p className="text-base text-muted-foreground text-center max-w-3xl mx-auto mb-12">Dietless AI is built on a foundation of the most respected and credible nutrition science. It combines insights from evidence-based dietary principles, ensuring every recommendation aligns with proven strategies for weight loss and healthy living. No fads, no guesswork—just reliable guidance for achieving your goals.</p>
             <div className="flex justify-center mb-12">
-              <a href="https://vercel.com/templates/next.js/next-js-saas-starter" target="_blank">
+              <a href="#pricing">
                 <Button className="bg-background hover:bg-primary text-foreground hover:text-secondary cursor-pointer border border-border rounded-full text-lg px-8 py-4 inline-flex items-center justify-center">
                   Get Started
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -264,11 +261,13 @@ export default async function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <PricingSection
-        prices={prices}
-        products={products}
-        checkoutAction={checkoutAction}
-      />
+      <section id="pricing" className="py-24 bg-background">
+        <PricingSection
+          prices={prices}
+          products={products}
+          checkoutAction={checkoutAction}
+        />
+      </section>
 
       {/* FAQ Section */}
       <section className="py-24 bg-background">
