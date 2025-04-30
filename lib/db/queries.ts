@@ -60,6 +60,7 @@ export async function updateTeamSubscription(
     .set({
       ...subscriptionData,
       updatedAt: new Date(),
+      subscriptionStatus: subscriptionData.subscriptionStatus as "active" | "trialing" | "base" | "canceled" | "unpaid"
     })
     .where(eq(teams.id, teamId));
 }
