@@ -76,6 +76,18 @@ export async function GET(request: NextRequest) {
       throw new Error('User is not associated with any team.');
     }
 
+    const trialEndsAt = subscription.trial_end 
+      ? new Date(subscription.trial_end * 1000) 
+      : null;
+      
+    const nextBillingDate = subscription.current_period_end 
+      ? new Date(subscription.current_period_end * 1000) 
+      : null;
+      
+    const subscriptionEndDate = subscription.cancel_at_period_end && subscription.current_period_end
+      ? new Date(subscription.current_period_end * 1000)
+      : null;
+
     await db
       .update(teams)
       .set({
@@ -84,6 +96,9 @@ export async function GET(request: NextRequest) {
         stripeProductId: productId,
         planName: (plan.product as Stripe.Product).name,
         subscriptionStatus: subscription.status,
+        trialEndsAt,
+        nextBillingDate,
+        subscriptionEndDate,
         updatedAt: new Date(),
       })
       .where(eq(teams.id, userTeam[0].teamId));

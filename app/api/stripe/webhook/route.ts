@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
 
   try {
     event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+    console.log('Received webhook event:', event.type);
   } catch (err) {
     console.error('Webhook signature verification failed.', err);
     return NextResponse.json(
@@ -21,9 +22,17 @@ export async function POST(request: NextRequest) {
   }
 
   switch (event.type) {
+    case 'customer.subscription.created':
     case 'customer.subscription.updated':
     case 'customer.subscription.deleted':
       const subscription = event.data.object as Stripe.Subscription;
+      console.log('Subscription data received:', {
+        id: subscription.id,
+        status: subscription.status,
+        trial_end: subscription.trial_end,
+        current_period_end: subscription.current_period_end,
+        cancel_at_period_end: subscription.cancel_at_period_end
+      });
       await handleSubscriptionChange(subscription);
       break;
     default:

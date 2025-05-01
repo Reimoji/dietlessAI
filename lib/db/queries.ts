@@ -1,8 +1,21 @@
 import { desc, and, eq, isNull } from 'drizzle-orm';
 import { db } from './drizzle';
-import { activityLogs, teamMembers, teams, users } from './schema';
+import { activityLogs, TeamDataWithMembers, teamMembers, TeamMemberWithUser, teams, users } from './schema';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
+
+// Helper function to format date without time
+function formatDateString(date: Date | null): string | null {
+  if (!date) return null;
+  
+  try {
+    // Convert to ISO string and extract just the date part (YYYY-MM-DD)
+    return date.toISOString().split('T')[0];
+  } catch (e) {
+    console.error('Error formatting date:', e);
+    return null;
+  }
+}
 
 export async function getUser() {
   const sessionCookie = (await cookies()).get('session');
@@ -53,14 +66,22 @@ export async function updateTeamSubscription(
     stripeProductId: string | null;
     planName: string | null;
     subscriptionStatus: string;
+    trialEndsAt?: Date | null;
+    nextBillingDate?: Date | null;
+    subscriptionEndDate?: Date | null;
   }
 ) {
   await db
     .update(teams)
     .set({
-      ...subscriptionData,
+      stripeSubscriptionId: subscriptionData.stripeSubscriptionId,
+      stripeProductId: subscriptionData.stripeProductId,
+      planName: subscriptionData.planName,
+      subscriptionStatus: subscriptionData.subscriptionStatus as any,
+      trialEndsAt: subscriptionData.trialEndsAt || null,
+      nextBillingDate: subscriptionData.nextBillingDate || null,
+      subscriptionEndDate: subscriptionData.subscriptionEndDate || null,
       updatedAt: new Date(),
-      subscriptionStatus: subscriptionData.subscriptionStatus as "active" | "trialing" | "base" | "canceled" | "unpaid"
     })
     .where(eq(teams.id, teamId));
 }
@@ -100,31 +121,89 @@ export async function getActivityLogs() {
     .limit(10);
 }
 
-export async function getTeamForUser(userId: number) {
-  const result = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-    with: {
-      teamMembers: {
-        with: {
-          team: {
-            with: {
-              teamMembers: {
-                with: {
-                  user: {
-                    columns: {
-                      id: true,
-                      name: true,
-                      email: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+export async function getTeamForUser(userId: number): Promise<TeamDataWithMembers | null> {
+  try {
+    console.log('Fetching team for user:', userId);
+    
+    const teamMember = await db.query.teamMembers.findFirst({
+      where: eq(teamMembers.userId, userId),
+      with: {
+        team: true,
+        user: true
+      }
+    });
+    
+    if (!teamMember?.team) {
+      console.log('No team found for user:', userId);
+      return null;
+    }
+    
+    console.log('Raw team data:', {
+      trialEndsAt: teamMember.team.trialEndsAt,
+      nextBillingDate: teamMember.team.nextBillingDate,
+      subscriptionEndDate: teamMember.team.subscriptionEndDate
+    });
+    
+    // Format the dates
+    const formattedTrialEndsAt = formatDateString(teamMember.team.trialEndsAt);
+    const formattedNextBillingDate = formatDateString(teamMember.team.nextBillingDate);
+    const formattedSubscriptionEndDate = formatDateString(teamMember.team.subscriptionEndDate);
+    
+    console.log('Formatted dates:', {
+      trialEndsAt: formattedTrialEndsAt,
+      nextBillingDate: formattedNextBillingDate,
+      subscriptionEndDate: formattedSubscriptionEndDate
+    });
+    
+    // Get all team members for this team
+    const allTeamMembers = await db.query.teamMembers.findMany({
+      where: eq(teamMembers.teamId, teamMember.team.id),
+      with: {
+        user: {
+          columns: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
 
-  return result?.teamMembers[0]?.team || null;
+    // Explicitly cast to TeamMemberWithUser[]
+    const mappedTeamMembers: TeamMemberWithUser[] = allTeamMembers.map(member => ({
+      id: member.id,
+      userId: member.userId,
+      teamId: member.teamId,
+      role: member.role,
+      joinedAt: member.joinedAt,
+      user: {
+        id: member.user.id,
+        name: member.user.name,
+        email: member.user.email
+      }
+    }));
+
+    const result = {
+      id: String(teamMember.team.id),
+      name: teamMember.team.name,
+      stripeCustomerId: teamMember.team.stripeCustomerId,
+      stripeSubscriptionId: teamMember.team.stripeSubscriptionId,
+      stripeProductId: teamMember.team.stripeProductId,
+      planName: teamMember.team.planName,
+      subscriptionStatus: teamMember.team.subscriptionStatus,
+      trialEndsAt: formattedTrialEndsAt,
+      nextBillingDate: formattedNextBillingDate,
+      subscriptionEndDate: formattedSubscriptionEndDate,
+      teamMembers: mappedTeamMembers
+    };
+    
+    console.log('Final result object:', result);
+    
+    return result;
+  } catch (error) {
+    console.error('Error in getTeamForUser:', error);
+    throw error;
+  }
 }
+// The formatDateString function is now at the top of the file
+

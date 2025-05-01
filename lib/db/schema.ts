@@ -23,16 +23,16 @@ export const users = pgTable('users', {
 export const teams = pgTable('teams', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
+  stripeCustomerId: varchar('stripe_customer_id', { length: 100 }),
+  stripeSubscriptionId: varchar('stripe_subscription_id', { length: 100 }),
+  stripeProductId: varchar('stripe_product_id', { length: 100 }),
+  planName: varchar('plan_name', { length: 100 }),
+  subscriptionStatus: varchar('subscription_status', { length: 20 }),
+  trialEndsAt: timestamp('trial_ends_at'),
+  nextBillingDate: timestamp('next_billing_date'),
+  subscriptionEndDate: timestamp('subscription_end_date'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  stripeCustomerId: text('stripe_customer_id').unique(),
-  stripeSubscriptionId: text('stripe_subscription_id').unique(),
-  stripeProductId: text('stripe_product_id'),
-  planName: varchar('plan_name', { length: 50 }),
-  subscriptionStatus: varchar('subscription_status', { 
-    length: 20,
-    enum: ['active', 'trialing', 'base', 'canceled', 'unpaid']
-  }),
 });
 
 export const teamMembers = pgTable('team_members', {
@@ -126,10 +126,31 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 export type NewActivityLog = typeof activityLogs.$inferInsert;
 export type Invitation = typeof invitations.$inferSelect;
 export type NewInvitation = typeof invitations.$inferInsert;
-export type TeamDataWithMembers = Team & {
-  teamMembers: (TeamMember & {
-    user: Pick<User, 'id' | 'name' | 'email'>;
-  })[];
+export type TeamMemberWithUser = {
+  id: number;
+  userId: number;
+  teamId: number;
+  role: string;
+  joinedAt: Date;
+  user: {
+    id: number;
+    name: string | null;
+    email: string; // Changed from string | null to string
+  };
+};
+
+export type TeamDataWithMembers = {
+  id: string;
+  name: string;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  stripeProductId?: string | null;
+  planName?: string | null;
+  subscriptionStatus?: string | null;
+  trialEndsAt?: string | null;
+  nextBillingDate?: string | null;
+  subscriptionEndDate?: string | null;
+  teamMembers: TeamMemberWithUser[];
 };
 
 export enum ActivityType {

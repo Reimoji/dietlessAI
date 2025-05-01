@@ -1,15 +1,30 @@
 import Stripe from 'stripe';
 import { redirect } from 'next/navigation';
-import { Team } from '@/lib/db/schema';
+import { Team, teams } from '@/lib/db/schema';
 import {
   getTeamByStripeCustomerId,
   getUser,
   updateTeamSubscription
 } from '@/lib/db/queries';
+import { db } from '../db/drizzle';
+import { eq } from 'drizzle-orm';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia'
 });
+
+// Helper function to get date only (no time) from timestamp
+function getDateOnly(timestamp: number | null): Date | null {
+  if (!timestamp) return null;
+  
+  const date = new Date(timestamp * 1000);
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  
+  // Create a new date with only year, month, day (no time)
+  return new Date(year, month, day);
+}
 
 export async function createCheckoutSession({
   team,
@@ -24,6 +39,18 @@ export async function createCheckoutSession({
     redirect(`/sign-up?redirect=checkout&priceId=${priceId}`);
   }
 
+  // Check if the team already has an active subscription
+  if (team.stripeSubscriptionId && 
+      ['active', 'trialing', 'incomplete'].includes(team.subscriptionStatus || '')) {
+    console.log('User already has an active subscription, redirecting to customer portal');
+    
+    // Create a customer portal session instead
+    const portalSession = await createCustomerPortalSession(team);
+    redirect(portalSession.url);
+    return;
+  }
+
+  // Continue with checkout session creation for new subscribers
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [
@@ -118,6 +145,14 @@ export async function handleSubscriptionChange(
   const subscriptionId = subscription.id;
   const status = subscription.status;
 
+  console.log('Processing subscription change:', {
+    subscriptionId,
+    status,
+    trial_end: subscription.trial_end,
+    current_period_end: subscription.current_period_end,
+    cancel_at_period_end: subscription.cancel_at_period_end
+  });
+
   const team = await getTeamByStripeCustomerId(customerId);
 
   if (!team) {
@@ -127,19 +162,65 @@ export async function handleSubscriptionChange(
 
   if (status === 'active' || status === 'trialing') {
     const plan = subscription.items.data[0]?.plan;
-    await updateTeamSubscription(team.id, {
-      stripeSubscriptionId: subscriptionId,
-      stripeProductId: plan?.product as string,
-      planName: (plan?.product as Stripe.Product).name,
-      subscriptionStatus: status
+    
+    // Get product details
+    let productId = plan?.product as string;
+    let productName = null;
+    
+    if (productId) {
+      try {
+        const product = await stripe.products.retrieve(productId);
+        productName = product.name;
+      } catch (error) {
+        console.error('Error retrieving product:', error);
+      }
+    }
+    
+    // Calculate dates - only store the date part, not the time
+    const trialEndsAt = getDateOnly(subscription.trial_end);
+    const nextBillingDate = getDateOnly(subscription.current_period_end);
+    const subscriptionEndDate = subscription.cancel_at_period_end ? 
+      getDateOnly(subscription.current_period_end) : null;
+    
+    console.log('Updating subscription with dates (date only):', {
+      trialEndsAt,
+      nextBillingDate,
+      subscriptionEndDate
     });
+    
+    // Update the team subscription in the database
+    await db
+      .update(teams)
+      .set({
+        stripeSubscriptionId: subscriptionId,
+        stripeProductId: productId,
+        planName: productName,
+        subscriptionStatus: status,
+        trialEndsAt: trialEndsAt,
+        nextBillingDate: nextBillingDate,
+        subscriptionEndDate: subscriptionEndDate,
+        updatedAt: new Date()
+      })
+      .where(eq(teams.id, team.id));
+      
+    console.log('Subscription updated successfully for team:', team.id);
   } else if (status === 'canceled' || status === 'unpaid') {
-    await updateTeamSubscription(team.id, {
-      stripeSubscriptionId: null,
-      stripeProductId: null,
-      planName: null,
-      subscriptionStatus: status
-    });
+    // Handle cancellation
+    await db
+      .update(teams)
+      .set({
+        stripeSubscriptionId: null,
+        stripeProductId: null,
+        planName: null,
+        subscriptionStatus: status,
+        trialEndsAt: null,
+        nextBillingDate: null,
+        subscriptionEndDate: null,
+        updatedAt: new Date()
+      })
+      .where(eq(teams.id, team.id));
+      
+    console.log('Subscription canceled for team:', team.id);
   }
 }
 

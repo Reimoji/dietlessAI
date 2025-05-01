@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { customerPortalAction } from '@/lib/payments/actions';
 import { useActionState } from 'react';
-import { TeamDataWithMembers, User } from '@/lib/db/schema';
+import { TeamDataWithMembers, TeamMemberWithUser, User } from '@/lib/db/schema';
 import { updatePassword, deleteAccount, deleteChatHistory } from '@/app/(login)/actions';
 import { Lock, Shredder, Loader2, Trash2 } from 'lucide-react';
 import { startTransition } from 'react';
@@ -18,7 +18,11 @@ type ActionState = {
 };
 
 export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
-  const getUserDisplayName = (user: Pick<User, 'id' | 'name' | 'email'>) => {
+  const getUserDisplayName = (user: { 
+    id: number; 
+    name: string | null; 
+    email: string | null; 
+  }) => {
     return user.name || user.email || 'Unknown User';
   };
 
@@ -74,24 +78,43 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                  <div className="mb-4 sm:mb-0">
-                    <p className="font-medium">
+                <div className="flex flex-col sm:flex-row justify-between">
+                  <div className="mb-4 sm:mb-0 sm:w-1/2 sm:self-start">
+                    <Label className="block mb-1">
                       Current Plan: {teamData.planName || 'Free'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {teamData.subscriptionStatus === 'active'
-                        ? 'Active subscription'
-                        : teamData.subscriptionStatus === 'trialing'
-                          ? 'Trial period'
-                          : 'No active subscription'}
-                    </p>
+                    </Label>
+                    <div className="text-sm text-muted-foreground">
+                      {teamData.subscriptionStatus === 'active' && (
+                        <p>Active subscription</p>
+                      )}
+                      {teamData.subscriptionStatus === 'trialing' && (
+                        <p>Trial is currently active</p>
+                      )}
+                      {teamData.trialEndsAt && teamData.subscriptionStatus === 'trialing' && (
+                        <p>{new Date(teamData.trialEndsAt).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}</p>
+                      )}
+                      {teamData.nextBillingDate && (
+                        <p>Next billing date: {teamData.nextBillingDate}</p>
+                      )}
+                      {teamData.subscriptionStatus === 'canceled' && teamData.subscriptionEndDate && (
+                        <p>Access until: {teamData.subscriptionEndDate}</p>
+                      )}
+                    </div>
                   </div>
-                  <form action={customerPortalAction}>
-                    <Button type="submit" variant="outline">
-                      Manage Subscription
-                    </Button>
-                  </form>
+                  <div className="sm:ml-auto sm:w-1/3">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Manage your subscription, update payment methods, or change your plan.
+                    </p>
+                    <form action={customerPortalAction}>
+                      <Button type="submit" variant="outline">
+                        Manage Subscription
+                      </Button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -102,7 +125,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
             </CardHeader>
             <CardContent>
               <ul className="space-y-4">
-                {teamData.teamMembers.map((member) => (
+                {teamData.teamMembers.map((member: TeamMemberWithUser) => (
                   <li key={member.id} className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <Avatar>
