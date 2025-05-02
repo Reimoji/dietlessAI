@@ -103,6 +103,8 @@ function ChatPage() {
         console.error('Failed to load messages:', error);
       } finally {
         setIsInitialLoading(false);
+        // Add immediate scroll after loading completes
+        setTimeout(scrollToBottom, 0);
       }
     };
 
