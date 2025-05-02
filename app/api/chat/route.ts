@@ -14,12 +14,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check if this is the first message in the conversation
+    // We determine this by checking if there's only one message (the current user message)
+    const isFirstMessage = messages.length === 1 && messages[0].role === 'user';
+
     const openAIMessages = messages.map(msg => ({
       role: msg.role,
       content: msg.content
     }));
 
-    const response = await getChatCompletion(openAIMessages);
+    // Get response from OpenAI, including system prompt if it's the first message
+    const response = await getChatCompletion(openAIMessages, isFirstMessage);
 
     if (response.error) {
       return NextResponse.json(
