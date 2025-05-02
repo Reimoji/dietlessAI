@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { ChatMessage, chatMessages, chats } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth/session';
-import { eq, desc, asc } from 'drizzle-orm';
+import { eq, desc, asc, inArray } from 'drizzle-orm';
 import { Message } from '@/lib/types/chat';
 import { teams, teamMembers } from '@/lib/db/schema';
 
@@ -92,13 +92,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get or create a chat for the user
-    let chat = await db.query.chats.findFirst({
-      where: (chats, { eq }) => eq(chats.userId, session.user.id),
-      orderBy: (chats, { desc }) => [desc(chats.createdAt)]
-    });
+    // Get all chats for the user
+    const userChats = await db
+      .select()
+      .from(chats)
+      .where(eq(chats.userId, session.user.id))
+      .orderBy(desc(chats.createdAt));
 
-    if (!chat) {
+    let chat;
+    
+    // If no chats exist, create a new one
+    if (userChats.length === 0) {
       const [newChat] = await db
         .insert(chats)
         .values({
@@ -106,6 +110,24 @@ export async function POST(request: Request) {
         })
         .returning();
       chat = newChat;
+    } else {
+      // Use the most recent chat
+      chat = userChats[0];
+      
+      // If there are multiple chats, delete the extras
+      if (userChats.length > 1) {
+        const extraChatIds = userChats.slice(1).map(c => c.id);
+        
+        // First delete messages from extra chats
+        await db
+          .delete(chatMessages)
+          .where(inArray(chatMessages.chatId, extraChatIds));
+          
+        // Then delete the extra chats
+        await db
+          .delete(chats)
+          .where(inArray(chats.id, extraChatIds));
+      }
     }
 
     // Ensure proper date handling

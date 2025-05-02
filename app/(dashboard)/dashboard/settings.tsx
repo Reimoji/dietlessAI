@@ -11,6 +11,7 @@ import { TeamDataWithMembers, TeamMemberWithUser, User } from '@/lib/db/schema';
 import { updatePassword, deleteAccount, deleteChatHistory } from '@/app/(login)/actions';
 import { Lock, Shredder, Loader2, Trash2 } from 'lucide-react';
 import { startTransition } from 'react';
+import { useEffect } from 'react';
 
 type ActionState = {
   error?: string;
@@ -57,13 +58,20 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
 
   const handleDeleteChatSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await deleteChatAction(new FormData(event.currentTarget));
+    startTransition(() => {
+      deleteChatAction(new FormData(event.currentTarget));
+    });
     
-    // Clear the form if successful
-    if (deleteChatState.success) {
-      (event.target as HTMLFormElement).reset();
-    }
+    // Note: We'll need to move this inside a useEffect that watches deleteChatState.success
+    // instead of doing it here directly
   };
+
+  useEffect(() => {
+    if (deleteChatState.success) {
+      const form = document.getElementById('delete-chat-form') as HTMLFormElement;
+      if (form) form.reset();
+    }
+  }, [deleteChatState.success]);
 
   return (
     <section className="flex-1 overflow-y-auto h-[calc(100vh-4rem)]"> {/* Adjust 4rem based on your header height */}
@@ -233,7 +241,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
               <p className="text-sm text-gray-500 mb-4">
                 Chat history deletion is non-reversable. Please proceed with caution.
               </p>
-              <form onSubmit={handleDeleteChatSubmit} className="space-y-4">
+              <form id="delete-chat-form" onSubmit={handleDeleteChatSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="delete-chat-password">Confirm Password</Label>
                   <Input

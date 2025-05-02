@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, sql, inArray } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import {
   User,
@@ -459,16 +459,23 @@ export const deleteChatHistory = validatedActionWithUser(
     }
 
     try {
-      // Delete all chat messages first
-      await db
-        .delete(chatMessages)
-        .where(
-          eq(chatMessages.chatId, 
-            db.select({ id: chats.id })
-              .from(chats)
-              .where(eq(chats.userId, user.id))
-          )
-        );
+      // Find all chat IDs for this user
+      const userChats = await db
+        .select({ id: chats.id })
+        .from(chats)
+        .where(eq(chats.userId, user.id));
+      
+      const chatIds = userChats.map(chat => chat.id);
+      
+      // Only proceed if we found chats
+      if (chatIds.length > 0) {
+        // Delete all chat messages for all user's chats
+        await db
+          .delete(chatMessages)
+          .where(
+            inArray(chatMessages.chatId, chatIds)
+          );
+      }
 
       // Then delete all chats for this user
       await db
