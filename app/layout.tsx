@@ -4,6 +4,7 @@ import { Manrope } from 'next/font/google';
 import { UserProvider } from '@/lib/auth';
 import { getUser } from '@/lib/db/queries';
 import { NavigationProgress } from '@/components/ui/navigation-progress';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'dietlessAI',
@@ -31,6 +32,14 @@ export default function RootLayout({
       <body className="min-h-[100dvh] bg-gray-50">
         <NavigationProgress />
         <UserProvider userPromise={userPromise}>{children}</UserProvider>
+        <Toaster 
+          position="bottom-center" 
+          closeButton
+          theme="system"
+          richColors
+          duration={5000}  // Default duration for regular toasts
+          visibleToasts={3} // Show up to 3 toasts at once
+        />
       </body>
     </html>
   );

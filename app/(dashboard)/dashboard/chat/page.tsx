@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useChatStore } from '@/lib/stores/chat';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, SendHorizontal } from 'lucide-react';
+import { toast } from 'sonner';
 
 function SubscriptionRequired() {
   const router = useRouter();
@@ -103,8 +104,6 @@ function ChatPage() {
         console.error('Failed to load messages:', error);
       } finally {
         setIsInitialLoading(false);
-        // Add immediate scroll after loading completes
-        setTimeout(scrollToBottom, 0);
       }
     };
 
@@ -124,53 +123,105 @@ function ChatPage() {
     };
   }, [isLoading]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Extract the core submission logic
+  const submitMessage = async () => {
     if (!input.trim() || isLoading) return;
-
+    
+    setLoading(true);
+    
+    // Add user message to UI immediately
     const userMessage = {
-      content: input.trim(),
+      content: input,
       role: 'user' as const,
-      createdAt: new Date().toISOString() // Ensure we send ISO string
+      createdAt: new Date()
     };
-
+    addMessage(userMessage);
+    setInput('');
+    
+    // Prepare messages for API
+    const validMessages = [...messages, userMessage].filter(
+      msg => msg.content && msg.role
+    );
+    
     try {
-      setLoading(true);
-      addMessage({
-        ...userMessage,
-        createdAt: new Date()
-      });
-      setInput('');
-
-      // Save user message
-      const messageResponse = await fetch('/api/chat/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage })
-      });
-
-      if (!messageResponse.ok) {
-        throw new Error('Failed to save message');
+      // Estimate tokens before sending
+      const estimatedTokens = input.length / 4;
+      console.log(`Estimated tokens: ${estimatedTokens}`);
+      
+      // Client-side validation first
+      if (estimatedTokens > 600) { // MAX_INPUT_TOKENS
+        toast.error("Your message is too long. Please shorten it a bit.");
+        setLoading(false);
+        return;
       }
-
-      // Get AI response
+      
       const chatResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMessage]
-        }),
+        body: JSON.stringify({ messages: validMessages }),
       });
-
+      
+      const data = await chatResponse.json();
+      
+      // Improved error handling
       if (!chatResponse.ok) {
-        throw new Error('Failed to get AI response');
+        console.log('Error response:', { status: chatResponse.status, data });
+        
+        if (data.errorType === 'message_too_long') {
+          toast.error("Your message is too long. Please shorten it a bit.");
+          setLoading(false);
+          return;
+        } else if (data.errorType === 'monthly_limit_exceeded') {
+          toast.error("You've reached your monthly token limit. Try implementing some of the nutrition and fitness advice we've discussed!");
+          setLoading(false);
+          return;
+        }
+        
+        throw new Error(data.error || 'Failed to get AI response');
+      }
+      
+      // Show warning if approaching token limit - make it persistent
+      if (data.warning && data.warningLevel) {
+        // Different toast styles based on warning level
+        switch(data.warningLevel) {
+          case 'critical':
+            toast.error(data.warning, {
+              duration: Infinity,
+              dismissible: true,
+            });
+            break;
+          case 'high':
+            toast.warning(data.warning, {
+              duration: Infinity,
+              dismissible: true,
+            });
+            break;
+          case 'medium':
+            toast.warning(data.warning, {
+              duration: Infinity,
+              dismissible: true,
+            });
+            break;
+          case 'low':
+            toast.info(data.warning, {
+              duration: Infinity,
+              dismissible: true,
+            });
+            break;
+          // Don't show any toast for 'none' or undefined warning levels
+        }
       }
 
-      const data = await chatResponse.json();
       if (data.error) throw new Error(data.error);
 
+      // Check if the message content is empty
+      if (!data.message?.content || !data.message.content.trim()) {
+        toast.error("Received an empty response from the AI. Please try again.");
+        throw new Error("Empty response from AI");
+      }
+
       const assistantMessage = {
-        content: data.content,
+        content: data.message.content,
         role: 'assistant' as const,
         createdAt: new Date()
       };
@@ -185,13 +236,34 @@ function ChatPage() {
       addMessage(assistantMessage);
     } catch (error: any) {
       console.error('Chat error:', error);
-      addMessage({
-        content: 'Sorry, there was an error processing your request.',
-        role: 'assistant',
-        createdAt: new Date()
-      });
+      
+      // Check if the error is about input being too long
+      if (error.message?.includes('too long') || error.message?.includes('under approximately')) {
+        toast.error("Your message is too long. Please shorten it a bit.");
+      } else {
+        toast.error('Sorry, there was an error processing your request.');
+        addMessage({
+          content: 'Sorry, there was an error processing your request. Please try again.',
+          role: 'assistant',
+          createdAt: new Date()
+        });
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Form submit handler
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    submitMessage();
+  };
+
+  // Keyboard event handler
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitMessage();
     }
   };
 
@@ -210,8 +282,11 @@ function ChatPage() {
   }
 
   const formatMessage = (content: string) => {
+    // Add null check to prevent errors with undefined content
+    if (!content) return '';
+    
     // Replace **text** with <strong>text</strong>
-    return content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   };
 
   return (
@@ -282,12 +357,7 @@ function ChatPage() {
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
+              onKeyDown={handleKeyDown}
               placeholder="Ask anything..."
               className="min-h-[40px] max-h-[96px] resize-none overflow-auto leading-[24px] py-2"
               disabled={isLoading}

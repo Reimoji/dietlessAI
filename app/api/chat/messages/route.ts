@@ -155,6 +155,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: transformedMessage });
   } catch (error: any) {
     console.error('Save message error:', error);
+    
+    // Add token limit handling
+    if (error.message?.includes('token limit exceeded')) {
+      return NextResponse.json(
+        { error: error.message, limitExceeded: true },
+        { status: 429 }
+      );
+    }
+    
     return NextResponse.json(
       { error: `Failed to save message: ${error.message}` },
       { status: 500 }

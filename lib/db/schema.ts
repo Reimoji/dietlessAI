@@ -199,3 +199,29 @@ export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
     references: [chats.id]
   })
 }));
+
+// Add this new table for token usage tracking
+export const tokenUsage = pgTable('token_usage', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  // Change this line to match the actual database column name
+  monthYear: varchar('month', { length: 7 }).notNull(), // Format: YYYY-MM
+  inputTokens: integer('input_tokens').notNull().default(0),
+  outputTokens: integer('output_tokens').notNull().default(0),
+  totalTokens: integer('total_tokens').notNull().default(0),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+// Add relations
+export const tokenUsageRelations = relations(tokenUsage, ({ one }) => ({
+  user: one(users, {
+    fields: [tokenUsage.userId],
+    references: [users.id]
+  })
+}));
+
+// Add types
+export type TokenUsage = InferModel<typeof tokenUsage>;
+export type NewTokenUsage = InferModel<typeof tokenUsage, 'insert'>;

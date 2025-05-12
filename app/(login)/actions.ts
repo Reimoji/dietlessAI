@@ -17,6 +17,7 @@ import {
   invitations,
   chats,
   chatMessages,
+  tokenUsage,
 } from '@/lib/db/schema';
 import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
@@ -108,6 +109,19 @@ const signUpSchema = z.object({
   inviteId: z.string().optional(),
 });
 
+async function initializeTokenUsage(userId: number) {
+  const currentDate = new Date();
+  const monthYear = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+  
+  await db.insert(tokenUsage).values({
+    userId,
+    monthYear,
+    inputTokens: 0,
+    outputTokens: 0,
+    totalTokens: 0,
+  });
+}
+
 export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   const { email, password, inviteId } = data;
 
@@ -142,6 +156,9 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
       password,
     };
   }
+
+  // Initialize token usage for the new user
+  await initializeTokenUsage(createdUser.id);
 
   let teamId: number;
   let userRole: string;
@@ -469,12 +486,31 @@ export const deleteChatHistory = validatedActionWithUser(
       
       // Only proceed if we found chats
       if (chatIds.length > 0) {
-        // Delete all chat messages for all user's chats
+        // First, find all message IDs for these chats
+        const chatMessageIds = await db
+          .select({ id: chatMessages.id })
+          .from(chatMessages)
+          .where(inArray(chatMessages.chatId, chatIds));
+        
+        const messageIds = chatMessageIds.map(msg => msg.id);
+        
+        // First delete records from token_logs that reference these messages
+        if (messageIds.length > 0) {
+          try {
+            await db.execute(sql`
+              DELETE FROM token_logs 
+              WHERE message_id IN (${sql.join(messageIds, sql`, `)})
+            `);
+            console.log(`Deleted token logs for ${messageIds.length} messages`);
+          } catch (tokenLogError) {
+            console.error('Error deleting token logs:', tokenLogError);
+          }
+        }
+        
+        // Then delete all chat messages for all user's chats
         await db
           .delete(chatMessages)
-          .where(
-            inArray(chatMessages.chatId, chatIds)
-          );
+          .where(inArray(chatMessages.chatId, chatIds));
       }
 
       // Then delete all chats for this user

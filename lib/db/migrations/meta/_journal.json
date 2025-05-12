@@ -29,6 +29,13 @@
       "when": 1746125859603,
       "tag": "0003_update_subscription_status",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1746547330050,
+      "tag": "0004_natural_talkback",
+      "breakpoints": true
     }
   ]
 }
