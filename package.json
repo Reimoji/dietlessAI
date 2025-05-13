@@ -43,6 +43,7 @@
     "postgres": "^3.4.5",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "resend": "^4.5.1",
     "server-only": "^0.0.1",
     "simplex-noise": "^4.0.3",
     "sonner": "^2.0.3",
