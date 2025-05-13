@@ -6,10 +6,7 @@ import { db } from '@/lib/db/drizzle';
 import { chats, chatMessages } from '@/lib/db/schema';
 import { eq, desc, inArray } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
-
-const MAX_INPUT_TOKENS = 50000;
-
-// Remove the truncateConversationHistory function - we don't need it
+import { TOKEN_LIMITS } from '@/lib/tokens/config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,8 +19,8 @@ export async function POST(request: NextRequest) {
       const estimatedTokens = lastMessage.content.length / 4;
       console.log(`Estimated tokens for message: ${estimatedTokens}`);
       
-      if (estimatedTokens > MAX_INPUT_TOKENS) {
-        console.log(`Message too long: ~${estimatedTokens} tokens (limit: ${MAX_INPUT_TOKENS})`);
+      if (estimatedTokens > TOKEN_LIMITS.MAX_INPUT_TOKENS) {
+        console.log(`Message too long: ~${estimatedTokens} tokens (limit: ${TOKEN_LIMITS.MAX_INPUT_TOKENS})`);
         return NextResponse.json(
           { 
             error: "Your message is too long. Please shorten it a bit.",
@@ -85,7 +82,7 @@ export async function POST(request: NextRequest) {
     if (userMessage && userMessage.role === 'user') {
       // Rough token estimation (4 chars ≈ 1 token)
       const estimatedTokens = userMessage.content.length / 4;
-      if (estimatedTokens > MAX_INPUT_TOKENS) {
+      if (estimatedTokens > TOKEN_LIMITS.MAX_INPUT_TOKENS) {
         return NextResponse.json(
           { 
             error: "Your message is too long. Please shorten it a bit.",
