@@ -28,7 +28,7 @@ import {
   validatedAction,
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
-import { sendWelcomeEmail } from '@/lib/email/send-emails';
+import { sendWelcomeEmail, sendPasswordChangedEmail } from '@/lib/email/send-emails';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -298,7 +298,15 @@ export const updatePassword = validatedActionWithUser(
       logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_PASSWORD),
     ]);
 
-    return { success: 'Password updated successfully.' };
+    // Send password changed confirmation email
+    try {
+      await sendPasswordChangedEmail(user.email, user.name || '');
+    } catch (error) {
+      console.error('Failed to send password changed email:', error);
+      // Continue even if email fails
+    }
+
+    return { success: 'Your password has been updated.' };
   },
 );
 

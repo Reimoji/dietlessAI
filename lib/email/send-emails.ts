@@ -29,11 +29,11 @@ export async function sendPasswordResetEmail(to: string, name: string, resetLink
 }
 
 // Password changed confirmation
-export async function sendPasswordChangedEmail(to: string, name: string, supportEmail?: string) {
+export async function sendPasswordChangedEmail(to: string, supportEmail?: string) {
   return sendEmail({
     to,
     subject: 'Your dietlessAI Password Has Been Changed',
-    react: React.createElement(PasswordChangedEmail, { name, supportEmail }),
+    react: React.createElement(PasswordChangedEmail, { supportEmail }),
   });
 }
 
@@ -110,6 +110,7 @@ export async function sendSubscriptionCancelledEmail(
     }),
   });
 }
+
 
 
 

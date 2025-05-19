@@ -2,17 +2,14 @@ import * as React from 'react';
 import { BaseEmailLayout } from './base-layout';
 
 interface PasswordChangedEmailProps {
-  name: string;
   supportEmail?: string;
 }
 
 export const PasswordChangedEmail: React.FC<Readonly<PasswordChangedEmailProps>> = ({
-  name,
   supportEmail = 'dietlessai@dietless.ai',
 }) => (
   <BaseEmailLayout previewText="Your dietlessAI password has been changed">
     <h2>Password Changed Successfully</h2>
-    <p>Hello {name},</p>
     <p>Your password for dietlessAI has been successfully changed.</p>
     
     <p>If you made this change, no further action is required.</p>
