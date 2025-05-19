@@ -28,7 +28,9 @@ import {
   validatedAction,
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
-import { sendWelcomeEmail, sendPasswordChangedEmail } from '@/lib/email/send-emails';
+import { sendWelcomeEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from '@/lib/email/send-emails';
+import { randomUUID } from 'crypto';
+import { canRequestPasswordReset } from '@/lib/rate-limiting/password-reset-limiter';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -548,3 +550,146 @@ export const deleteChatHistory = validatedActionWithUser(
     }
   },
 );
+
+// Schema for forgot password request
+const forgotPasswordSchema = z.object({
+  email: z.string().email().min(3).max(255),
+});
+
+// Store for password reset tokens
+// In a production app, these should be stored in the database
+// with an expiration timestamp
+const passwordResetTokens = new Map<string, { email: string, expires: Date }>();
+
+// Function to generate a password reset token
+function generatePasswordResetToken(email: string, expirationMinutes = 30): string {
+  const token = randomUUID();
+  const expires = new Date();
+  expires.setMinutes(expires.getMinutes() + expirationMinutes);
+  
+  passwordResetTokens.set(token, { email, expires });
+  return token;
+}
+
+// Action to handle forgot password requests
+export const forgotPassword = validatedAction(forgotPasswordSchema, async (data) => {
+  const { email } = data;
+  
+  // Check rate limiting
+  const rateLimitCheck = canRequestPasswordReset(email);
+  
+  if (!rateLimitCheck.allowed) {
+    // Format the remaining time in a user-friendly way
+    const remainingSeconds = rateLimitCheck.cooldownRemaining;
+    let timeMessage;
+    
+    if (remainingSeconds < 60) {
+      timeMessage = `${remainingSeconds} seconds`;
+    } else {
+      const minutes = Math.ceil(remainingSeconds / 60);
+      timeMessage = `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    }
+    
+    return { 
+      error: `Please wait ${timeMessage} before requesting another password reset link.`,
+      success: '' 
+    };
+  }
+  
+  // Check if user exists
+  const userExists = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  if (userExists.length === 0) {
+    // Don't reveal if email exists or not for security reasons
+    return { success: 'If your email is registered, you will receive a password reset link.', error: '' };
+  }
+
+  // Generate reset token with 30 minute expiration
+  const token = generatePasswordResetToken(email);
+  const resetLink = `${process.env.BASE_URL}/reset-password?token=${token}`;
+
+  // Send password reset email
+  try {
+    await sendPasswordResetEmail(email, resetLink, 30);
+  } catch (error) {
+    console.error('Failed to send password reset email:', error);
+    return { error: 'Failed to send password reset email. Please try again.', success: '' };
+  }
+
+  return { success: 'If your email is registered, you will receive a password reset link.', error: '' };
+});
+
+// Schema for password reset
+const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(8).max(100),
+  confirmPassword: z.string().min(8).max(100),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ['confirmPassword'],
+});
+
+// Action to handle password reset
+export const resetPassword = validatedAction(resetPasswordSchema, async (data) => {
+  const { token, password } = data;
+
+  // Verify token
+  const tokenData = passwordResetTokens.get(token);
+  if (!tokenData) {
+    return { 
+      error: 'Invalid or expired reset token. Please request a new password reset link.',
+      expired: false,
+      success: ''
+    };
+  }
+
+  // Check if token is expired
+  if (new Date() > tokenData.expires) {
+    passwordResetTokens.delete(token);
+    return { 
+      error: 'This password reset link has expired. Please request a new one.',
+      expired: true,
+      success: ''
+    };
+  }
+
+  const email = tokenData.email;
+
+  // Find user
+  const userResult = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  if (userResult.length === 0) {
+    return { 
+      error: 'User not found. Please request a new password reset link.',
+      expired: false,
+      success: ''
+    };
+  }
+
+  const user = userResult[0];
+
+  // Update password
+  const passwordHash = await hashPassword(password);
+  await db
+    .update(users)
+    .set({ passwordHash })
+    .where(eq(users.id, user.id));
+
+  // Remove used token
+  passwordResetTokens.delete(token);
+
+  // Return success
+  return { 
+    success: 'Your password has been reset successfully. You can now sign in with your new password.',
+    error: '',
+    expired: false
+  };
+});

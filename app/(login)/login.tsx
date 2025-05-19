@@ -88,6 +88,17 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             </div>
           </div>
 
+          <div className="flex items-center justify-between mt-2">
+            <div className="text-sm">
+              <Link
+                href="/forgot-password"
+                className="font-medium text-primary hover:text-primary/90"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          </div>
+
           {state?.error && (
             <div className="text-red-500 text-sm">{state.error}</div>
           )}
