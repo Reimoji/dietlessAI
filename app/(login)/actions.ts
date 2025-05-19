@@ -28,6 +28,7 @@ import {
   validatedAction,
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
+import { sendWelcomeEmail } from '@/lib/email/send-emails';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -155,6 +156,14 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
       email,
       password,
     };
+  }
+
+  // Send welcome email to the new user
+  try {
+    await sendWelcomeEmail(email);
+  } catch (error) {
+    console.error('Failed to send welcome email:', error);
+    // Continue with sign-up process even if email fails
   }
 
   // Initialize token usage for the new user

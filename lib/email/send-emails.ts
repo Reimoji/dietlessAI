@@ -8,14 +8,14 @@ import { SubscriptionActivatedEmail } from '@/components/email/subscription-acti
 import { SubscriptionCancelledEmail } from '@/components/email/subscription-cancelled-email';
 
 // Welcome email
-export async function sendWelcomeEmail(to: string, name: string) {
+export async function sendWelcomeEmail(to: string) {
   // Import directly here to ensure we're using the correct component
   const { WelcomeEmail } = require('@/components/email/welcome-email');
   
   return sendEmail({
     to,
     subject: 'Welcome to dietlessAI',
-    react: React.createElement(WelcomeEmail, { name }),
+    react: React.createElement(WelcomeEmail, {}),
   });
 }
 
@@ -110,6 +110,8 @@ export async function sendSubscriptionCancelledEmail(
     }),
   });
 }
+
+
 
 
 
