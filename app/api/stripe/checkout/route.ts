@@ -1,9 +1,9 @@
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { users, teams, teamMembers } from '@/lib/db/schema';
 import { setSession } from '@/lib/auth/session';
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/payments/stripe';
+import { stripe, formatPrice, formatDate, sendTrialEmail, sendSubscriptionActivatedEmail } from '@/lib/payments/stripe';
 import Stripe from 'stripe';
 
 export async function GET(request: NextRequest) {
@@ -88,6 +88,7 @@ export async function GET(request: NextRequest) {
       ? new Date(subscription.current_period_end * 1000)
       : null;
 
+    // Update the team with subscription info
     await db
       .update(teams)
       .set({
@@ -102,6 +103,87 @@ export async function GET(request: NextRequest) {
         updatedAt: new Date(),
       })
       .where(eq(teams.id, userTeam[0].teamId));
+
+    // If this is a trial subscription, manually send the trial email
+    if (subscription.status === 'trialing' && trialEndsAt) {
+      // Get team owner email
+      const teamOwner = await db.query.teamMembers.findFirst({
+        where: and(
+          eq(teamMembers.teamId, userTeam[0].teamId),
+          eq(teamMembers.role, 'owner')
+        ),
+        with: {
+          user: {
+            columns: {
+              id: true,
+              email: true,
+              name: true
+            }
+          }
+        }
+      });
+
+      if (teamOwner?.user?.email) {
+        const trialStart = new Date();
+        const trialDays = Math.ceil((trialEndsAt.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24));
+        
+        try {
+          console.log('Sending trial email from checkout handler to:', teamOwner.user.email);
+          await sendTrialEmail(
+            teamOwner.user.email,
+            teamOwner.user.name || 'there',
+            trialDays,
+            formatDate(trialStart),
+            formatDate(trialEndsAt),
+            formatDate(trialEndsAt),
+            formatPrice(plan),
+            `${process.env.BASE_URL}/dashboard`,
+            `${process.env.BASE_URL}/pricing`
+          );
+          console.log('Trial email sent successfully from checkout handler');
+        } catch (error) {
+          console.error('Failed to send trial email from checkout handler:', error);
+        }
+      }
+    } 
+    // If this is an active subscription (no trial), send the activation email
+    else if (subscription.status === 'active') {
+      const teamOwner = await db.query.teamMembers.findFirst({
+        where: and(
+          eq(teamMembers.teamId, userTeam[0].teamId),
+          eq(teamMembers.role, 'owner')
+        ),
+        with: {
+          user: {
+            columns: {
+              id: true,
+              email: true,
+              name: true
+            }
+          }
+        }
+      });
+
+      if (teamOwner?.user?.email && nextBillingDate) {
+        const billingPeriod = plan.recurring?.interval === 'year' ? 'Yearly' : 'Monthly';
+        
+        try {
+          console.log('Sending subscription activated email from checkout handler to:', teamOwner.user.email);
+          await sendSubscriptionActivatedEmail(
+            teamOwner.user.email,
+            teamOwner.user.name || 'there',
+            (plan.product as Stripe.Product).name,
+            billingPeriod,
+            formatPrice(plan),
+            formatDate(nextBillingDate),
+            `${process.env.BASE_URL}/dashboard`
+          );
+          console.log('Subscription activated email sent successfully from checkout handler');
+        } catch (error) {
+          console.error('Failed to send subscription activated email from checkout handler:', error);
+        }
+      }
+    }
 
     await setSession(user[0]);
     return NextResponse.redirect(new URL('/dashboard', request.url));

@@ -1,16 +1,23 @@
 import Stripe from 'stripe';
 import { redirect } from 'next/navigation';
-import { Team, teams } from '@/lib/db/schema';
-import {
-  getTeamByStripeCustomerId,
-  getUser,
-  updateTeamSubscription
-} from '@/lib/db/queries';
-import { db } from '../db/drizzle';
-import { eq } from 'drizzle-orm';
+import { teams, users, teamMembers, Team } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
+import { db } from '@/lib/db/drizzle';
+import { 
+  sendTrialEmail, 
+  sendSubscriptionActivatedEmail, 
+  sendSubscriptionCancelledEmail 
+} from '@/lib/email/send-emails';
+import { formatDate } from '@/lib/utils';
+import { getTeamByStripeCustomerId, getUser } from '../db/queries';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia'
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY is not set in environment variables');
+}
+
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2025-02-24.acacia',
 });
 
 // Helper function to get date only (no time) from timestamp
@@ -160,67 +167,111 @@ export async function handleSubscriptionChange(
     return;
   }
 
-  if (status === 'active' || status === 'trialing') {
-    const plan = subscription.items.data[0]?.plan;
-    
-    // Get product details
-    let productId = plan?.product as string;
-    let productName = null;
-    
-    if (productId) {
-      try {
-        const product = await stripe.products.retrieve(productId);
-        productName = product.name;
-      } catch (error) {
-        console.error('Error retrieving product:', error);
+  // Add detailed logging for debugging
+  console.log('Found team for subscription change:', {
+    teamId: team.id,
+    teamName: team.name,
+    currentStatus: team.subscriptionStatus,
+    newStatus: status
+  });
+
+  // Get team owner information
+  const teamOwner = await db.query.teamMembers.findFirst({
+    where: and(
+      eq(teamMembers.teamId, team.id),
+      eq(teamMembers.role, 'owner')
+    ),
+    with: {
+      user: {
+        columns: {
+          id: true,
+          email: true,
+          name: true
+        }
       }
     }
+  });
+
+  console.log('Team owner lookup result:', teamOwner ? {
+    found: true,
+    userId: teamOwner.userId,
+    userEmail: teamOwner.user?.email,
+    userName: teamOwner.user?.name
+  } : { found: false });
+
+  const ownerEmail = teamOwner?.user?.email;
+  const ownerName = teamOwner?.user?.name || 'there';
+
+  if (status === 'trialing') {
+    // Handle new trial
+    const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
+    const trialStart = new Date();
+    const trialDays = trialEnd ? Math.ceil((trialEnd.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24)) : 0;
     
-    // Calculate dates - only store the date part, not the time
-    const trialEndsAt = getDateOnly(subscription.trial_end);
-    const nextBillingDate = getDateOnly(subscription.current_period_end);
-    const subscriptionEndDate = subscription.cancel_at_period_end ? 
-      getDateOnly(subscription.current_period_end) : null;
-    
-    console.log('Updating subscription with dates (date only):', {
-      trialEndsAt,
-      nextBillingDate,
-      subscriptionEndDate
+    console.log('Processing trial subscription:', {
+      trialDays,
+      trialStart: trialStart.toISOString(),
+      trialEnd: trialEnd?.toISOString(),
+      hasOwnerEmail: !!ownerEmail
     });
     
-    // Update the team subscription in the database
+    // Get subscription details
+    const subscriptionItem = subscription.items.data[0];
+    const priceId = subscriptionItem?.price.id;
+    
+    // Get price details from Stripe
+    const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+    const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+    
+    const planName = product?.name || 'Premium';
+    const amount = formatPrice(price);
+    
+    // Update team subscription info
     await db
       .update(teams)
       .set({
         stripeSubscriptionId: subscriptionId,
-        stripeProductId: productId,
-        planName: productName,
+        stripeProductId: product?.id || null,
+        planName: planName,
         subscriptionStatus: status,
-        trialEndsAt: trialEndsAt,
-        nextBillingDate: nextBillingDate,
-        subscriptionEndDate: subscriptionEndDate,
+        trialEndsAt: trialEnd,
+        nextBillingDate: trialEnd,
         updatedAt: new Date()
       })
       .where(eq(teams.id, team.id));
-      
-    console.log('Subscription updated successfully for team:', team.id);
-  } else if (status === 'canceled' || status === 'unpaid') {
-    // Handle cancellation
-    await db
-      .update(teams)
-      .set({
-        stripeSubscriptionId: null,
-        stripeProductId: null,
-        planName: null,
-        subscriptionStatus: status,
-        trialEndsAt: null,
-        nextBillingDate: null,
-        subscriptionEndDate: null,
-        updatedAt: new Date()
-      })
-      .where(eq(teams.id, team.id));
-      
-    console.log('Subscription canceled for team:', team.id);
+    
+    // Send trial email if we have an owner email
+    if (ownerEmail && trialEnd) {
+      try {
+        console.log('Attempting to send trial email to:', ownerEmail);
+        await sendTrialEmail(
+          ownerEmail,
+          ownerName,
+          trialDays,
+          formatDate(trialStart),
+          formatDate(trialEnd),
+          formatDate(trialEnd),
+          amount,
+          `${process.env.BASE_URL}/dashboard`,
+          `${process.env.BASE_URL}/pricing`
+        );
+        console.log(`Trial email successfully sent to ${ownerEmail}`);
+      } catch (error) {
+        console.error('Failed to send trial email:', error);
+        // Log more detailed error information
+        if (error instanceof Error) {
+          console.error('Error details:', {
+            message: error.message,
+            stack: error.stack
+          });
+        }
+      }
+    } else {
+      console.warn('Cannot send trial email - missing required data:', {
+        hasOwnerEmail: !!ownerEmail,
+        hasTrialEnd: !!trialEnd
+      });
+    }
   }
 }
 
@@ -258,3 +309,29 @@ export async function getStripeProducts() {
         : product.default_price?.id
   }));
 }
+
+// Helper function to format price
+export function formatPrice(price: Stripe.Price | null): string {
+  if (!price || !price.unit_amount) {
+    return '$0.00';
+  }
+  
+  const amount = price.unit_amount / 100;
+  const currency = price.currency.toUpperCase();
+  const interval = price.recurring?.interval;
+  
+  return `$${amount.toFixed(2)}/${interval === 'month' ? 'month' : 'year'}`;
+}
+
+// Helper function to get billing period
+function getBillingPeriod(price: Stripe.Price | null): string {
+  if (!price || !price.recurring) {
+    return 'Monthly';
+  }
+  
+  return price.recurring.interval === 'month' ? 'Monthly' : 'Yearly';
+}
+
+
+export { formatDate, sendTrialEmail, sendSubscriptionActivatedEmail };
+// Remove the local formatDate function completely since we're importing it

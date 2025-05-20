@@ -20,13 +20,13 @@ export async function sendWelcomeEmail(to: string) {
 }
 
 // Password reset email
-export async function sendPasswordResetEmail(to: string, resetLink: string) {
+export async function sendPasswordResetEmail(to: string, resetLink: string, expirationMinutes = 30) {
   return sendEmail({
     to,
     subject: 'Reset Your dietlessAI Password',
     react: React.createElement(ResetPasswordEmail, { 
       resetLink,
-      expirationHours: 24 
+      expirationMinutes
     }),
   });
 }
@@ -113,6 +113,7 @@ export async function sendSubscriptionCancelledEmail(
     }),
   });
 }
+
 
 
 
