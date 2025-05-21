@@ -10,6 +10,15 @@ import { useChatStore } from '@/lib/stores/chat';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, SendHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
+import { ChunkReveal } from '@/components/ui/chunk-reveal';
+import { formatMessage } from '@/lib/format-message';
+
+interface Message {
+  id?: string;
+  content: string;
+  role: 'user' | 'assistant';
+  createdAt: Date;
+}
 
 function SubscriptionRequired() {
   const router = useRouter();
@@ -70,6 +79,7 @@ function ChatPage() {
   
   const [isTyping, setIsTyping] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
 
   // Add ref for the messages container
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -155,6 +165,20 @@ function ChatPage() {
         return;
       }
       
+      // First, save the user message to ensure a chat exists
+      const saveResponse = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage })
+      });
+      
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json();
+        console.error('Failed to save user message:', errorData);
+        throw new Error(errorData.error || 'Failed to save message');
+      }
+      
+      // Then proceed with the chat request
       const chatResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -220,11 +244,24 @@ function ChatPage() {
         throw new Error("Empty response from AI");
       }
 
-      const assistantMessage = {
+      const assistantMessage: Message = {
+        id: Date.now().toString(), // Generate a temporary client-side ID
         content: data.message.content,
-        role: 'assistant' as const,
+        role: 'assistant',
         createdAt: new Date()
       };
+
+      // Set this message as the one being revealed in chunks
+      // Only set the typing message ID if it's a valid string
+      if (assistantMessage.id) {
+        console.log('Setting typing message ID:', assistantMessage.id);
+        setTypingMessageId(assistantMessage.id);
+      } else {
+        console.log('No valid ID for assistant message');
+      }
+
+      // Add the message to the UI
+      addMessage(assistantMessage);
 
       // Save assistant message
       await fetch('/api/chat/messages', {
@@ -232,8 +269,6 @@ function ChatPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: assistantMessage })
       });
-
-      addMessage(assistantMessage);
     } catch (error: any) {
       console.error('Chat error:', error);
       
@@ -245,7 +280,8 @@ function ChatPage() {
         addMessage({
           content: 'Sorry, there was an error processing your request. Please try again.',
           role: 'assistant',
-          createdAt: new Date()
+          createdAt: new Date(),
+          id: `error-${Date.now()}`  // Use a string ID instead of false
         });
       }
     } finally {
@@ -281,14 +317,6 @@ function ChatPage() {
     );
   }
 
-  const formatMessage = (content: string) => {
-    // Add null check to prevent errors with undefined content
-    if (!content) return '';
-    
-    // Replace **text** with <strong>text</strong>
-    return content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  };
-
   return (
     <div className="h-full p-4">
       <Card className="h-full flex flex-col">
@@ -308,37 +336,66 @@ function ChatPage() {
               </div>
             </div>
           )}
-          {messages.map((message, index) => (
-            <div
-              key={`${message.role}-${index}-${message.createdAt.getTime()}`}
-              className={`flex mb-4 ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div className="max-w-[75%]">
-                <div
-                  className={`inline-block p-3 rounded-lg whitespace-pre-wrap ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground'
-                  }`}
-                  dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
-                />
-                <div className={`text-xs text-muted-foreground mt-1 ${
-                  message.role === 'user' ? 'text-right' : 'text-left'
-                }`}>
-                  {new Date(message.createdAt).toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: '2-digit',
-                  })} {new Date(message.createdAt).toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true
-                  })}
+          {messages.map((message, index) => {
+            // Determine if this is the most recent assistant message
+            const isLatestAssistantMessage = 
+              message.role === 'assistant' && 
+              message.id === typingMessageId;
+            
+            console.log('Message:', { 
+              id: message.id, 
+              role: message.role, 
+              isLatest: isLatestAssistantMessage,
+              typingId: typingMessageId
+            });
+            
+            return (
+              <div
+                key={`${message.role}-${index}-${message.createdAt.getTime()}`}
+                className={`flex mb-4 ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                <div className="max-w-[75%]">
+                  <div
+                    className={`inline-block p-3 rounded-lg whitespace-pre-wrap ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {message.role === 'user' ? (
+                      <div dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
+                    ) : isLatestAssistantMessage ? (
+                      <ChunkReveal 
+                        content={message.content}
+                        chunkDelay={500}
+                        className="prose prose-sm max-w-none dark:prose-invert"
+                        onComplete={() => {
+                          console.log('Chunk reveal complete');
+                          setTypingMessageId(null);
+                        }}
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }} />
+                    )}
+                  </div>
+                  <div className={`text-xs text-muted-foreground mt-1 ${
+                    message.role === 'user' ? 'text-right' : 'text-left'
+                  }`}>
+                    {new Date(message.createdAt).toLocaleDateString('en-GB', {
+                      day: '2-digit',
+                      month: '2-digit',
+                    })} {new Date(message.createdAt).toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: 'numeric',
+                      hour12: true
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {isLoading && (
             <div className="flex justify-center p-4">
               <div className="flex space-x-2">

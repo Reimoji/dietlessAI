@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 interface Message {
+  id?: string; // Change from boolean to string | undefined
   content: string;
   role: 'user' | 'assistant';
   createdAt: Date;
@@ -32,6 +33,11 @@ export const useChatStore = create<ChatStore>((set) => ({
       const response = await fetch('/api/chat/messages');
       
       if (!response.ok) {
+        // If the error is 404 (no chat found), we'll create one when sending the first message
+        if (response.status === 404) {
+          set({ messages: [], error: null });
+          return;
+        }
         throw new Error('Failed to load messages');
       }
       

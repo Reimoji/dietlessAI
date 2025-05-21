@@ -47,16 +47,29 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the user's chat (there should be only one per user)
-    const userChat = await db.query.chats.findFirst({
+    let userChat = await db.query.chats.findFirst({
       where: eq(chats.userId, userId),
       orderBy: [desc(chats.createdAt)]
     });
 
+    // If no chat exists, create one
     if (!userChat) {
-      return NextResponse.json(
-        { error: 'No chat found for user' },
-        { status: 404 }
-      );
+      console.log(`Creating new chat for user ${userId}`);
+      const [newChat] = await db
+        .insert(chats)
+        .values({
+          userId: userId,
+        })
+        .returning();
+      
+      if (!newChat) {
+        return NextResponse.json(
+          { error: 'Failed to create chat for user' },
+          { status: 500 }
+        );
+      }
+      
+      userChat = newChat;
     }
 
     const chatId = userChat.id;

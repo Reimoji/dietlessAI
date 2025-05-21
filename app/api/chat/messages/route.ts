@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     }
 
     // Get the user's most recent chat
-    const chat = await db.query.chats.findFirst({
+    let chat = await db.query.chats.findFirst({
       where: eq(chats.userId, session.user.id),
       orderBy: [desc(chats.createdAt)],
       with: {
@@ -49,15 +49,32 @@ export async function GET(request: Request) {
       }
     });
 
-    // Transform the messages to match the Message type
-    const messages: Message[] = (chat?.messages || []).map(msg => ({
-      id: String((msg as ChatMessage).id),
-      content: (msg as ChatMessage).content,
-      role: (msg as ChatMessage).role as 'user' | 'assistant',
-      createdAt: (msg as ChatMessage).createdAt
+    // If no chat exists, create one
+    if (!chat) {
+      console.log(`Creating new chat for user ${session.user.id} in GET messages`);
+      const [newChat] = await db
+        .insert(chats)
+        .values({
+          userId: session.user.id,
+        })
+        .returning();
+      
+      // Return empty messages array for the new chat
+      return NextResponse.json({ 
+        messages: [],
+        chatId: newChat.id
+      });
+    }
+
+    // Transform messages to the expected format
+    const messages = chat.messages.map((message) => ({
+      id: message.id.toString(),
+      content: message.content,
+      role: message.role,
+      createdAt: message.createdAt,
     }));
 
-    return NextResponse.json({ messages });
+    return NextResponse.json({ messages, chatId: chat.id });
   } catch (error: any) {
     console.error('Get messages error:', error);
     return NextResponse.json(
