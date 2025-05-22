@@ -8,7 +8,10 @@ import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'dietlessAI',
-  description: 'Personalized Meal Plans That Evolve with Your Lifestyle',
+  description: 'Personalized Nutrition Coaching That Evolves with Your Lifestyle',
+  icons: {
+    icon: 'favicon.ico', 
+  },
 };
 
 export const viewport: Viewport = {
