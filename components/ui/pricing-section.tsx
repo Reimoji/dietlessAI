@@ -67,8 +67,30 @@ export function PricingSection({
   const features = billingInterval === 'monthly' ? baseFeatures : plusFeatures;
 
   return (
-    <section className="py-24 bg-background">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-transparent relative overflow-visible">
+      {/* Gradient background for Pricing section - without the blue blob at top */}
+      <div 
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: 'none',
+          backgroundImage: `
+            /* Yellow blob - left center */
+            radial-gradient(circle at 25% 50%, rgba(236, 232, 98, 0.9) 0%, rgba(236, 232, 98, 0) 25%),
+            
+            /* Pink blob - right center */
+            radial-gradient(circle at 75% 50%, rgba(236, 98, 171, 0.8) 0%, rgba(236, 98, 171, 0) 25%)
+            
+            /* Blue blob removed from here and added to the testimonials section */
+          `,
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          opacity: 0.8,
+          filter: 'blur(60px)',
+        }}
+      />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
           <p className="text-primary font-medium mb-4">Healthy Eating, Hassle-Free Plans</p>
           <h2 className="text-4xl font-bold text-foreground mb-6">
@@ -149,3 +171,15 @@ export function PricingSection({
     </section>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
