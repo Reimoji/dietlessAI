@@ -550,7 +550,7 @@ export default async function HomePage() {
             </h2>
 
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Start Your <span className="bg-primary text-primary-foreground opacity-75 px-1 py-0.5 rounded-sm font-medium">Free 3-Day Trial</span> and Discover the Simplicity of Dietless AI Today
+              Start Your <span className="bg-primary text-primary-foreground opacity-75 px-1 py-0.5 rounded-sm font-medium">Free 2-Day Trial</span> and Discover the Simplicity of Dietless AI Today
             </p>
 
             <a href="#" className="inline-block">
