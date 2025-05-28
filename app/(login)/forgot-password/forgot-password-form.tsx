@@ -6,13 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { forgotPassword } from '../actions';
 
 export function ForgotPasswordForm() {
   // Provide a proper initial state that matches all possible return types
   const initialState = { success: '', error: '' };
-  const [state, formAction] = useFormState(forgotPassword, initialState);
+  const [state, formAction] = useActionState(forgotPassword, initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (formData: FormData) => {
@@ -61,3 +61,4 @@ export function ForgotPasswordForm() {
     </form>
   );
 }
+

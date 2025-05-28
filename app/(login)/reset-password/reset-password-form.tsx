@@ -6,13 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { resetPassword } from '../actions';
 
 export function ResetPasswordForm({ token }: { token: string }) {
   // Provide a proper initial state that matches all possible return types
   const initialState = { error: '', success: '', expired: false };
-  const [state, formAction] = useFormState(resetPassword, initialState);
+  const [state, formAction] = useActionState(resetPassword, initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (formData: FormData) => {
@@ -126,3 +126,5 @@ export function ResetPasswordForm({ token }: { token: string }) {
     </form>
   );
 }
+
+
