@@ -336,6 +336,11 @@ function ChatPage() {
             const isLatestAssistantMessage =
               message.role === 'assistant' && message.id === typingMessageId;
 
+            // Pre-format the message content if it's not the latest assistant message
+            const messageContent = message.role === 'user' || isLatestAssistantMessage 
+              ? message.content 
+              : formatMessage(message.content);
+
             return (
               <div
                 key={`${message.role}-${index}-${message.createdAt.getTime()}`}
@@ -360,11 +365,12 @@ function ChatPage() {
                           console.log('Chunk reveal complete');
                           setTypingMessageId(null);
                         }}
+                        preFormatted={false} // We'll format as we reveal
                       />
                     ) : (
                       <div
                         className='whitespace-pre-wrap'
-                        dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
+                        dangerouslySetInnerHTML={{ __html: messageContent }}
                       />
                     )}
                   </div>
@@ -430,6 +436,7 @@ function ChatPage() {
 }
 
 export default ChatPage;
+
 
 
 

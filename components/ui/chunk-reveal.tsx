@@ -1,5 +1,6 @@
 'use client';
 
+import { formatMessage } from '@/lib/format-message';
 import { useEffect, useState } from 'react';
 
 interface ChunkRevealProps {
@@ -7,6 +8,7 @@ interface ChunkRevealProps {
   chunkDelay?: number;
   onComplete?: () => void;
   className?: string;
+  preFormatted?: boolean;
 }
 
 export function ChunkReveal({
@@ -14,11 +16,18 @@ export function ChunkReveal({
   chunkDelay = 500, // Default delay of 500ms
   onComplete,
   className = '',
+  preFormatted = false,
 }: ChunkRevealProps) {
   const [visibleChunks, setVisibleChunks] = useState<string[]>([]);
   const [isComplete, setIsComplete] = useState(false);
+  const [formattedContent, setFormattedContent] = useState<string>('');
 
   useEffect(() => {
+    // Pre-format the entire content if needed
+    if (preFormatted) {
+      setFormattedContent(formatMessage(content));
+    }
+    
     // Reset when content changes
     setVisibleChunks([]);
     setIsComplete(false);
@@ -47,7 +56,7 @@ export function ChunkReveal({
       setVisibleChunks([]);
       setIsComplete(true);
     };
-  }, [content, chunkDelay, onComplete]);
+  }, [content, chunkDelay, onComplete, preFormatted]);
 
   // Function to split content into meaningful chunks
   const splitIntoChunks = (text: string): string[] => {
@@ -125,7 +134,11 @@ export function ChunkReveal({
       {/* Process and format the visible chunks */}
       <div
         className='animate-fadeIn whitespace-pre-wrap'
-        dangerouslySetInnerHTML={{ __html: processContent(visibleChunks) }}
+        dangerouslySetInnerHTML={{ 
+          __html: preFormatted 
+            ? processContent(visibleChunks) 
+            : formatMessage(processContent(visibleChunks))
+        }}
       />
 
       {!isComplete && (
@@ -166,3 +179,4 @@ function formatChunk(chunk: string): string {
       .replace(/\n/g, '<br>')
   );
 }
+
