@@ -1,36 +1,37 @@
 'use server';
 
-import { z } from 'zod';
-import { and, eq, sql, inArray } from 'drizzle-orm';
-import { db } from '@/lib/db/drizzle';
-import {
-  User,
-  users,
-  teams,
-  teamMembers,
-  activityLogs,
-  type NewUser,
-  type NewTeam,
-  type NewTeamMember,
-  type NewActivityLog,
-  ActivityType,
-  invitations,
-  chats,
-  chatMessages,
-  tokenUsage,
-} from '@/lib/db/schema';
+import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
 import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
-import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-import { createCheckoutSession } from '@/lib/payments/stripe';
+import { db } from '@/lib/db/drizzle';
 import { getUser, getUserWithTeam } from '@/lib/db/queries';
 import {
-  validatedAction,
-  validatedActionWithUser,
-} from '@/lib/auth/middleware';
-import { sendWelcomeEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from '@/lib/email/send-emails';
-import { randomUUID } from 'crypto';
+  activityLogs,
+  ActivityType,
+  chatMessages,
+  chats,
+  invitations,
+  teamMembers,
+  teams,
+  tokenUsage,
+  User,
+  users,
+  type NewActivityLog,
+  type NewTeam,
+  type NewTeamMember,
+  type NewUser,
+} from '@/lib/db/schema';
+import {
+  sendPasswordChangedEmail,
+  sendPasswordResetEmail,
+  sendWelcomeEmail,
+} from '@/lib/email/send-emails';
+import { createCheckoutSession } from '@/lib/payments/stripe';
 import { canRequestPasswordReset } from '@/lib/rate-limiting/password-reset-limiter';
+import { randomUUID } from 'crypto';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { z } from 'zod';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -79,10 +80,7 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
 
   const { user: foundUser, team: foundTeam } = userWithTeam[0];
 
-  const isPasswordValid = await comparePasswords(
-    password,
-    foundUser.passwordHash,
-  );
+  const isPasswordValid = await comparePasswords(password, foundUser.passwordHash);
 
   if (!isPasswordValid) {
     return {
@@ -115,7 +113,7 @@ const signUpSchema = z.object({
 async function initializeTokenUsage(userId: number) {
   const currentDate = new Date();
   const monthYear = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-  
+
   await db.insert(tokenUsage).values({
     userId,
     monthYear,
@@ -128,11 +126,7 @@ async function initializeTokenUsage(userId: number) {
 export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   const { email, password, inviteId } = data;
 
-  const existingUser = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (existingUser.length > 0) {
     return {
@@ -200,11 +194,7 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 
       await logActivity(teamId, createdUser.id, ActivityType.ACCEPT_INVITATION);
 
-      [createdTeam] = await db
-        .select()
-        .from(teams)
-        .where(eq(teams.id, teamId))
-        .limit(1);
+      [createdTeam] = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
     } else {
       return { error: 'Invalid or expired invitation.', email, password };
     }
@@ -274,10 +264,7 @@ export const updatePassword = validatedActionWithUser(
   async (data, _, user) => {
     const { currentPassword, newPassword } = data;
 
-    const isPasswordValid = await comparePasswords(
-      currentPassword,
-      user.passwordHash,
-    );
+    const isPasswordValid = await comparePasswords(currentPassword, user.passwordHash);
 
     if (!isPasswordValid) {
       return { error: 'Current password is incorrect.' };
@@ -293,10 +280,7 @@ export const updatePassword = validatedActionWithUser(
     const userWithTeam = await getUserWithTeam(user.id);
 
     await Promise.all([
-      db
-        .update(users)
-        .set({ passwordHash: newPasswordHash })
-        .where(eq(users.id, user.id)),
+      db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, user.id)),
       logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_PASSWORD),
     ]);
 
@@ -316,68 +300,53 @@ const deleteAccountSchema = z.object({
   password: z.string().min(8).max(100),
 });
 
-export const deleteAccount = validatedActionWithUser(
-  deleteAccountSchema,
-  async (data, _, user) => {
-    const { password } = data;
+export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async (data, _, user) => {
+  const { password } = data;
 
-    const isPasswordValid = await comparePasswords(password, user.passwordHash);
-    if (!isPasswordValid) {
-      return { error: 'Incorrect password. Account deletion failed.' };
-    }
+  const isPasswordValid = await comparePasswords(password, user.passwordHash);
+  if (!isPasswordValid) {
+    return { error: 'Incorrect password. Account deletion failed.' };
+  }
 
-    const userWithTeam = await getUserWithTeam(user.id);
+  const userWithTeam = await getUserWithTeam(user.id);
 
-    await logActivity(
-      userWithTeam?.teamId,
-      user.id,
-      ActivityType.DELETE_ACCOUNT,
-    );
+  await logActivity(userWithTeam?.teamId, user.id, ActivityType.DELETE_ACCOUNT);
 
-    // Soft delete
+  // Soft delete
+  await db
+    .update(users)
+    .set({
+      deletedAt: sql`CURRENT_TIMESTAMP`,
+      email: sql`CONCAT(email, '-', id, '-deleted')`, // Ensure email uniqueness
+    })
+    .where(eq(users.id, user.id));
+
+  if (userWithTeam?.teamId) {
     await db
-      .update(users)
-      .set({
-        deletedAt: sql`CURRENT_TIMESTAMP`,
-        email: sql`CONCAT(email, '-', id, '-deleted')`, // Ensure email uniqueness
-      })
-      .where(eq(users.id, user.id));
+      .delete(teamMembers)
+      .where(and(eq(teamMembers.userId, user.id), eq(teamMembers.teamId, userWithTeam.teamId)));
+  }
 
-    if (userWithTeam?.teamId) {
-      await db
-        .delete(teamMembers)
-        .where(
-          and(
-            eq(teamMembers.userId, user.id),
-            eq(teamMembers.teamId, userWithTeam.teamId),
-          ),
-        );
-    }
-
-    (await cookies()).delete('session');
-    redirect('/sign-in');
-  },
-);
+  (await cookies()).delete('session');
+  redirect('/sign-in');
+});
 
 const updateAccountSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email address'),
 });
 
-export const updateAccount = validatedActionWithUser(
-  updateAccountSchema,
-  async (data, _, user) => {
-    const { name, email } = data;
-    const userWithTeam = await getUserWithTeam(user.id);
+export const updateAccount = validatedActionWithUser(updateAccountSchema, async (data, _, user) => {
+  const { name, email } = data;
+  const userWithTeam = await getUserWithTeam(user.id);
 
-    await Promise.all([
-      db.update(users).set({ name, email }).where(eq(users.id, user.id)),
-      logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_ACCOUNT),
-    ]);
+  await Promise.all([
+    db.update(users).set({ name, email }).where(eq(users.id, user.id)),
+    logActivity(userWithTeam?.teamId, user.id, ActivityType.UPDATE_ACCOUNT),
+  ]);
 
-    return { success: 'Account updated successfully.' };
-  },
-);
+  return { success: 'Account updated successfully.' };
+});
 
 const removeTeamMemberSchema = z.object({
   memberId: z.number(),
@@ -395,18 +364,9 @@ export const removeTeamMember = validatedActionWithUser(
 
     await db
       .delete(teamMembers)
-      .where(
-        and(
-          eq(teamMembers.id, memberId),
-          eq(teamMembers.teamId, userWithTeam.teamId),
-        ),
-      );
+      .where(and(eq(teamMembers.id, memberId), eq(teamMembers.teamId, userWithTeam.teamId)));
 
-    await logActivity(
-      userWithTeam.teamId,
-      user.id,
-      ActivityType.REMOVE_TEAM_MEMBER,
-    );
+    await logActivity(userWithTeam.teamId, user.id, ActivityType.REMOVE_TEAM_MEMBER);
 
     return { success: 'Team member removed successfully' };
   },
@@ -431,12 +391,7 @@ export const inviteTeamMember = validatedActionWithUser(
       .select()
       .from(users)
       .leftJoin(teamMembers, eq(users.id, teamMembers.userId))
-      .where(
-        and(
-          eq(users.email, email),
-          eq(teamMembers.teamId, userWithTeam.teamId),
-        ),
-      )
+      .where(and(eq(users.email, email), eq(teamMembers.teamId, userWithTeam.teamId)))
       .limit(1);
 
     if (existingMember.length > 0) {
@@ -469,11 +424,7 @@ export const inviteTeamMember = validatedActionWithUser(
       status: 'pending',
     });
 
-    await logActivity(
-      userWithTeam.teamId,
-      user.id,
-      ActivityType.INVITE_TEAM_MEMBER,
-    );
+    await logActivity(userWithTeam.teamId, user.id, ActivityType.INVITE_TEAM_MEMBER);
 
     // TODO: Send invitation email and include ?inviteId={id} to sign-up URL
     // await sendInvitationEmail(email, userWithTeam.team.name, role)
@@ -500,9 +451,9 @@ export const deleteChatHistory = validatedActionWithUser(
         .select({ id: chats.id })
         .from(chats)
         .where(eq(chats.userId, user.id));
-      
-      const chatIds = userChats.map(chat => chat.id);
-      
+
+      const chatIds = userChats.map((chat) => chat.id);
+
       // Only proceed if we found chats
       if (chatIds.length > 0) {
         // First, find all message IDs for these chats
@@ -510,9 +461,9 @@ export const deleteChatHistory = validatedActionWithUser(
           .select({ id: chatMessages.id })
           .from(chatMessages)
           .where(inArray(chatMessages.chatId, chatIds));
-        
-        const messageIds = chatMessageIds.map(msg => msg.id);
-        
+
+        const messageIds = chatMessageIds.map((msg) => msg.id);
+
         // First delete records from token_logs that reference these messages
         if (messageIds.length > 0) {
           try {
@@ -525,17 +476,13 @@ export const deleteChatHistory = validatedActionWithUser(
             console.error('Error deleting token logs:', tokenLogError);
           }
         }
-        
+
         // Then delete all chat messages for all user's chats
-        await db
-          .delete(chatMessages)
-          .where(inArray(chatMessages.chatId, chatIds));
+        await db.delete(chatMessages).where(inArray(chatMessages.chatId, chatIds));
       }
 
       // Then delete all chats for this user
-      await db
-        .delete(chats)
-        .where(eq(chats.userId, user.id));
+      await db.delete(chats).where(eq(chats.userId, user.id));
 
       await logActivity(
         (await getUserWithTeam(user.id))?.teamId,
@@ -559,14 +506,14 @@ const forgotPasswordSchema = z.object({
 // Store for password reset tokens
 // In a production app, these should be stored in the database
 // with an expiration timestamp
-const passwordResetTokens = new Map<string, { email: string, expires: Date }>();
+const passwordResetTokens = new Map<string, { email: string; expires: Date }>();
 
 // Function to generate a password reset token
 function generatePasswordResetToken(email: string, expirationMinutes = 30): string {
   const token = randomUUID();
   const expires = new Date();
   expires.setMinutes(expires.getMinutes() + expirationMinutes);
-  
+
   passwordResetTokens.set(token, { email, expires });
   return token;
 }
@@ -574,38 +521,37 @@ function generatePasswordResetToken(email: string, expirationMinutes = 30): stri
 // Action to handle forgot password requests
 export const forgotPassword = validatedAction(forgotPasswordSchema, async (data) => {
   const { email } = data;
-  
+
   // Check rate limiting
   const rateLimitCheck = canRequestPasswordReset(email);
-  
+
   if (!rateLimitCheck.allowed) {
     // Format the remaining time in a user-friendly way
     const remainingSeconds = rateLimitCheck.cooldownRemaining;
     let timeMessage;
-    
+
     if (remainingSeconds < 60) {
       timeMessage = `${remainingSeconds} seconds`;
     } else {
       const minutes = Math.ceil(remainingSeconds / 60);
       timeMessage = `${minutes} minute${minutes > 1 ? 's' : ''}`;
     }
-    
-    return { 
+
+    return {
       error: `Please wait ${timeMessage} before requesting another password reset link.`,
-      success: '' 
+      success: '',
     };
   }
-  
+
   // Check if user exists
-  const userExists = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const userExists = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (userExists.length === 0) {
     // Don't reveal if email exists or not for security reasons
-    return { success: 'If your email is registered, you will receive a password reset link.', error: '' };
+    return {
+      success: 'If your email is registered, you will receive a password reset link.',
+      error: '',
+    };
   }
 
   // Generate reset token with 30 minute expiration
@@ -620,18 +566,23 @@ export const forgotPassword = validatedAction(forgotPasswordSchema, async (data)
     return { error: 'Failed to send password reset email. Please try again.', success: '' };
   }
 
-  return { success: 'If your email is registered, you will receive a password reset link.', error: '' };
+  return {
+    success: 'If your email is registered, you will receive a password reset link.',
+    error: '',
+  };
 });
 
 // Schema for password reset
-const resetPasswordSchema = z.object({
-  token: z.string().min(1),
-  password: z.string().min(8).max(100),
-  confirmPassword: z.string().min(8).max(100),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
+const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1),
+    password: z.string().min(8).max(100),
+    confirmPassword: z.string().min(8).max(100),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 // Action to handle password reset
 export const resetPassword = validatedAction(resetPasswordSchema, async (data) => {
@@ -640,37 +591,33 @@ export const resetPassword = validatedAction(resetPasswordSchema, async (data) =
   // Verify token
   const tokenData = passwordResetTokens.get(token);
   if (!tokenData) {
-    return { 
+    return {
       error: 'Invalid or expired reset token. Please request a new password reset link.',
       expired: false,
-      success: ''
+      success: '',
     };
   }
 
   // Check if token is expired
   if (new Date() > tokenData.expires) {
     passwordResetTokens.delete(token);
-    return { 
+    return {
       error: 'This password reset link has expired. Please request a new one.',
       expired: true,
-      success: ''
+      success: '',
     };
   }
 
   const email = tokenData.email;
 
   // Find user
-  const userResult = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const userResult = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (userResult.length === 0) {
-    return { 
+    return {
       error: 'User not found. Please request a new password reset link.',
       expired: false,
-      success: ''
+      success: '',
     };
   }
 
@@ -678,18 +625,16 @@ export const resetPassword = validatedAction(resetPasswordSchema, async (data) =
 
   // Update password
   const passwordHash = await hashPassword(password);
-  await db
-    .update(users)
-    .set({ passwordHash })
-    .where(eq(users.id, user.id));
+  await db.update(users).set({ passwordHash }).where(eq(users.id, user.id));
 
   // Remove used token
   passwordResetTokens.delete(token);
 
   // Return success
-  return { 
-    success: 'Your password has been reset successfully. You can now sign in with your new password.',
+  return {
+    success:
+      'Your password has been reset successfully. You can now sign in with your new password.',
     error: '',
-    expired: false
+    expired: false,
   };
 });

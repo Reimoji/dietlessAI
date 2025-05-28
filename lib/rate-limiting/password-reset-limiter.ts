@@ -18,52 +18,54 @@ export function canRequestPasswordReset(email: string): {
 } {
   const normalizedEmail = email.toLowerCase().trim();
   const now = new Date();
-  
+
   // Get last attempt for this email
   const lastAttempt = resetAttempts.get(normalizedEmail);
-  
+
   // If no previous attempts, allow and record this attempt
   if (!lastAttempt) {
     resetAttempts.set(normalizedEmail, { lastAttempt: now });
-    return { 
-      allowed: true, 
-      cooldownRemaining: 0, 
-      nextAllowedTime: null 
+    return {
+      allowed: true,
+      cooldownRemaining: 0,
+      nextAllowedTime: null,
     };
   }
-  
+
   // Calculate time since last attempt in minutes
   const minutesSinceLastAttempt = (now.getTime() - lastAttempt.lastAttempt.getTime()) / (1000 * 60);
-  
+
   // Check if cooldown period has passed
   if (minutesSinceLastAttempt >= COOLDOWN_MINUTES) {
     // Update last attempt time
     resetAttempts.set(normalizedEmail, { lastAttempt: now });
-    return { 
-      allowed: true, 
-      cooldownRemaining: 0, 
-      nextAllowedTime: null 
+    return {
+      allowed: true,
+      cooldownRemaining: 0,
+      nextAllowedTime: null,
     };
   }
-  
+
   // User is still in cooldown period
-  const secondsRemaining = Math.ceil((COOLDOWN_MINUTES * 60) - (minutesSinceLastAttempt * 60));
-  const nextAllowedTime = new Date(lastAttempt.lastAttempt.getTime() + (COOLDOWN_MINUTES * 60 * 1000));
-  
-  return { 
-    allowed: false, 
+  const secondsRemaining = Math.ceil(COOLDOWN_MINUTES * 60 - minutesSinceLastAttempt * 60);
+  const nextAllowedTime = new Date(
+    lastAttempt.lastAttempt.getTime() + COOLDOWN_MINUTES * 60 * 1000,
+  );
+
+  return {
+    allowed: false,
     cooldownRemaining: secondsRemaining,
-    nextAllowedTime: nextAllowedTime
+    nextAllowedTime: nextAllowedTime,
   };
 }
 
 // Optional: Cleanup function to prevent memory leaks in long-running servers
 export function cleanupExpiredAttempts() {
   const now = new Date();
-  
+
   for (const [email, attempt] of resetAttempts.entries()) {
     const minutesSinceLastAttempt = (now.getTime() - attempt.lastAttempt.getTime()) / (1000 * 60);
-    
+
     // Remove entries older than the cooldown period (they're no longer rate-limited)
     if (minutesSinceLastAttempt >= COOLDOWN_MINUTES) {
       resetAttempts.delete(email);

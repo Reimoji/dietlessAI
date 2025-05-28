@@ -19,5 +19,3 @@ export type ChatError = {
   message: string;
   code?: string;
 };
-
-

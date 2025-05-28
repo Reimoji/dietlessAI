@@ -1,10 +1,9 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db/drizzle';
-import { ChatMessage, chatMessages, chats } from '@/lib/db/schema';
 import { getSession } from '@/lib/auth/session';
-import { eq, desc, asc, inArray } from 'drizzle-orm';
+import { db } from '@/lib/db/drizzle';
+import { chatMessages, chats, teamMembers } from '@/lib/db/schema';
 import { Message } from '@/lib/types/chat';
-import { teams, teamMembers } from '@/lib/db/schema';
+import { asc, desc, eq, inArray } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 
 async function checkSubscription(userId: number) {
   const teamMember = await db.query.teamMembers.findFirst({
@@ -13,10 +12,10 @@ async function checkSubscription(userId: number) {
       team: {
         columns: {
           id: true,
-          subscriptionStatus: true
-        }
-      }
-    }
+          subscriptionStatus: true,
+        },
+      },
+    },
   });
 
   if (!teamMember?.team) {
@@ -39,14 +38,14 @@ export async function GET(request: Request) {
     }
 
     // Get the user's most recent chat
-    let chat = await db.query.chats.findFirst({
+    const chat = await db.query.chats.findFirst({
       where: eq(chats.userId, session.user.id),
       orderBy: [desc(chats.createdAt)],
       with: {
         messages: {
-          orderBy: [asc(chatMessages.createdAt)]
-        }
-      }
+          orderBy: [asc(chatMessages.createdAt)],
+        },
+      },
     });
 
     // If no chat exists, create one
@@ -58,11 +57,11 @@ export async function GET(request: Request) {
           userId: session.user.id,
         })
         .returning();
-      
+
       // Return empty messages array for the new chat
-      return NextResponse.json({ 
+      return NextResponse.json({
         messages: [],
-        chatId: newChat.id
+        chatId: newChat.id,
       });
     }
 
@@ -79,7 +78,7 @@ export async function GET(request: Request) {
     console.error('Get messages error:', error);
     return NextResponse.json(
       { error: `Failed to get messages: ${error.message}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -95,18 +94,12 @@ export async function POST(request: Request) {
     const { message } = body;
 
     if (!message || !message.content || !message.role) {
-      return NextResponse.json(
-        { error: 'Invalid message format' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid message format' }, { status: 400 });
     }
 
     // Validate message role
     if (!['user', 'assistant'].includes(message.role)) {
-      return NextResponse.json(
-        { error: 'Invalid message role' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid message role' }, { status: 400 });
     }
 
     // Get all chats for the user
@@ -117,7 +110,7 @@ export async function POST(request: Request) {
       .orderBy(desc(chats.createdAt));
 
     let chat;
-    
+
     // If no chats exist, create a new one
     if (userChats.length === 0) {
       const [newChat] = await db
@@ -130,20 +123,16 @@ export async function POST(request: Request) {
     } else {
       // Use the most recent chat
       chat = userChats[0];
-      
+
       // If there are multiple chats, delete the extras
       if (userChats.length > 1) {
-        const extraChatIds = userChats.slice(1).map(c => c.id);
-        
+        const extraChatIds = userChats.slice(1).map((c) => c.id);
+
         // First delete messages from extra chats
-        await db
-          .delete(chatMessages)
-          .where(inArray(chatMessages.chatId, extraChatIds));
-          
+        await db.delete(chatMessages).where(inArray(chatMessages.chatId, extraChatIds));
+
         // Then delete the extra chats
-        await db
-          .delete(chats)
-          .where(inArray(chats.id, extraChatIds));
+        await db.delete(chats).where(inArray(chats.id, extraChatIds));
       }
     }
 
@@ -157,7 +146,7 @@ export async function POST(request: Request) {
         chatId: chat.id,
         content: message.content,
         role: message.role,
-        createdAt
+        createdAt,
       })
       .returning();
 
@@ -166,25 +155,21 @@ export async function POST(request: Request) {
       id: savedMessage.id.toString(),
       content: savedMessage.content,
       role: savedMessage.role as 'user' | 'assistant',
-      createdAt: savedMessage.createdAt
+      createdAt: savedMessage.createdAt,
     };
 
     return NextResponse.json({ message: transformedMessage });
   } catch (error: any) {
     console.error('Save message error:', error);
-    
+
     // Add token limit handling
     if (error.message?.includes('token limit exceeded')) {
-      return NextResponse.json(
-        { error: error.message, limitExceeded: true },
-        { status: 429 }
-      );
+      return NextResponse.json({ error: error.message, limitExceeded: true }, { status: 429 });
     }
-    
+
     return NextResponse.json(
       { error: `Failed to save message: ${error.message}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

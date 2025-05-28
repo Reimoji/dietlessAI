@@ -1,55 +1,53 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getChatCompletionWithTracking } from '@/lib/openai/client';
-import { Message } from '@/lib/types/chat';
 import { getSession } from '@/lib/auth/session';
 import { db } from '@/lib/db/drizzle';
-import { chats, chatMessages } from '@/lib/db/schema';
-import { eq, desc, inArray } from 'drizzle-orm';
-import { sql } from 'drizzle-orm';
+import { chatMessages, chats } from '@/lib/db/schema';
+import { getChatCompletionWithTracking } from '@/lib/openai/client';
 import { TOKEN_LIMITS } from '@/lib/tokens/config';
+import { Message } from '@/lib/types/chat';
+import { desc, eq } from 'drizzle-orm';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const messages = body.messages as Message[];
-    
+
     // Early validation of message length
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.role === 'user') {
       const estimatedTokens = lastMessage.content.length / 4;
       console.log(`Estimated tokens for message: ${estimatedTokens}`);
-      
+
       if (estimatedTokens > TOKEN_LIMITS.MAX_INPUT_TOKENS) {
-        console.log(`Message too long: ~${estimatedTokens} tokens (limit: ${TOKEN_LIMITS.MAX_INPUT_TOKENS})`);
+        console.log(
+          `Message too long: ~${estimatedTokens} tokens (limit: ${TOKEN_LIMITS.MAX_INPUT_TOKENS})`,
+        );
         return NextResponse.json(
-          { 
-            error: "Your message is too long. Please shorten it a bit.",
-            errorType: 'message_too_long'
-          }, 
-          { status: 400 }
+          {
+            error: 'Your message is too long. Please shorten it a bit.',
+            errorType: 'message_too_long',
+          },
+          { status: 400 },
         );
       }
     }
-    
+
     // Get the session to identify the user
     const session = await getSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     const userId = session.user.id;
 
     if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json(
-        { error: 'Invalid messages format' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid messages format' }, { status: 400 });
     }
 
     // Find the user's chat (there should be only one per user)
     let userChat = await db.query.chats.findFirst({
       where: eq(chats.userId, userId),
-      orderBy: [desc(chats.createdAt)]
+      orderBy: [desc(chats.createdAt)],
     });
 
     // If no chat exists, create one
@@ -61,33 +59,30 @@ export async function POST(request: NextRequest) {
           userId: userId,
         })
         .returning();
-      
+
       if (!newChat) {
-        return NextResponse.json(
-          { error: 'Failed to create chat for user' },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to create chat for user' }, { status: 500 });
       }
-      
+
       userChat = newChat;
     }
 
     const chatId = userChat.id;
-    
+
     // Check if this is the first message in the conversation
     const isFirstMessage = messages.length === 1 && messages[0].role === 'user';
 
-    const openAIMessages = messages.map(msg => ({
+    const openAIMessages = messages.map((msg) => ({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
     }));
 
     // Get the latest message ID
     const latestMessage = await db.query.chatMessages.findFirst({
       where: eq(chatMessages.chatId, chatId),
-      orderBy: [desc(chatMessages.id)]
+      orderBy: [desc(chatMessages.id)],
     });
-    
+
     const messageId = latestMessage?.id || 1;
 
     // Check message length before sending to OpenAI
@@ -97,11 +92,11 @@ export async function POST(request: NextRequest) {
       const estimatedTokens = userMessage.content.length / 4;
       if (estimatedTokens > TOKEN_LIMITS.MAX_INPUT_TOKENS) {
         return NextResponse.json(
-          { 
-            error: "Your message is too long. Please shorten it a bit.",
-            errorType: 'message_too_long'
-          }, 
-          { status: 400 }
+          {
+            error: 'Your message is too long. Please shorten it a bit.',
+            errorType: 'message_too_long',
+          },
+          { status: 400 },
         );
       }
     }
@@ -112,7 +107,7 @@ export async function POST(request: NextRequest) {
       userId,
       chatId,
       messageId,
-      isFirstMessage
+      isFirstMessage,
     );
 
     // If there's an error, return it with appropriate status code
@@ -120,33 +115,31 @@ export async function POST(request: NextRequest) {
       // Check error type
       if (response.errorType === 'message_too_long') {
         return NextResponse.json(
-          { 
+          {
             error: response.error,
-            errorType: 'message_too_long'
-          }, 
-          { status: 400 }
+            errorType: 'message_too_long',
+          },
+          { status: 400 },
         );
       } else if (response.limitExceeded) {
         return NextResponse.json(
-          { 
-            error: "You've reached your monthly chat limit. Try implementing some of the nutrition and fitness advice you've discussed with dietlessAI. You can do it!",
-            errorType: 'monthly_limit_exceeded'
-          }, 
-          { status: 429 }
+          {
+            error:
+              "You've reached your monthly chat limit. Try implementing some of the nutrition and fitness advice you've discussed with dietlessAI. You can do it!",
+            errorType: 'monthly_limit_exceeded',
+          },
+          { status: 429 },
         );
       }
-      
-      return NextResponse.json(
-        { error: response.error },
-        { status: 500 }
-      );
+
+      return NextResponse.json({ error: response.error }, { status: 500 });
     }
 
     // Check for empty content
     if (!response.content.trim()) {
       return NextResponse.json(
-        { error: "The AI generated an empty response. Please try again." },
-        { status: 500 }
+        { error: 'The AI generated an empty response. Please try again.' },
+        { status: 500 },
       );
     }
 
@@ -155,16 +148,13 @@ export async function POST(request: NextRequest) {
       message: {
         content: response.content,
         role: 'assistant',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       },
       warning: response.warning,
-      warningLevel: response.warningLevel
+      warningLevel: response.warningLevel,
     });
   } catch (error: any) {
     console.error('Chat API Error:', error);
-    return NextResponse.json(
-      { error: `Chat error: ${error.message}` },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: `Chat error: ${error.message}` }, { status: 500 });
   }
 }

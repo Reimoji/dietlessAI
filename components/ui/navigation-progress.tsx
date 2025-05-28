@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
 import { Progress } from '@/components/ui/progress';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Suspense } from 'react';
 
 export function NavigationProgress() {
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,15 @@ export function NavigationProgress() {
   return (
     <Progress
       value={progress}
-      className="fixed top-0 left-0 right-0 z-50 h-1 rounded-none bg-primary/10"
+      className='fixed top-0 left-0 right-0 z-50 h-1 rounded-none bg-primary/10'
     />
+  );
+}
+
+export default function NavigationProgressWrapper() {
+  return (
+    <Suspense fallback={<div />}>
+      <NavigationProgress />
+    </Suspense>
   );
 }

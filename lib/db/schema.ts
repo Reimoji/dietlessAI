@@ -1,13 +1,5 @@
-import {
-  pgTable,
-  serial,
-  varchar,
-  text,
-  timestamp,
-  integer,
-} from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
-import { InferModel } from 'drizzle-orm';
+import { InferModel, relations } from 'drizzle-orm';
+import { integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -190,14 +182,14 @@ export type Chat = InferModel<typeof chats>;
 export type ChatMessage = InferModel<typeof chatMessages>;
 
 export const chatsRelations = relations(chats, ({ many }) => ({
-  messages: many(chatMessages)
+  messages: many(chatMessages),
 }));
 
 export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
   chat: one(chats, {
     fields: [chatMessages.chatId],
-    references: [chats.id]
-  })
+    references: [chats.id],
+  }),
 }));
 
 // Add this new table for token usage tracking
@@ -218,8 +210,8 @@ export const tokenUsage = pgTable('token_usage', {
 export const tokenUsageRelations = relations(tokenUsage, ({ one }) => ({
   user: one(users, {
     fields: [tokenUsage.userId],
-    references: [users.id]
-  })
+    references: [users.id],
+  }),
 }));
 
 // Add types

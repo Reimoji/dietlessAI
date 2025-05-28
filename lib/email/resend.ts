@@ -39,7 +39,3 @@ export async function sendEmail({
     return { success: false, error };
   }
 }
-
-
-
-

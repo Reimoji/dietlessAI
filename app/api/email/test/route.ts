@@ -1,34 +1,33 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { sendEmail } from '@/lib/email/resend';
 import {
-  sendWelcomeEmail,
-  sendPasswordResetEmail,
   sendPasswordChangedEmail,
-  sendTrialEmail,
+  sendPasswordResetEmail,
   sendSubscriptionActivatedEmail,
   sendSubscriptionCancelledEmail,
+  sendTrialEmail,
 } from '@/lib/email/send-emails';
-import { sendEmail } from '@/lib/email/resend';
+import { NextRequest, NextResponse } from 'next/server';
 import React from 'react';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const template = searchParams.get('template') || 'welcome';
   const email = searchParams.get('email') || 'test@example.com';
-  
+
   try {
     let result;
-    
+
     // Sample data for testing
     const name = 'Test User';
     const today = new Date().toLocaleDateString();
     const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString();
     const billingDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString();
-    
+
     switch (template) {
       case 'welcome':
         // Force direct import of WelcomeEmail to ensure we're using the right component
         const { WelcomeEmail } = require('@/components/email/welcome-email');
-        
+
         result = await sendEmail({
           to: email,
           subject: 'Welcome to dietlessAI',
@@ -36,19 +35,10 @@ export async function GET(request: NextRequest) {
         });
         break;
       case 'reset-password':
-        result = await sendPasswordResetEmail(
-          email,
-          name,
-          'https://dietless.ai/reset-password?token=test123',
-          24
-        );
+        result = await sendPasswordResetEmail(email, name, 24);
         break;
       case 'password-changed':
-        result = await sendPasswordChangedEmail(
-          email,
-          name,
-          'dietlessai@dietless.ai'
-        );
+        result = await sendPasswordChangedEmail(email, name);
         break;
       case 'trial':
         result = await sendTrialEmail(
@@ -60,7 +50,7 @@ export async function GET(request: NextRequest) {
           futureDate,
           '$9.99/month',
           'https://dietless.ai/dashboard',
-          'https://dietless.ai/pricing'
+          'https://dietless.ai/pricing',
         );
         break;
       case 'subscription-activated':
@@ -71,7 +61,7 @@ export async function GET(request: NextRequest) {
           'Monthly',
           '$9.99/month',
           billingDate,
-          'https://dietless.ai/dashboard'
+          'https://dietless.ai/dashboard',
         );
         break;
       case 'subscription-cancelled':
@@ -81,16 +71,13 @@ export async function GET(request: NextRequest) {
           'Premium',
           futureDate,
           'https://dietless.ai/reactivate',
-          'https://dietless.ai/feedback'
+          'https://dietless.ai/feedback',
         );
         break;
       default:
-        return NextResponse.json(
-          { error: 'Invalid template name' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Invalid template name' }, { status: 400 });
     }
-    
+
     return NextResponse.json({
       success: true,
       message: `Test email (${template}) sent to ${email}`,
@@ -99,19 +86,11 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Error sending test email:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to send test email',
-        details: error.message 
+        details: error.message,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-
-
-
-
-
-
-
-

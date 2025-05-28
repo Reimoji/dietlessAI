@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { useFormState } from 'react-dom';
-import { resetPassword } from '../actions';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useFormState } from 'react-dom';
+import { resetPassword } from '../actions';
 
 export function ResetPasswordForm({ token }: { token: string }) {
   // Provide a proper initial state that matches all possible return types
@@ -26,9 +26,9 @@ export function ResetPasswordForm({ token }: { token: string }) {
   const isTokenExpired = state.expired === true;
 
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form action={handleSubmit} className='space-y-6'>
       {!token && (
-        <Alert variant="destructive">
+        <Alert variant='destructive'>
           <AlertDescription>
             Invalid reset link. Please request a new password reset.
           </AlertDescription>
@@ -36,18 +36,18 @@ export function ResetPasswordForm({ token }: { token: string }) {
       )}
 
       {isTokenExpired ? (
-        <div className="space-y-4">
-          <Alert variant="destructive">
+        <div className='space-y-4'>
+          <Alert variant='destructive'>
             <AlertDescription>
               {state.error || 'This password reset link has expired.'}
             </AlertDescription>
           </Alert>
-          
-          <div className="text-center">
-            <p className="mb-4">Would you like to request a new password reset link?</p>
+
+          <div className='text-center'>
+            <p className='mb-4'>Would you like to request a new password reset link?</p>
             <Link
-              href="/forgot-password"
-              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              href='/forgot-password'
+              className='inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90'
             >
               Request New Link
             </Link>
@@ -58,32 +58,32 @@ export function ResetPasswordForm({ token }: { token: string }) {
           {token && (
             <>
               <div>
-                <Label htmlFor="password">New Password</Label>
-                <div className="mt-1">
+                <Label htmlFor='password'>New Password</Label>
+                <div className='mt-1'>
                   <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
+                    id='password'
+                    name='password'
+                    type='password'
+                    autoComplete='new-password'
                     required
                     minLength={8}
-                    className="block w-full"
+                    className='block w-full'
                     disabled={!token || isTokenExpired}
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <div className="mt-1">
+                <Label htmlFor='confirmPassword'>Confirm Password</Label>
+                <div className='mt-1'>
                   <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
+                    id='confirmPassword'
+                    name='confirmPassword'
+                    type='password'
+                    autoComplete='new-password'
                     required
                     minLength={8}
-                    className="block w-full"
+                    className='block w-full'
                     disabled={!token || isTokenExpired}
                   />
                 </div>
@@ -92,7 +92,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           )}
 
           {state.error && !isTokenExpired && (
-            <Alert variant="destructive">
+            <Alert variant='destructive'>
               <AlertDescription>{state.error}</AlertDescription>
             </Alert>
           )}
@@ -101,7 +101,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
             <Alert>
               <AlertDescription>
                 {state.success}{' '}
-                <Link href="/sign-in" className="font-medium text-primary hover:text-primary/90">
+                <Link href='/sign-in' className='font-medium text-primary hover:text-primary/90'>
                   Sign in
                 </Link>
               </AlertDescription>
@@ -109,8 +109,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
           )}
 
           <Button
-            type="submit"
-            className="w-full"
+            type='submit'
+            className='w-full'
             disabled={isSubmitting || !token || isTokenExpired}
           >
             {isSubmitting ? 'Resetting...' : 'Reset Password'}
@@ -118,15 +118,11 @@ export function ResetPasswordForm({ token }: { token: string }) {
         </>
       )}
 
-      <div className="text-center">
-        <Link
-          href="/sign-in"
-          className="text-sm font-medium text-primary hover:text-primary/90"
-        >
+      <div className='text-center'>
+        <Link href='/sign-in' className='text-sm font-medium text-primary hover:text-primary/90'>
           Back to sign in
         </Link>
       </div>
     </form>
   );
 }
-

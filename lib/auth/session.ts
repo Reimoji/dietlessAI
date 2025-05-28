@@ -1,13 +1,13 @@
+import { NewUser } from '@/lib/db/schema';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
-import { NewUser } from '@/lib/db/schema';
 
 const key = new TextEncoder().encode(process.env.AUTH_SECRET);
 
 function generateSalt(): string {
   const array = new Uint8Array(16);
   crypto.getRandomValues(array);
-  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -17,33 +17,33 @@ export async function hashPassword(password: string): Promise<string> {
   const saltBuffer = encoder.encode(salt);
 
   const keyMaterial = await crypto.subtle.importKey(
-      'raw',
-      passwordBuffer,
-      { name: 'PBKDF2' },
-      false,
-      ['deriveBits']
+    'raw',
+    passwordBuffer,
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits'],
   );
 
   const hashBuffer = await crypto.subtle.deriveBits(
-      {
-        name: 'PBKDF2',
-        salt: saltBuffer,
-        iterations: 100000,
-        hash: 'SHA-256'
-      },
-      keyMaterial,
-      256
+    {
+      name: 'PBKDF2',
+      salt: saltBuffer,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    256,
   );
 
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const hash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
   return `${salt}:${hash}`;
 }
 
 export async function comparePasswords(
-    plainTextPassword: string,
-    hashedPassword: string
+  plainTextPassword: string,
+  hashedPassword: string,
 ): Promise<boolean> {
   const [salt, hash] = hashedPassword.split(':');
   if (!salt || !hash) return false;
@@ -53,26 +53,26 @@ export async function comparePasswords(
   const saltBuffer = encoder.encode(salt);
 
   const keyMaterial = await crypto.subtle.importKey(
-      'raw',
-      passwordBuffer,
-      { name: 'PBKDF2' },
-      false,
-      ['deriveBits']
+    'raw',
+    passwordBuffer,
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits'],
   );
 
   const hashBuffer = await crypto.subtle.deriveBits(
-      {
-        name: 'PBKDF2',
-        salt: saltBuffer,
-        iterations: 100000,
-        hash: 'SHA-256'
-      },
-      keyMaterial,
-      256
+    {
+      name: 'PBKDF2',
+      salt: saltBuffer,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    256,
   );
 
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const computedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const computedHash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
   return computedHash === hash;
 }

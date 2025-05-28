@@ -20,18 +20,21 @@ export const useChatStore = create<ChatStore>((set) => ({
   messages: [],
   isLoading: false,
   error: null,
-  addMessage: (message) => 
-    set((state) => ({ 
-      messages: [...state.messages, {
-        ...message,
-        createdAt: new Date(message.createdAt)
-      }]
+  addMessage: (message) =>
+    set((state) => ({
+      messages: [
+        ...state.messages,
+        {
+          ...message,
+          createdAt: new Date(message.createdAt),
+        },
+      ],
     })),
   setLoading: (loading) => set({ isLoading: loading }),
   loadMessages: async () => {
     try {
       const response = await fetch('/api/chat/messages');
-      
+
       if (!response.ok) {
         // If the error is 404 (no chat found), we'll create one when sending the first message
         if (response.status === 404) {
@@ -40,27 +43,22 @@ export const useChatStore = create<ChatStore>((set) => ({
         }
         throw new Error('Failed to load messages');
       }
-      
+
       const data = await response.json();
-      
+
       // Ensure dates are properly parsed
       const messages = data.messages.map((msg: any) => ({
         ...msg,
-        createdAt: new Date(msg.createdAt)
+        createdAt: new Date(msg.createdAt),
       }));
-      
+
       set({ messages, error: null });
     } catch (error: any) {
       console.error('Load messages error:', error);
-      set({ 
+      set({
         error: error.message,
-        messages: []
+        messages: [],
       });
     }
-  }
+  },
 }));
-
-
-
-
-

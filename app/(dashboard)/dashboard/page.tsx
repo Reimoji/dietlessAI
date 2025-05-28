@@ -1,8 +1,8 @@
 'use client';
 
-import { Settings } from './settings';
-import { useEffect, useState } from 'react';
 import { TeamDataWithMembers } from '@/lib/db/schema';
+import { useEffect, useState } from 'react';
+import { Settings } from './settings';
 
 export default function SettingsPage() {
   const [teamData, setTeamData] = useState<TeamDataWithMembers | null>(null);

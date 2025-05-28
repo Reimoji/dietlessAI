@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 import { signToken, verifyToken } from '@/lib/auth/session';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const protectedRoutes = '/dashboard';
 const subscriberRoutes = '/dashboard/chat';
@@ -23,15 +23,15 @@ export async function middleware(request: NextRequest) {
     try {
       const parsed = await verifyToken(sessionCookie?.value || '');
       console.log('Middleware: Session verified for user:', parsed);
-      
+
       const subscriptionResponse = await fetch(`${request.nextUrl.origin}/api/teams/subscription`, {
         headers: {
           Cookie: request.headers.get('cookie') || '',
         },
       });
-      
+
       console.log('Middleware: Subscription check response status:', subscriptionResponse.status);
-      
+
       const subscriptionData = await subscriptionResponse.json();
       console.log('Middleware: Subscription data:', subscriptionData);
 
@@ -47,7 +47,6 @@ export async function middleware(request: NextRequest) {
       }
 
       console.log('Middleware: Subscription check passed');
-
     } catch (error) {
       console.error('Middleware: Error during subscription check:', error);
       return NextResponse.redirect(new URL('/pricing', request.url));
@@ -56,7 +55,7 @@ export async function middleware(request: NextRequest) {
 
   let res = NextResponse.next();
 
-  if (sessionCookie && request.method === "GET") {
+  if (sessionCookie && request.method === 'GET') {
     try {
       const parsed = await verifyToken(sessionCookie.value);
       const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);

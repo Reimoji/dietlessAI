@@ -1,13 +1,20 @@
-import { desc, and, eq, isNull } from 'drizzle-orm';
-import { db } from './drizzle';
-import { activityLogs, TeamDataWithMembers, teamMembers, TeamMemberWithUser, teams, users } from './schema';
-import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
+import { and, desc, eq, isNull } from 'drizzle-orm';
+import { cookies } from 'next/headers';
+import { db } from './drizzle';
+import {
+  activityLogs,
+  TeamDataWithMembers,
+  teamMembers,
+  TeamMemberWithUser,
+  teams,
+  users,
+} from './schema';
 
 // Helper function to format date without time
 function formatDateString(date: Date | null): string | null {
   if (!date) return null;
-  
+
   try {
     // Convert to ISO string and extract just the date part (YYYY-MM-DD)
     return date.toISOString().split('T')[0];
@@ -24,11 +31,7 @@ export async function getUser() {
   }
 
   const sessionData = await verifyToken(sessionCookie.value);
-  if (
-    !sessionData ||
-    !sessionData.user ||
-    typeof sessionData.user.id !== 'number'
-  ) {
+  if (!sessionData || !sessionData.user || typeof sessionData.user.id !== 'number') {
     return null;
   }
 
@@ -69,7 +72,7 @@ export async function updateTeamSubscription(
     trialEndsAt?: Date | null;
     nextBillingDate?: Date | null;
     subscriptionEndDate?: Date | null;
-  }
+  },
 ) {
   await db
     .update(teams)
@@ -124,37 +127,37 @@ export async function getActivityLogs() {
 export async function getTeamForUser(userId: number): Promise<TeamDataWithMembers | null> {
   try {
     console.log('Fetching team for user:', userId);
-    
+
     const teamMember = await db.query.teamMembers.findFirst({
       where: eq(teamMembers.userId, userId),
       with: {
         team: true,
-        user: true
-      }
+        user: true,
+      },
     });
-    
+
     if (!teamMember?.team) {
       console.log('No team found for user:', userId);
       return null;
     }
-    
+
     console.log('Raw team data:', {
       trialEndsAt: teamMember.team.trialEndsAt,
       nextBillingDate: teamMember.team.nextBillingDate,
-      subscriptionEndDate: teamMember.team.subscriptionEndDate
+      subscriptionEndDate: teamMember.team.subscriptionEndDate,
     });
-    
+
     // Format the dates
     const formattedTrialEndsAt = formatDateString(teamMember.team.trialEndsAt);
     const formattedNextBillingDate = formatDateString(teamMember.team.nextBillingDate);
     const formattedSubscriptionEndDate = formatDateString(teamMember.team.subscriptionEndDate);
-    
+
     console.log('Formatted dates:', {
       trialEndsAt: formattedTrialEndsAt,
       nextBillingDate: formattedNextBillingDate,
-      subscriptionEndDate: formattedSubscriptionEndDate
+      subscriptionEndDate: formattedSubscriptionEndDate,
     });
-    
+
     // Get all team members for this team
     const allTeamMembers = await db.query.teamMembers.findMany({
       where: eq(teamMembers.teamId, teamMember.team.id),
@@ -163,14 +166,14 @@ export async function getTeamForUser(userId: number): Promise<TeamDataWithMember
           columns: {
             id: true,
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     // Explicitly cast to TeamMemberWithUser[]
-    const mappedTeamMembers: TeamMemberWithUser[] = allTeamMembers.map(member => ({
+    const mappedTeamMembers: TeamMemberWithUser[] = allTeamMembers.map((member) => ({
       id: member.id,
       userId: member.userId,
       teamId: member.teamId,
@@ -179,8 +182,8 @@ export async function getTeamForUser(userId: number): Promise<TeamDataWithMember
       user: {
         id: member.user.id,
         name: member.user.name,
-        email: member.user.email
-      }
+        email: member.user.email,
+      },
     }));
 
     const result = {
@@ -194,11 +197,11 @@ export async function getTeamForUser(userId: number): Promise<TeamDataWithMember
       trialEndsAt: formattedTrialEndsAt,
       nextBillingDate: formattedNextBillingDate,
       subscriptionEndDate: formattedSubscriptionEndDate,
-      teamMembers: mappedTeamMembers
+      teamMembers: mappedTeamMembers,
     };
-    
+
     console.log('Final result object:', result);
-    
+
     return result;
   } catch (error) {
     console.error('Error in getTeamForUser:', error);
@@ -206,4 +209,3 @@ export async function getTeamForUser(userId: number): Promise<TeamDataWithMember
   }
 }
 // The formatDateString function is now at the top of the file
-

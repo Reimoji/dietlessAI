@@ -11,10 +11,12 @@ export const BaseEmailLayout: React.FC<BaseEmailLayoutProps> = ({
 }) => (
   <html>
     <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+      <meta httpEquiv='Content-Type' content='text/html; charset=UTF-8' />
       <title>{previewText}</title>
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         /* Base styles matching your app theme */
         body {
           font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -64,31 +66,25 @@ export const BaseEmailLayout: React.FC<BaseEmailLayoutProps> = ({
           color: #6366F1;
           text-decoration: none;
         }
-      `}} />
+      `,
+        }}
+      />
     </head>
     <body>
-      <div className="container">
-        <div className="header">
+      <div className='container'>
+        <div className='header'>
           <h1>dietlessAI</h1>
         </div>
-        <div className="content">
-          {children}
-        </div>
-        <div className="footer">
+        <div className='content'>{children}</div>
+        <div className='footer'>
           <p>© {new Date().getFullYear()} dietlessAI. All rights reserved.</p>
           <p>
-            This email was sent to you because you have an account with dietlessAI.
-            If you have any questions, please contact us at <a href="mailto:dietlessai@dietless.ai">dietlessai@dietless.ai</a>
+            This email was sent to you because you have an account with dietlessAI. If you have any
+            questions, please contact us at{' '}
+            <a href='mailto:dietlessai@dietless.ai'>dietlessai@dietless.ai</a>
           </p>
         </div>
       </div>
     </body>
   </html>
 );
-
-
-
-
-
-
-

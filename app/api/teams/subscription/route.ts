@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
 import { db } from '@/lib/db/drizzle';
-import { teams, teamMembers } from '@/lib/db/schema';
+import { teamMembers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
@@ -18,8 +18,8 @@ export async function GET() {
     const teamMember = await db.query.teamMembers.findFirst({
       where: eq(teamMembers.userId, session.user.id),
       with: {
-        team: true
-      }
+        team: true,
+      },
     });
 
     if (!teamMember?.team) {
@@ -33,7 +33,7 @@ export async function GET() {
       teamId: team.id,
       subscriptionStatus: team.subscriptionStatus,
       planName: team.planName,
-      stripeSubscriptionId: team.stripeSubscriptionId
+      stripeSubscriptionId: team.stripeSubscriptionId,
     });
 
     if (!team.subscriptionStatus) {
@@ -48,12 +48,8 @@ export async function GET() {
 
     console.log('Subscription API: Returning valid status:', team.subscriptionStatus);
     return NextResponse.json({ status: team.subscriptionStatus });
-
   } catch (error) {
     console.error('Subscription API: Error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
-
-
-

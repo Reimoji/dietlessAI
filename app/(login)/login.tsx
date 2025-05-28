@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 
-import { useActionState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, EggFried } from 'lucide-react';
-import { signIn, signUp } from './actions';
 import { ActionState } from '@/lib/auth/middleware';
+import { EggFried, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { useActionState } from 'react';
+import { signIn, signUp } from './actions';
 
 export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   const searchParams = useSearchParams();
@@ -22,96 +22,84 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
   );
 
   return (
-    <div className="min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <Link href="/" aria-label="Go to homepage">
-            <EggFried className="h-12 w-12 text-primary transition-all duration-300 hover:scale-110 hover:rotate-12 cursor-pointer" />
+    <div className='min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background'>
+      <div className='sm:mx-auto sm:w-full sm:max-w-md'>
+        <div className='flex justify-center'>
+          <Link href='/' aria-label='Go to homepage'>
+            <EggFried className='h-12 w-12 text-primary transition-all duration-300 hover:scale-110 hover:rotate-12 cursor-pointer' />
           </Link>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
-          {mode === 'signin'
-            ? 'Sign in to your account'
-            : 'Create your account'}
+        <h2 className='mt-6 text-center text-3xl font-extrabold text-foreground'>
+          {mode === 'signin' ? 'Sign in to your account' : 'Create your account'}
         </h2>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <form className="space-y-6" action={formAction}>
-          <input type="hidden" name="redirect" value={redirect || ''} />
-          <input type="hidden" name="priceId" value={priceId || ''} />
-          <input type="hidden" name="inviteId" value={inviteId || ''} />
+      <div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>
+        <form className='space-y-6' action={formAction}>
+          <input type='hidden' name='redirect' value={redirect || ''} />
+          <input type='hidden' name='priceId' value={priceId || ''} />
+          <input type='hidden' name='inviteId' value={inviteId || ''} />
           <div>
-            <Label
-              htmlFor="email"
-              className="block text-sm font-medium text-foreground"
-            >
+            <Label htmlFor='email' className='block text-sm font-medium text-foreground'>
               Email
             </Label>
-            <div className="mt-1">
+            <div className='mt-1'>
               <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id='email'
+                name='email'
+                type='email'
+                autoComplete='email'
                 defaultValue={state.email}
                 required
                 maxLength={50}
-                className="appearance-none rounded-full relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                placeholder="Enter your email"
+                className='appearance-none rounded-full relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm'
+                placeholder='Enter your email'
               />
             </div>
           </div>
 
           <div>
-            <Label
-              htmlFor="password"
-              className="block text-sm font-medium text-foreground"
-            >
+            <Label htmlFor='password' className='block text-sm font-medium text-foreground'>
               Password
             </Label>
-            <div className="mt-1">
+            <div className='mt-1'>
               <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete={
-                  mode === 'signin' ? 'current-password' : 'new-password'
-                }
+                id='password'
+                name='password'
+                type='password'
+                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
                 defaultValue={state.password}
                 required
                 minLength={8}
                 maxLength={100}
-                className="appearance-none rounded-full relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                placeholder="Enter your password"
+                className='appearance-none rounded-full relative block w-full px-3 py-2 border border-border placeholder-muted-foreground text-foreground focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm'
+                placeholder='Enter your password'
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-2">
-            <div className="text-sm">
+          <div className='flex items-center justify-between mt-2'>
+            <div className='text-sm'>
               <Link
-                href="/forgot-password"
-                className="font-medium text-primary hover:text-primary/90"
+                href='/forgot-password'
+                className='font-medium text-primary hover:text-primary/90'
               >
                 Forgot your password?
               </Link>
             </div>
           </div>
 
-          {state?.error && (
-            <div className="text-red-500 text-sm">{state.error}</div>
-          )}
+          {state?.error && <div className='text-red-500 text-sm'>{state.error}</div>}
 
           <div>
             <Button
-              type="submit"
-              className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              type='submit'
+              className='w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary'
               disabled={pending}
             >
               {pending ? (
                 <>
-                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  <Loader2 className='animate-spin mr-2 h-4 w-4' />
                   Loading...
                 </>
               ) : mode === 'signin' ? (
@@ -123,30 +111,26 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           </div>
         </form>
 
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
+        <div className='mt-6'>
+          <div className='relative'>
+            <div className='absolute inset-0 flex items-center'>
+              <div className='w-full border-t border-border' />
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-background text-muted-foreground">
-                {mode === 'signin'
-                  ? 'New to our platform?'
-                  : 'Already have an account?'}
+            <div className='relative flex justify-center text-sm'>
+              <span className='px-2 bg-background text-muted-foreground'>
+                {mode === 'signin' ? 'New to our platform?' : 'Already have an account?'}
               </span>
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className='mt-6'>
             <Link
               href={`${mode === 'signin' ? '/sign-up' : '/sign-in'}${
                 redirect ? `?redirect=${redirect}` : ''
               }${priceId ? `&priceId=${priceId}` : ''}`}
-              className="w-full flex justify-center py-2 px-4 border border-border rounded-full shadow-sm text-sm font-medium text-foreground bg-card hover:bg-card/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className='w-full flex justify-center py-2 px-4 border border-border rounded-full shadow-sm text-sm font-medium text-foreground bg-card hover:bg-card/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary'
             >
-              {mode === 'signin'
-                ? 'Create an account'
-                : 'Sign in to existing account'}
+              {mode === 'signin' ? 'Create an account' : 'Sign in to existing account'}
             </Link>
           </div>
         </div>

@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
 import { db } from '@/lib/db/drizzle';
 import { teamMembers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
@@ -20,10 +20,10 @@ export async function GET() {
           columns: {
             id: true,
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     if (!teamMember?.team) {
@@ -38,10 +38,10 @@ export async function GET() {
           columns: {
             id: true,
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -49,13 +49,10 @@ export async function GET() {
       name: teamMember.team.name,
       planName: teamMember.team.planName,
       subscriptionStatus: teamMember.team.subscriptionStatus,
-      teamMembers: allTeamMembers
+      teamMembers: allTeamMembers,
     });
   } catch (error) {
     console.error('Team API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch team data' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch team data' }, { status: 500 });
   }
 }

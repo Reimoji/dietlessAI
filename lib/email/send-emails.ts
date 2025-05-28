@@ -1,17 +1,16 @@
-import { sendEmail } from './resend';
-import React from 'react';
-import { WelcomeEmail } from '@/components/email/welcome-email';
-import { ResetPasswordEmail } from '@/components/email/reset-password-email';
 import { PasswordChangedEmail } from '@/components/email/password-changed-email';
-import { TrialEmail } from '@/components/email/trial-email';
+import { ResetPasswordEmail } from '@/components/email/reset-password-email';
 import { SubscriptionActivatedEmail } from '@/components/email/subscription-activated-email';
 import { SubscriptionCancelledEmail } from '@/components/email/subscription-cancelled-email';
+import { TrialEmail } from '@/components/email/trial-email';
+import React from 'react';
+import { sendEmail } from './resend';
 
 // Welcome email
 export async function sendWelcomeEmail(to: string) {
   // Import directly here to ensure we're using the correct component
   const { WelcomeEmail } = require('@/components/email/welcome-email');
-  
+
   return sendEmail({
     to,
     subject: 'Welcome to dietlessAI',
@@ -20,13 +19,17 @@ export async function sendWelcomeEmail(to: string) {
 }
 
 // Password reset email
-export async function sendPasswordResetEmail(to: string, resetLink: string, expirationMinutes = 30) {
+export async function sendPasswordResetEmail(
+  to: string,
+  resetLink: string,
+  expirationMinutes = 30,
+) {
   return sendEmail({
     to,
     subject: 'Reset Your dietlessAI Password',
-    react: React.createElement(ResetPasswordEmail, { 
+    react: React.createElement(ResetPasswordEmail, {
       resetLink,
-      expirationMinutes
+      expirationMinutes,
     }),
   });
 }
@@ -42,28 +45,28 @@ export async function sendPasswordChangedEmail(to: string, supportEmail?: string
 
 // Combined trial email (start and end information)
 export async function sendTrialEmail(
-  to: string, 
-  name: string, 
+  to: string,
+  name: string,
   trialDays: number,
   startDate: string,
   endDate: string,
   billingStartDate: string,
   amount: string,
   dashboardLink: string,
-  pricingLink: string
+  pricingLink: string,
 ) {
   return sendEmail({
     to,
     subject: `Your ${trialDays}-day dietlessAI Trial Has Started`,
-    react: React.createElement(TrialEmail, { 
-      name, 
+    react: React.createElement(TrialEmail, {
+      name,
       trialDays,
       startDate,
       endDate,
       billingStartDate,
       amount,
       dashboardLink,
-      pricingLink
+      pricingLink,
     }),
   });
 }
@@ -76,7 +79,7 @@ export async function sendSubscriptionActivatedEmail(
   billingPeriod: string,
   amount: string,
   nextBillingDate: string,
-  dashboardLink: string
+  dashboardLink: string,
 ) {
   return sendEmail({
     to,
@@ -99,7 +102,7 @@ export async function sendSubscriptionCancelledEmail(
   planName: string,
   accessEndDate: string,
   reactivateLink: string,
-  feedbackLink?: string
+  feedbackLink?: string,
 ) {
   return sendEmail({
     to,
@@ -113,15 +116,3 @@ export async function sendSubscriptionCancelledEmail(
     }),
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-

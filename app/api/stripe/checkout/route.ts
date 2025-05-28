@@ -1,9 +1,15 @@
-import { eq, and } from 'drizzle-orm';
-import { db } from '@/lib/db/drizzle';
-import { users, teams, teamMembers } from '@/lib/db/schema';
 import { setSession } from '@/lib/auth/session';
+import { db } from '@/lib/db/drizzle';
+import { teamMembers, teams, users } from '@/lib/db/schema';
+import {
+  formatDate,
+  formatPrice,
+  sendSubscriptionActivatedEmail,
+  sendTrialEmail,
+  stripe,
+} from '@/lib/payments/stripe';
+import { and, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, formatPrice, formatDate, sendTrialEmail, sendSubscriptionActivatedEmail } from '@/lib/payments/stripe';
 import Stripe from 'stripe';
 
 export async function GET(request: NextRequest) {
@@ -25,9 +31,7 @@ export async function GET(request: NextRequest) {
 
     const customerId = session.customer.id;
     const subscriptionId =
-      typeof session.subscription === 'string'
-        ? session.subscription
-        : session.subscription?.id;
+      typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
 
     if (!subscriptionId) {
       throw new Error('No subscription found for this session.');
@@ -76,17 +80,16 @@ export async function GET(request: NextRequest) {
       throw new Error('User is not associated with any team.');
     }
 
-    const trialEndsAt = subscription.trial_end 
-      ? new Date(subscription.trial_end * 1000) 
-      : null;
-      
-    const nextBillingDate = subscription.current_period_end 
-      ? new Date(subscription.current_period_end * 1000) 
-      : null;
-      
-    const subscriptionEndDate = subscription.cancel_at_period_end && subscription.current_period_end
+    const trialEndsAt = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
+
+    const nextBillingDate = subscription.current_period_end
       ? new Date(subscription.current_period_end * 1000)
       : null;
+
+    const subscriptionEndDate =
+      subscription.cancel_at_period_end && subscription.current_period_end
+        ? new Date(subscription.current_period_end * 1000)
+        : null;
 
     // Update the team with subscription info
     await db
@@ -108,25 +111,24 @@ export async function GET(request: NextRequest) {
     if (subscription.status === 'trialing' && trialEndsAt) {
       // Get team owner email
       const teamOwner = await db.query.teamMembers.findFirst({
-        where: and(
-          eq(teamMembers.teamId, userTeam[0].teamId),
-          eq(teamMembers.role, 'owner')
-        ),
+        where: and(eq(teamMembers.teamId, userTeam[0].teamId), eq(teamMembers.role, 'owner')),
         with: {
           user: {
             columns: {
               id: true,
               email: true,
-              name: true
-            }
-          }
-        }
+              name: true,
+            },
+          },
+        },
       });
 
       if (teamOwner?.user?.email) {
         const trialStart = new Date();
-        const trialDays = Math.ceil((trialEndsAt.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24));
-        
+        const trialDays = Math.ceil(
+          (trialEndsAt.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24),
+        );
+
         try {
           console.log('Sending trial email from checkout handler to:', teamOwner.user.email);
           await sendTrialEmail(
@@ -138,37 +140,37 @@ export async function GET(request: NextRequest) {
             formatDate(trialEndsAt),
             formatPrice(plan),
             `${process.env.BASE_URL}/dashboard`,
-            `${process.env.BASE_URL}/pricing`
+            `${process.env.BASE_URL}/pricing`,
           );
           console.log('Trial email sent successfully from checkout handler');
         } catch (error) {
           console.error('Failed to send trial email from checkout handler:', error);
         }
       }
-    } 
+    }
     // If this is an active subscription (no trial), send the activation email
     else if (subscription.status === 'active') {
       const teamOwner = await db.query.teamMembers.findFirst({
-        where: and(
-          eq(teamMembers.teamId, userTeam[0].teamId),
-          eq(teamMembers.role, 'owner')
-        ),
+        where: and(eq(teamMembers.teamId, userTeam[0].teamId), eq(teamMembers.role, 'owner')),
         with: {
           user: {
             columns: {
               id: true,
               email: true,
-              name: true
-            }
-          }
-        }
+              name: true,
+            },
+          },
+        },
       });
 
       if (teamOwner?.user?.email && nextBillingDate) {
         const billingPeriod = plan.recurring?.interval === 'year' ? 'Yearly' : 'Monthly';
-        
+
         try {
-          console.log('Sending subscription activated email from checkout handler to:', teamOwner.user.email);
+          console.log(
+            'Sending subscription activated email from checkout handler to:',
+            teamOwner.user.email,
+          );
           await sendSubscriptionActivatedEmail(
             teamOwner.user.email,
             teamOwner.user.name || 'there',
@@ -176,11 +178,14 @@ export async function GET(request: NextRequest) {
             billingPeriod,
             formatPrice(plan),
             formatDate(nextBillingDate),
-            `${process.env.BASE_URL}/dashboard`
+            `${process.env.BASE_URL}/dashboard`,
           );
           console.log('Subscription activated email sent successfully from checkout handler');
         } catch (error) {
-          console.error('Failed to send subscription activated email from checkout handler:', error);
+          console.error(
+            'Failed to send subscription activated email from checkout handler:',
+            error,
+          );
         }
       }
     }
