@@ -1,8 +1,8 @@
 'use client';
 
-import { Suspense } from 'react';
 import { CircleIcon } from 'lucide-react';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export default function NotFound() {
   return (

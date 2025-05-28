@@ -2,8 +2,7 @@
 
 import { Progress } from '@/components/ui/progress';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 export function NavigationProgress() {
   const [loading, setLoading] = useState(false);

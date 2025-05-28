@@ -1,4 +1,4 @@
-import NavigationProgressWrapper, { NavigationProgress } from '@/components/ui/navigation-progress';
+import NavigationProgressWrapper from '@/components/ui/navigation-progress';
 import { UserProvider } from '@/lib/auth';
 import { getUser } from '@/lib/db/queries';
 import type { Metadata, Viewport } from 'next';
