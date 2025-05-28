@@ -315,8 +315,8 @@ function ChatPage() {
   }
 
   return (
-    <div className='h-full p-4'>
-      <Card className='h-full flex flex-col'>
+    <div className='h-full p-4 sm:p-4 px-0 sm:px-4 py-0 sm:py-4'>
+      <Card className='h-full flex flex-col rounded-none sm:rounded-lg border-0 sm:border'>
         <div
           ref={messagesContainerRef}
           className={`flex-1 p-4 ${messages.length > 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}
@@ -336,21 +336,14 @@ function ChatPage() {
             const isLatestAssistantMessage =
               message.role === 'assistant' && message.id === typingMessageId;
 
-            console.log('Message:', {
-              id: message.id,
-              role: message.role,
-              isLatest: isLatestAssistantMessage,
-              typingId: typingMessageId,
-            });
-
             return (
               <div
                 key={`${message.role}-${index}-${message.createdAt.getTime()}`}
                 className={`flex mb-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className='max-w-[75%]'>
+                <div className={`max-w-[75%] ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
                   <div
-                    className={`inline-block p-3 rounded-lg whitespace-pre-wrap ${
+                    className={`inline-block p-3 rounded-lg text-left whitespace-pre-wrap ${
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted text-muted-foreground'
@@ -407,7 +400,7 @@ function ChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        <form onSubmit={handleSubmit} className='border-t border-border p-4'>
+        <form onSubmit={handleSubmit} className='border-t border-border p-4 rounded-t-lg'>
           <div className='flex items-center gap-2'>
             <Textarea
               value={input}
@@ -437,3 +430,9 @@ function ChatPage() {
 }
 
 export default ChatPage;
+
+
+
+
+
+
