@@ -23,7 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link key={item.href} href={item.href} passHref>
               <Button
                 variant={pathname === item.href ? 'secondary' : 'ghost'}
-                className={`shadow-none my-1 w-full justify-start ${
+                className={`shadow-none my-1 w-full justify-start cursor-pointer ${
                   pathname === item.href ? 'bg-gray-100' : ''
                 }`}
               >
@@ -40,3 +40,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
