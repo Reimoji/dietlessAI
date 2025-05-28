@@ -220,12 +220,15 @@ export default async function HomePage() {
             <div className='flex flex-col lg:flex-row items-center gap-12'>
               {/* Image side */}
               <div className='flex-1 flex justify-center items-center'>
-                <div className='relative w-full aspect-[9/16] max-w-[380px] mx-auto lg:mx-0 '>
-                  <Image
+                <div className='relative w-full aspect-[9/16] max-w-[380px] mx-auto lg:mx-0'>
+                  <img
                     src='/images/dietlessai_screenshot.png'
                     alt='DietlessAI App Screenshot'
-                    fill
-                    className='object-cover'
+                    className='w-full h-auto object-cover'
+                    style={{
+                      filter: 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3)) drop-shadow(-8px 15px 15px rgba(0, 0, 0, 0.2))',
+                      transform: 'perspective(1000px) rotateY(2deg)'
+                    }}
                   />
                 </div>
               </div>
@@ -810,5 +813,10 @@ export default async function HomePage() {
     </main>
   );
 }
+
+
+
+
+
 
 
