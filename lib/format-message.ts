@@ -336,7 +336,29 @@ export class MessageFormatter {
     return content
       .replace(/(<br\s*\/?>)\s*(<br\s*\/?>)\s*(<br\s*\/?>)+/g, '<div class="my-4"></div>') // Replace multiple <br> with spacing
       .replace(/^\s+|\s+$/g, '') // Trim whitespace
-      .replace(/\s{2,}/g, ' '); // Normalize excessive whitespace
+      .replace(/\s{2,}/g, ' ') // Normalize excessive whitespace
+      .replace(/(<tr>.+?<\/tr>)(\s*<tr>.+?<\/tr>)+/gs, function(match) {
+        // Extract all rows
+        const rows = match.match(/<tr>.+?<\/tr>/gs) || [];
+        
+        if (rows.length === 0) return match;
+        
+        // Check if first row should be a header
+        const firstRow = rows[0] || '';
+        const otherRows = rows.slice(1).join('');
+        
+        // If there's a clear header row (e.g., Exercise, Sets, Reps)
+        if (firstRow.includes('Exercise') || firstRow.includes('Sets') || firstRow.includes('Reps') || 
+            firstRow.includes('Day') || firstRow.includes('Focus') || firstRow.includes('Workout')) {
+          const headerRow = firstRow
+            .replace(/<td/g, '<th class="bg-muted/50 font-semibold py-2 px-3"')
+            .replace(/<\/td>/g, '</th>');
+          return `<div class="overflow-x-auto max-w-full"><table class="w-full min-w-[400px] border-collapse my-4 bg-card"><thead>${headerRow}</thead><tbody>${otherRows}</tbody></table></div>`;
+        }
+        
+        // Otherwise, treat all rows as body rows
+        return `<div class="overflow-x-auto max-w-full"><table class="w-full min-w-[400px] border-collapse my-4 bg-card"><tbody>${rows.join('')}</tbody></table></div>`;
+      });
   }
 }
 
@@ -348,5 +370,4 @@ export function formatMessage(content: string, options?: Partial<ProcessingOptio
 
 // Export types for external use
 export type { ProcessingOptions, FormatRule };
-
 
