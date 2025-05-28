@@ -13,7 +13,8 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check-all": "pnpm run lint && pnpm run type-check"
+    "check-all": "pnpm run lint && pnpm run type-check",
+    "fix": "pnpm run lint:fix && pnpm run format"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.1",
