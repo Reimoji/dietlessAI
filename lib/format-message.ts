@@ -284,7 +284,7 @@ export class MessageFormatter {
       return ''; // Remove separator row
     }
     
-    return `<tr>${cells.map(cell => `<td class="border px-2 py-1">${cell}</td>`).join('')}</tr>`;
+    return `<tr>${cells.map(cell => `<td class="border px-3 py-2">${cell}</td>`).join('')}</tr>`;
   }
 
   /**
@@ -304,7 +304,7 @@ export class MessageFormatter {
     );
     
     if (isHeaderRow) {
-      const headerRow = firstRow.replace(/<td/g, '<th class="bg-muted/50 font-semibold"').replace(/<\/td>/g, '</th>');
+      const headerRow = firstRow.replace(/<td/g, '<th class="bg-muted/50 font-semibold py-2 px-3"').replace(/<\/td>/g, '</th>');
       return `<table class="w-full border-collapse my-4 bg-card"><thead>${headerRow}</thead><tbody>${otherRows}</tbody></table>`;
     }
     
@@ -348,4 +348,5 @@ export function formatMessage(content: string, options?: Partial<ProcessingOptio
 
 // Export types for external use
 export type { ProcessingOptions, FormatRule };
+
 
