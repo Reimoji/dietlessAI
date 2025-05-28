@@ -219,10 +219,10 @@ export default async function HomePage() {
             {/* Image on left, bullet points on right */}
             <div className='flex flex-col lg:flex-row items-center gap-12'>
               {/* Image side */}
-              <div className='flex-1'>
-                <div className='relative w-full aspect-[9/16] max-w-[300px] mx-auto lg:mx-0 shadow-xl rounded-3xl overflow-hidden bg-card'>
+              <div className='flex-1 flex justify-center items-center'>
+                <div className='relative w-full aspect-[9/16] max-w-[380px] mx-auto lg:mx-0 '>
                   <Image
-                    src='/dietless-ai-app.png'
+                    src='/images/dietlessai_screenshot.png'
                     alt='DietlessAI App Screenshot'
                     fill
                     className='object-cover'
@@ -810,3 +810,5 @@ export default async function HomePage() {
     </main>
   );
 }
+
+
