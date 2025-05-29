@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { Terminal } from './terminal';
+import NewsletterForm from '@/components/newsletter-form';
 
 // Prices are fresh for one hour max
 export const revalidate = 3600;
@@ -660,23 +661,7 @@ export default async function HomePage() {
                   Get the latest nutrition tips, recipes, and updates delivered straight to your
                   inbox.
                 </p>
-                <div className='flex flex-col sm:flex-row gap-3 max-w-md mx-auto'>
-                  <Input
-                    type='email'
-                    placeholder='Enter your email'
-                    className='flex-1 rounded-3xl px-4 py-4 h-auto border-primary/20 focus-visible:ring-primary group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300 bg-white'
-                  />
-                  <Button
-                    className='bg-primary hover:bg-primary/80 text-primary-foreground rounded-3xl px-5 py-2 h-auto group-hover:shadow-lg group-hover:shadow-primary/20 transition-all duration-300 relative overflow-hidden cursor-pointer'
-                    style={{ minHeight: '44px' }}
-                  >
-                    <span className='relative z-10 flex items-center'>
-                      Subscribe
-                      <ArrowRight className='ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300' />
-                    </span>
-                    <span className='absolute inset-0 bg-primary/90 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left'></span>
-                  </Button>
-                </div>
+                <NewsletterForm />
               </div>
             </div>
 
@@ -813,6 +798,8 @@ export default async function HomePage() {
     </main>
   );
 }
+
+
 
 
 
