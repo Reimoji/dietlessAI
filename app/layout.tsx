@@ -5,6 +5,7 @@ import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'dietlessAI',
@@ -39,7 +40,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           duration={5000} // Default duration for regular toasts
           visibleToasts={3} // Show up to 3 toasts at once
         />
+        
+        {/* Klaviyo Tracking Script */}
+        <Script
+          async
+          type='text/javascript'
+          src='https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=WsXtj9'
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
 }
+
+

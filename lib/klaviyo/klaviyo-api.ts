@@ -5,9 +5,10 @@ if (!process.env.KLAVIYO_API_KEY || !process.env.KLAVIYO_PRIVATE_API_KEY) {
 
 // Base URLs for Klaviyo API
 const KLAVIYO_API_BASE_URL = 'https://a.klaviyo.com/api';
+const KLAVIYO_API_V2_BASE_URL = 'https://a.klaviyo.com/api/v2';
 
 /**
- * Add a subscriber to a Klaviyo list
+ * Add a subscriber to a Klaviyo list using the v2 API
  */
 export async function addSubscriberToList(
   email: string,
@@ -19,40 +20,39 @@ export async function addSubscriberToList(
       console.error('KLAVIYO_PRIVATE_API_KEY is not set');
       return { success: false, error: 'API key not configured' };
     }
+    
+    // Prepare properties with email included
+    const allProperties = {
+      email,
+      ...properties
+    };
 
-    const response = await fetch(`${KLAVIYO_API_BASE_URL}/lists/${listId}/subscriptions/`, {
+    // Format the request body according to v2 API with private key
+    const response = await fetch(`${KLAVIYO_API_V2_BASE_URL}/list/${listId}/subscribe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Klaviyo-API-Key ${process.env.KLAVIYO_PRIVATE_API_KEY}`,
-        revision: '2024-04-15',
       },
       body: JSON.stringify({
-        data: {
-          type: 'subscription',
-          attributes: {
-            custom_source: 'Website Newsletter Form',
-            profiles: {
-              data: [
-                {
-                  type: 'profile',
-                  attributes: {
-                    email,
-                    ...properties,
-                  },
-                },
-              ],
-            },
-          },
-        },
+        api_key: process.env.KLAVIYO_PRIVATE_API_KEY,
+        profiles: [allProperties]
       }),
     });
 
-    const data = await response.json();
+    // Check if the response is JSON
+    const contentType = response.headers.get('content-type');
+    let data;
+    
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = { text };
+    }
 
     if (!response.ok) {
       console.error('Failed to add subscriber to Klaviyo:', data);
-      return { success: false, error: data.errors?.[0]?.detail || 'Failed to subscribe' };
+      return { success: false, error: typeof data === 'object' && data.detail ? data.detail : 'Failed to subscribe' };
     }
 
     return { success: true, data };
@@ -157,3 +157,10 @@ export async function trackEvent(
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
+
+
+
+
+
+
+

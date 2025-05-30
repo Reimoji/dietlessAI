@@ -1,6 +1,9 @@
 import { setSession } from '@/lib/auth/session';
 import { db } from '@/lib/db/drizzle';
 import { teamMembers, teams, users } from '@/lib/db/schema';
+import { 
+  handleSubscriptionCreated 
+} from '@/lib/klaviyo/stripe-integration';
 import {
   formatDate,
   formatPrice,
@@ -107,22 +110,22 @@ export async function GET(request: NextRequest) {
       })
       .where(eq(teams.id, userTeam[0].teamId));
 
-    // If this is a trial subscription, manually send the trial email
-    if (subscription.status === 'trialing' && trialEndsAt) {
-      // Get team owner email
-      const teamOwner = await db.query.teamMembers.findFirst({
-        where: and(eq(teamMembers.teamId, userTeam[0].teamId), eq(teamMembers.role, 'owner')),
-        with: {
-          user: {
-            columns: {
-              id: true,
-              email: true,
-              name: true,
-            },
+    // Get team owner email - define this BEFORE using it
+    const teamOwner = await db.query.teamMembers.findFirst({
+      where: and(eq(teamMembers.teamId, userTeam[0].teamId), eq(teamMembers.role, 'owner')),
+      with: {
+        user: {
+          columns: {
+            id: true,
+            email: true,
+            name: true,
           },
         },
-      });
+      },
+    });
 
+    // If this is a trial subscription, manually send the trial email
+    if (subscription.status === 'trialing' && trialEndsAt) {
       if (teamOwner?.user?.email) {
         const trialStart = new Date();
         const trialDays = Math.ceil(
@@ -146,23 +149,24 @@ export async function GET(request: NextRequest) {
         } catch (error) {
           console.error('Failed to send trial email from checkout handler:', error);
         }
+        
+        // Track trial start in Klaviyo
+        try {
+          // Get product details
+          const subscriptionItem = subscription.items.data[0];
+          const priceId = subscriptionItem?.price.id;
+          const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+          const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+          
+          console.log('Tracking trial subscription in Klaviyo for:', teamOwner.user.email);
+          await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
+        } catch (error) {
+          console.error('Failed to track trial subscription in Klaviyo:', error);
+        }
       }
     }
     // If this is an active subscription (no trial), send the activation email
     else if (subscription.status === 'active') {
-      const teamOwner = await db.query.teamMembers.findFirst({
-        where: and(eq(teamMembers.teamId, userTeam[0].teamId), eq(teamMembers.role, 'owner')),
-        with: {
-          user: {
-            columns: {
-              id: true,
-              email: true,
-              name: true,
-            },
-          },
-        },
-      });
-
       if (teamOwner?.user?.email && nextBillingDate) {
         const billingPeriod = plan.recurring?.interval === 'year' ? 'Yearly' : 'Monthly';
 
@@ -187,6 +191,20 @@ export async function GET(request: NextRequest) {
             error,
           );
         }
+        
+        // Track subscription activation in Klaviyo
+        try {
+          // Get product details
+          const subscriptionItem = subscription.items.data[0];
+          const priceId = subscriptionItem?.price.id;
+          const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+          const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+          
+          console.log('Tracking active subscription in Klaviyo for:', teamOwner.user.email);
+          await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
+        } catch (error) {
+          console.error('Failed to track active subscription in Klaviyo:', error);
+        }
       }
     }
 
@@ -197,3 +215,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/error', request.url));
   }
 }
+
+

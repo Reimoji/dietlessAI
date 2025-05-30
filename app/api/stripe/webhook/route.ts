@@ -2,6 +2,11 @@ import { db } from '@/lib/db/drizzle';
 import { getTeamByStripeCustomerId } from '@/lib/db/queries';
 import { teamMembers, teams } from '@/lib/db/schema';
 import { sendSubscriptionCancelledEmail } from '@/lib/email/send-emails';
+import { 
+  handleSubscriptionCancelled, 
+  handleSubscriptionCreated, 
+  handleSubscriptionUpdated 
+} from '@/lib/klaviyo/stripe-integration';
 import { formatDate, handleSubscriptionChange, stripe } from '@/lib/payments/stripe';
 import { and, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
@@ -38,7 +43,44 @@ export async function POST(request: NextRequest) {
           current_period_end: subscription.current_period_end,
           cancel_at_period_end: subscription.cancel_at_period_end,
         });
+        
+        // Handle subscription in database
         await handleSubscriptionChange(subscription);
+        
+        // Track in Klaviyo if possible
+        try {
+          const customerId = subscription.customer as string;
+          const team = await getTeamByStripeCustomerId(customerId);
+          
+          if (team) {
+            // Get team owner
+            const teamOwner = await db.query.teamMembers.findFirst({
+              where: and(eq(teamMembers.teamId, team.id), eq(teamMembers.role, 'owner')),
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    email: true,
+                    name: true,
+                  },
+                },
+              },
+            });
+            
+            if (teamOwner?.user?.email) {
+              // Get product details
+              const subscriptionItem = subscription.items.data[0];
+              const priceId = subscriptionItem?.price.id;
+              const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+              const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+              
+              console.log('Tracking subscription created in Klaviyo for:', teamOwner.user.email);
+              await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to track subscription created in Klaviyo:', error);
+        }
         break;
 
       case 'customer.subscription.updated':
@@ -115,12 +157,61 @@ export async function POST(request: NextRequest) {
               } catch (error) {
                 console.error('Failed to send cancellation email from webhook:', error);
               }
+              
+              // Track cancellation in Klaviyo
+              try {
+                // Get product details
+                const subscriptionItem = subUpdate.items.data[0];
+                const priceId = subscriptionItem?.price.id;
+                const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+                const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+                
+                console.log('Tracking subscription cancellation in Klaviyo for:', teamOwner.user.email);
+                await handleSubscriptionCancelled(teamOwner.user.email, subUpdate, product);
+              } catch (error) {
+                console.error('Failed to track subscription cancellation in Klaviyo:', error);
+              }
             }
           }
         }
 
         // Still call the regular handler
         await handleSubscriptionChange(subUpdate);
+        
+        // Track subscription update in Klaviyo
+        try {
+          const customerId = subUpdate.customer as string;
+          const team = await getTeamByStripeCustomerId(customerId);
+          
+          if (team) {
+            // Get team owner
+            const teamOwner = await db.query.teamMembers.findFirst({
+              where: and(eq(teamMembers.teamId, team.id), eq(teamMembers.role, 'owner')),
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    email: true,
+                    name: true,
+                  },
+                },
+              },
+            });
+            
+            if (teamOwner?.user?.email) {
+              // Get product details
+              const subscriptionItem = subUpdate.items.data[0];
+              const priceId = subscriptionItem?.price.id;
+              const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+              const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+              
+              console.log('Tracking subscription updated in Klaviyo for:', teamOwner.user.email);
+              await handleSubscriptionUpdated(teamOwner.user.email, subUpdate, product);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to track subscription update in Klaviyo:', error);
+        }
         break;
 
       case 'customer.subscription.deleted':
@@ -130,6 +221,41 @@ export async function POST(request: NextRequest) {
           status: subDelete.status,
         });
         await handleSubscriptionChange(subDelete);
+        
+        // Track subscription deletion in Klaviyo
+        try {
+          const customerId = subDelete.customer as string;
+          const team = await getTeamByStripeCustomerId(customerId);
+          
+          if (team) {
+            // Get team owner
+            const teamOwner = await db.query.teamMembers.findFirst({
+              where: and(eq(teamMembers.teamId, team.id), eq(teamMembers.role, 'owner')),
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    email: true,
+                    name: true,
+                  },
+                },
+              },
+            });
+            
+            if (teamOwner?.user?.email) {
+              // Get product details
+              const subscriptionItem = subDelete.items.data[0];
+              const priceId = subscriptionItem?.price.id;
+              const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+              const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+              
+              console.log('Tracking subscription deleted in Klaviyo for:', teamOwner.user.email);
+              await handleSubscriptionCancelled(teamOwner.user.email, subDelete, product, 'Subscription deleted');
+            }
+          }
+        } catch (error) {
+          console.error('Failed to track subscription deletion in Klaviyo:', error);
+        }
         break;
 
       default:
@@ -149,3 +275,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Error processing webhook' }, { status: 500 });
   }
 }
+
