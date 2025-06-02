@@ -432,7 +432,7 @@ export default async function HomePage() {
         </section>
 
         {/* Pricing Section */}
-        <section id='pricing' className='py-24 bg-background relative'>
+        <section id="pricing" className='py-24 bg-background relative'>
           <div className='relative w-full'>
             <PricingSection prices={prices} products={products} checkoutAction={checkoutAction} />
           </div>
@@ -799,5 +799,7 @@ export default async function HomePage() {
     </main>
   );
 }
+
+
 
 

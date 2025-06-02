@@ -14,7 +14,7 @@ import {
 import { useUser } from '@/lib/auth';
 import { EggFried, LogOut, MessageSquare, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Suspense, use, useState } from 'react';
 
 function UserMenu() {
@@ -22,6 +22,7 @@ function UserMenu() {
   const { userPromise } = useUser();
   const user = use(userPromise);
   const router = useRouter();
+  const pathname = usePathname();
 
   const navItems = [
     { href: '/dashboard/chat', icon: MessageSquare, label: 'Chat' },
@@ -35,15 +36,36 @@ function UserMenu() {
     router.push('/');
   }
 
+  // Custom scroll handler for pricing section
+  const scrollToPricing = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      const pricingSection = document.getElementById('pricing');
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   if (!user) {
     return (
       <>
-        <Link
-          href='/pricing'
-          className='text-sm font-medium text-muted-foreground hover:text-foreground'
-        >
-          Pricing
-        </Link>
+        {pathname === '/' ? (
+          <a
+            href="#pricing"
+            onClick={scrollToPricing}
+            className='text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer'
+          >
+            Pricing
+          </a>
+        ) : (
+          <Link
+            href="/pricing"
+            className='text-sm font-medium text-muted-foreground hover:text-foreground'
+          >
+            Pricing
+          </Link>
+        )}
         <Button
           asChild
           className='bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-4 py-2 rounded-full'

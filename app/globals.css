@@ -369,7 +369,12 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: smooth !important;
+}
+
+/* Add scroll margin to sections with IDs to account for fixed header */
+section[id] {
+  scroll-margin-top: 80px !important; /* Adjust based on your header height */
 }
 
 @keyframes fadeIn {
@@ -504,4 +509,6 @@ html {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--primary)) transparent;
 }
+
+
 
