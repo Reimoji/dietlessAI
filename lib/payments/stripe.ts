@@ -71,7 +71,7 @@ export async function createCheckoutSession({
     client_reference_id: user.id.toString(),
     allow_promotion_codes: true,
     subscription_data: {
-      trial_period_days: 14,
+      trial_period_days: 2, // Changed from 14 to 2 days
     },
   });
 
@@ -304,14 +304,20 @@ export async function getStripeProducts() {
 // Helper function to format price
 export function formatPrice(price: Stripe.Price | null): string {
   if (!price || !price.unit_amount) {
-    return '$0.00';
+    return '€0.00';
   }
 
   const amount = price.unit_amount / 100;
   const currency = price.currency.toUpperCase();
   const interval = price.recurring?.interval;
-
-  return `$${amount.toFixed(2)}/${interval === 'month' ? 'month' : 'year'}`;
+  
+  // Use the appropriate currency symbol based on the currency code
+  const currencySymbol = currency === 'EUR' ? '€' : 
+                         currency === 'USD' ? '$' : 
+                         currency === 'GBP' ? '£' : 
+                         `${currency} `;  // Default to currency code with space
+  
+  return `${currencySymbol}${amount.toFixed(2)}/${interval === 'month' ? 'month' : 'year'}`;
 }
 
 // Helper function to get billing period
@@ -325,3 +331,5 @@ function getBillingPeriod(price: Stripe.Price | null): string {
 
 export { formatDate, sendSubscriptionActivatedEmail, sendTrialEmail };
 // Remove the local formatDate function completely since we're importing it
+
+

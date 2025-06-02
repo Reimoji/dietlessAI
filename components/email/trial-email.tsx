@@ -53,10 +53,10 @@ export const TrialEmail: React.FC<Readonly<TrialEmailProps>> = ({
 
     <p>To get the most out of your trial:</p>
     <ol style={{ paddingLeft: '20px' }}>
-      <li>Complete your nutrition profile</li>
-      <li>Set your specific health goals</li>
-      <li>Try the AI chat for personalized advice</li>
-      <li>Explore the meal planning features</li>
+      <li>Start chatting with DietlessAI</li>
+      <li>Set your specific health goals and describe yourself</li>
+      <li>Get personalized advice from our state of the art coach</li>
+      <li>Explore the meal planning options</li>
     </ol>
 
     <p>

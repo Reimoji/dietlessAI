@@ -39,32 +39,32 @@ export function PricingSection({
 }) {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annually'>('monthly');
 
-  const basePlan = products.find((product) => product.name === 'Base');
-  const plusPlan = products.find((product) => product.name === 'Plus');
+  // Find monthly and yearly products
+  const monthlyPlan = products.find((product) => product.name === 'DietlessAI – Monthly');
+  const yearlyPlan = products.find((product) => product.name === 'DietlessAI – Yearly');
 
   // Get the appropriate plan based on billing interval
-  const currentPlan = billingInterval === 'monthly' ? basePlan : plusPlan;
+  const currentPlan = billingInterval === 'monthly' ? monthlyPlan : yearlyPlan;
+  
+  // Find the price for the current plan
   const currentPrice = prices.find((price) => price.productId === currentPlan?.id);
 
-  const interval = currentPrice?.interval || 'month';
+  // Set fixed prices based on billing interval
+  const displayPrice = billingInterval === 'monthly' ? '9.90 €' : '89.90 €';
+  const interval = billingInterval === 'monthly' ? 'month' : 'year';
+  
+  // Calculate savings for yearly plan (approximately 24% savings)
+  const monthlyCost = billingInterval === 'monthly' ? 9.90 : (89.90 / 12).toFixed(2);
+  const savings = billingInterval === 'annually' ? 'Save 24% compared to monthly' : '';
 
-  // Features based on the selected plan
-  const baseFeatures = [
+  // Features are the same for both plans
+  const features = [
     'AI-powered meal recommendations',
-    'Basic nutritional insights',
+    'Personalized nutritional insights',
     'Weekly meal plans',
     '24/7 AI chat support',
+    'Recipe database access',
   ];
-
-  const plusFeatures = [
-    'Advanced AI-powered meal recommendations',
-    'Detailed nutritional insights and analytics',
-    'Customizable weekly meal plans',
-    'Priority 24/7 AI chat support',
-    'Exclusive recipes and content',
-  ];
-
-  const features = billingInterval === 'monthly' ? baseFeatures : plusFeatures;
 
   return (
     <section className='py-24 bg-transparent relative overflow-visible'>
@@ -81,8 +81,6 @@ export function PricingSection({
             
             /* Pink blob - right center */
             radial-gradient(circle at 75% 50%, rgba(236, 98, 171, 0.8) 0%, rgba(236, 98, 171, 0) 25%)
-            
-            /* Blue blob removed from here and added to the testimonials section */
           `,
           backgroundRepeat: 'no-repeat',
           backgroundSize: 'cover',
@@ -124,12 +122,12 @@ export function PricingSection({
             <div className='md:w-1/2 md:pr-8 flex flex-col justify-center'>
               <div>
                 <h3 className='text-2xl font-bold text-foreground mb-4'>
-                  {billingInterval === 'monthly' ? 'The Essential Plan' : 'The Premium Plan'}
+                  {billingInterval === 'monthly' ? 'Monthly Plan' : 'Annual Plan'}
                 </h3>
                 <p className='text-muted-foreground mb-6'>
                   {billingInterval === 'monthly'
                     ? 'Get started with personalized nutrition advice.'
-                    : 'Unlock advanced features and premium support.'}
+                    : 'Get the best value with our annual subscription.'}
                 </p>
 
                 <ul className='space-y-4'>
@@ -149,23 +147,29 @@ export function PricingSection({
                 <div className='flex flex-col items-center'>
                   <div className='flex items-baseline justify-center'>
                     <span className='text-5xl font-bold text-foreground'>
-                      {currentPrice?.unitAmount
-                        ? `${(currentPrice.unitAmount / 100).toFixed(2)} €`
-                        : '8.00 €'}
+                      {displayPrice}
                     </span>
                     <span className='text-muted-foreground ml-2'>/{interval}</span>
                   </div>
                   <p className='text-sm text-muted-foreground mt-2 text-center'>
-                    Billed {billingInterval === 'monthly' ? 'monthly' : 'annually'}. Switch to{' '}
-                    {billingInterval === 'monthly' ? 'annual' : 'monthly'} for savings.
+                    {billingInterval === 'annually' ? (
+                      <>Just {monthlyCost}€ per month, billed annually.</>
+                    ) : (
+                      <>Billed monthly. No commitment.</>
+                    )}
                   </p>
+                  {savings && (
+                    <p className='text-sm text-primary font-medium mt-1'>
+                      {savings}
+                    </p>
+                  )}
                 </div>
 
                 <form action={checkoutAction} className='w-full'>
                   <input type='hidden' name='priceId' value={currentPrice?.id} />
                   <SubmitButton />
                   <p className='text-xs text-center text-muted-foreground mt-4'>
-                    Cancel anytime. No hidden fees.
+                    2-day free trial. Cancel anytime. No hidden fees.
                   </p>
                 </form>
               </div>
@@ -176,3 +180,5 @@ export function PricingSection({
     </section>
   );
 }
+
+

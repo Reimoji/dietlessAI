@@ -9,6 +9,7 @@
     "db:generate": "drizzle-kit generate:pg",
     "db:migrate": "drizzle-kit migrate:pg",
     "db:studio": "drizzle-kit studio",
+    "db:export": "npx tsx scripts/export-schema.ts",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
@@ -74,3 +75,4 @@
     "eslint-config-next": "15.3.2"
   }
 }
+
