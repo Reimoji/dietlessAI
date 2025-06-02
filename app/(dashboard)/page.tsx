@@ -31,6 +31,7 @@ import {
 import Image from 'next/image';
 import { Terminal } from './terminal';
 import NewsletterForm from '@/components/newsletter-form';
+import Link from 'next/link';
 
 // Prices are fresh for one hour max
 export const revalidate = 3600;
@@ -764,24 +765,24 @@ export default async function HomePage() {
               {/* Column 2: About */}
               <div className='flex flex-col items-end justify-end h-full'>
                 <div className='flex space-x-6'>
-                  <a
-                    href='#'
+                  <Link
+                    href='/privacy-policy'
                     className='text-xs text-muted-foreground hover:text-primary transition-colors duration-200'
                   >
                     Privacy Policy
-                  </a>
-                  <a
-                    href='#'
+                  </Link>
+                  <Link
+                    href='/terms-of-service'
                     className='text-xs text-muted-foreground hover:text-primary transition-colors duration-200'
                   >
                     Terms of Service
-                  </a>
-                  <a
-                    href='#'
+                  </Link>
+                  <Link
+                    href='/cookie-policy'
                     className='text-xs text-muted-foreground hover:text-primary transition-colors duration-200'
                   >
                     Cookie Policy
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -798,12 +799,5 @@ export default async function HomePage() {
     </main>
   );
 }
-
-
-
-
-
-
-
 
 
