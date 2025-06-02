@@ -305,10 +305,10 @@ export class MessageFormatter {
     
     if (isHeaderRow) {
       const headerRow = firstRow.replace(/<td/g, '<th class="bg-muted/50 font-semibold py-2 px-3"').replace(/<\/td>/g, '</th>');
-      return `<table class="w-full border-collapse my-4 bg-card"><thead>${headerRow}</thead><tbody>${otherRows}</tbody></table>`;
+      return `<div class="overflow-x-auto w-full my-4"><table class="w-full border-collapse bg-card"><thead>${headerRow}</thead><tbody>${otherRows}</tbody></table></div>`;
     }
     
-    return `<table class="w-full border-collapse my-4 bg-card"><tbody>${rows.join('')}</tbody></table>`;
+    return `<div class="overflow-x-auto w-full my-4"><table class="w-full border-collapse bg-card"><tbody>${rows.join('')}</tbody></table></div>`;
   }
 
   /**
@@ -353,11 +353,20 @@ export class MessageFormatter {
           const headerRow = firstRow
             .replace(/<td/g, '<th class="bg-muted/50 font-semibold py-2 px-3"')
             .replace(/<\/td>/g, '</th>');
-          return `<div class="overflow-x-auto max-w-full"><table class="w-full min-w-[400px] border-collapse my-4 bg-card"><thead>${headerRow}</thead><tbody>${otherRows}</tbody></table></div>`;
+          return `<div class="overflow-x-auto w-full my-4">
+                    <table class="w-full border-collapse bg-card">
+                      <thead>${headerRow}</thead>
+                      <tbody>${otherRows}</tbody>
+                    </table>
+                  </div>`;
         }
         
         // Otherwise, treat all rows as body rows
-        return `<div class="overflow-x-auto max-w-full"><table class="w-full min-w-[400px] border-collapse my-4 bg-card"><tbody>${rows.join('')}</tbody></table></div>`;
+        return `<div class="overflow-x-auto w-full my-4">
+                  <table class="w-full border-collapse bg-card">
+                    <tbody>${rows.join('')}</tbody>
+                  </table>
+                </div>`;
       });
   }
 }
@@ -370,4 +379,7 @@ export function formatMessage(content: string, options?: Partial<ProcessingOptio
 
 // Export types for external use
 export type { ProcessingOptions, FormatRule };
+
+
+
 

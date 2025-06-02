@@ -315,11 +315,11 @@ function ChatPage() {
   }
 
   return (
-    <div className='h-full p-4 sm:p-4 px-0 sm:px-4 py-0 sm:py-4'>
-      <Card className='h-full flex flex-col rounded-none sm:rounded-lg border-0 sm:border'>
+    <div className='h-full p-4 sm:p-4 px-0 sm:px-4 py-0 sm:py-4 overflow-x-hidden'>
+      <Card className='h-full flex flex-col rounded-none sm:rounded-lg border-0 sm:border overflow-hidden'>
         <div
           ref={messagesContainerRef}
-          className={`flex-1 p-4 ${messages.length > 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}
+          className={`flex-1 p-4 ${messages.length > 0 ? 'overflow-y-auto' : 'overflow-hidden'} overflow-x-hidden`}
         >
           {messages.length === 0 && (
             <div className='flex items-center justify-center h-full'>
@@ -344,11 +344,14 @@ function ChatPage() {
             return (
               <div
                 key={`${message.role}-${index}-${message.createdAt.getTime()}`}
-                className={`flex mb-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex mb-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} w-full`}
               >
-                <div className={`max-w-[75%] ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                <div className={`${message.role === 'user' 
+                  ? 'max-w-[95%] sm:max-w-[90%] md:max-w-[85%] ml-auto' 
+                  : 'w-full sm:max-w-[95%] md:max-w-[90%] ml-0'}`}
+                >
                   <div
-                    className={`inline-block p-3 rounded-lg text-left whitespace-pre-wrap ${
+                    className={`p-3 sm:p-4 rounded-lg text-left whitespace-pre-wrap ${
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted text-muted-foreground'
@@ -365,7 +368,7 @@ function ChatPage() {
                           console.log('Chunk reveal complete');
                           setTypingMessageId(null);
                         }}
-                        preFormatted={false} // We'll format as we reveal
+                        preFormatted={false}
                       />
                     ) : (
                       <div
@@ -374,21 +377,7 @@ function ChatPage() {
                       />
                     )}
                   </div>
-                  <div
-                    className={`text-xs text-muted-foreground mt-1 ${
-                      message.role === 'user' ? 'text-right' : 'text-left'
-                    }`}
-                  >
-                    {new Date(message.createdAt).toLocaleDateString('en-GB', {
-                      day: '2-digit',
-                      month: '2-digit',
-                    })}{' '}
-                    {new Date(message.createdAt).toLocaleTimeString('en-US', {
-                      hour: 'numeric',
-                      minute: 'numeric',
-                      hour12: true,
-                    })}
-                  </div>
+                  {/* Time stamp */}
                 </div>
               </div>
             );
@@ -436,6 +425,15 @@ function ChatPage() {
 }
 
 export default ChatPage;
+
+
+
+
+
+
+
+
+
 
 
 
