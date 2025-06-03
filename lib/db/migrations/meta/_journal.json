@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1726443359662,
-      "tag": "0000_soft_the_anarchist",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1744973767709,
-      "tag": "0001_third_king_bedlam",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1746125859602,
-      "tag": "0002_bored_donald_blake",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1746125859603,
-      "tag": "0003_update_subscription_status",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1746547330050,
-      "tag": "0004_natural_talkback",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1748888250931,
-      "tag": "0005_mature_hammerhead",
+      "when": 1748969648227,
+      "tag": "0000_init",
       "breakpoints": true
     }
   ]
