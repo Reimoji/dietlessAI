@@ -118,6 +118,9 @@ export async function createCustomerPortalSession(team: Team) {
             },
           ],
         },
+        payment_method_update: {
+          enabled: true,
+        },
         subscription_cancel: {
           enabled: true,
           mode: 'at_period_end',
@@ -331,5 +334,6 @@ function getBillingPeriod(price: Stripe.Price | null): string {
 
 export { formatDate, sendSubscriptionActivatedEmail, sendTrialEmail };
 // Remove the local formatDate function completely since we're importing it
+
 
 
