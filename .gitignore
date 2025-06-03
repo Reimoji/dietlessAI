@@ -43,3 +43,6 @@ postgres_data/
 # Test files
 test-openai*.sh
 postcs.config.mjs
+
+# Test/local env file
+.env-test
