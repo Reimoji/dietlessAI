@@ -15,7 +15,12 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2025-05-28.basil' as any,
 });
 
-// Create Stripe Checkout Session
+function getDateOnly(timestamp: number | null): Date | null {
+  if (!timestamp) return null;
+  const date = new Date(timestamp * 1000);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 export async function createCheckoutSession({
   team,
   priceId,
@@ -47,27 +52,25 @@ export async function createCheckoutSession({
     customer: team.stripeCustomerId || undefined,
     client_reference_id: user.id.toString(),
     allow_promotion_codes: true,
-    subscription_data: {
-      trial_period_days: 2,
-    },
+    subscription_data: { trial_period_days: 2 },
   });
 
   redirect(session.url!);
 }
 
-// Create Stripe Customer Portal Session
 export async function createCustomerPortalSession(team: Team) {
   if (!team.stripeCustomerId) {
     redirect('/pricing');
   }
 
-  return await stripe.billingPortal.sessions.create({
+  const portalSession = await stripe.billingPortal.sessions.create({
     customer: team.stripeCustomerId,
     return_url: `${process.env.BASE_URL}/dashboard`,
   });
+
+  return portalSession;
 }
 
-// Handle subscription change events
 export async function handleSubscriptionChange(subscription: Stripe.Subscription) {
   const customerId = typeof subscription.customer === 'string'
     ? subscription.customer
@@ -76,7 +79,7 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
   const subscriptionId = subscription.id;
   const status = subscription.status;
 
-  const currentPeriodEnd = (subscription as any).current_period_end; // Avoid TS error
+  const currentPeriodEnd = (subscription as any).current_period_end;
   const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
 
   const team = await getTeamByStripeCustomerId(customerId);
@@ -86,7 +89,11 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
     where: and(eq(teamMembers.teamId, team.id), eq(teamMembers.role, 'owner')),
     with: {
       user: {
-        columns: { id: true, email: true, name: true },
+        columns: {
+          id: true,
+          email: true,
+          name: true,
+        },
       },
     },
   });
@@ -136,13 +143,46 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
         formatDate(trialEnd),
         amount,
         `${process.env.BASE_URL}/dashboard`,
-        `${process.env.BASE_URL}/pricing`
+        `${process.env.BASE_URL}/pricing`,
       );
     }
   }
 }
 
-// Helper: Format Stripe price nicely
+export async function getStripePrices() {
+  const prices = await stripe.prices.list({
+    expand: ['data.product'],
+    active: true,
+    type: 'recurring',
+  });
+
+  return prices.data.map((price) => ({
+    id: price.id,
+    productId: typeof price.product === 'string' ? price.product : price.product.id,
+    unitAmount: price.unit_amount,
+    currency: price.currency,
+    interval: price.recurring?.interval,
+    trialPeriodDays: price.recurring?.trial_period_days,
+  }));
+}
+
+export async function getStripeProducts() {
+  const products = await stripe.products.list({
+    active: true,
+    expand: ['data.default_price'],
+  });
+
+  return products.data.map((product) => ({
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    defaultPriceId:
+      typeof product.default_price === 'string'
+        ? product.default_price
+        : product.default_price?.id,
+  }));
+}
+
 export function formatPrice(price: Stripe.Price | null): string {
   if (!price || !price.unit_amount) return '€0.00';
   const amount = price.unit_amount / 100;
@@ -151,5 +191,10 @@ export function formatPrice(price: Stripe.Price | null): string {
   return `${symbol}${amount.toFixed(2)}/${interval}`;
 }
 
-// No duplicate exports — all good now
-export { formatDate, sendSubscriptionActivatedEmail, sendTrialEmail };
+export {
+  formatDate,
+  sendSubscriptionActivatedEmail,
+  sendTrialEmail,
+};
+
+
