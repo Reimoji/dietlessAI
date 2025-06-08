@@ -80,8 +80,10 @@ export async function POST(request: NextRequest) {
         } else if (event.type === 'customer.subscription.updated') {
           await handleSubscriptionUpdated(userEmail, subscription, product);
 
-          if (subscription.cancel_at_period_end && subscription.current_period_end) {
-            const endDate = new Date(subscription.current_period_end * 1000);
+          const currentPeriodEnd = (subscription as any).current_period_end;
+
+          if (subscription.cancel_at_period_end && currentPeriodEnd) {
+            const endDate = new Date(currentPeriodEnd * 1000);
 
             await db.update(teams).set({
               subscriptionEndDate: endDate,
