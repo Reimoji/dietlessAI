@@ -13,7 +13,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-05-28.basil',
+  apiVersion: '2025-05-28.basil' as any,
 });
 
 // Helper function to get date only (no time) from timestamp
@@ -118,9 +118,6 @@ export async function createCustomerPortalSession(team: Team) {
             },
           ],
         },
-        payment_method_update: {
-          enabled: true,
-        },
         subscription_cancel: {
           enabled: true,
           mode: 'at_period_end',
@@ -141,15 +138,21 @@ export async function createCustomerPortalSession(team: Team) {
 }
 
 export async function handleSubscriptionChange(subscription: Stripe.Subscription) {
-  const customerId = subscription.customer as string;
+  const customerId = typeof subscription.customer === 'string' 
+    ? subscription.customer 
+    : (subscription.customer as any)?.id;
+    
   const subscriptionId = subscription.id;
   const status = subscription.status;
 
+  // Use current_period_end directly as it's a timestamp
+  const currentPeriodEnd = subscription.current_period_end;
+  
   console.log('Processing subscription change:', {
     subscriptionId,
     status,
     trial_end: subscription.trial_end,
-    current_period_end: subscription.current_period_end,
+    current_period_end: currentPeriodEnd,
     cancel_at_period_end: subscription.cancel_at_period_end,
   });
 
@@ -181,6 +184,24 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
       },
     },
   });
+
+  // Use the currentPeriodEnd field directly
+  const nextBillingDate = currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null;
+  const subscriptionEndDate = subscription.cancel_at_period_end && currentPeriodEnd
+    ? new Date(currentPeriodEnd * 1000)
+    : null;
+
+  // Update team subscription info with the correct dates
+  await db
+    .update(teams)
+    .set({
+      stripeSubscriptionId: subscriptionId,
+      subscriptionStatus: status,
+      nextBillingDate: nextBillingDate,
+      subscriptionEndDate: subscriptionEndDate,
+      updatedAt: new Date(),
+    })
+    .where(eq(teams.id, team.id));
 
   console.log(
     'Team owner lookup result:',
