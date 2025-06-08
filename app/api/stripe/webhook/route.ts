@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
           id: subscription.id,
           status: subscription.status,
           trial_end: subscription.trial_end,
-          current_period_end: subscription.current_period_end,
+          current_period_end: (subscription as any).current_period_end,
           cancel_at_period_end: subscription.cancel_at_period_end,
         });
 
