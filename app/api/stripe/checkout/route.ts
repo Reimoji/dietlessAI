@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 
     const trialEndsAt = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
 
-    const currentPeriodEnd = (subscription as any).current_period?.end;
+    const currentPeriodEnd = (subscription as any).current_period_end;
     const nextBillingDate = currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null;
 
     const subscriptionEndDate =
