@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const sessionId = searchParams.get('session_id');
 
   if (!sessionId) {
-    return NextResponse.redirect(new URL('/pricing', request.url));
+    return NextResponse.redirect(`${process.env.BASE_URL}/pricing`);
   }
 
   try {
@@ -185,9 +185,9 @@ export async function GET(request: NextRequest) {
     }
 
     await setSession(user[0]);
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(`${process.env.BASE_URL}/dashboard`);
   } catch (error) {
     console.error('Error handling successful checkout:', error);
-    return NextResponse.redirect(new URL('/error', request.url));
+    return NextResponse.redirect(`${process.env.BASE_URL}/error`);
   }
 }
