@@ -14,8 +14,9 @@ import Stripe from 'stripe';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
+export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
-  console.log('Webhook endpoint called');
+  console.log('Stripe webhook POST triggered');
 
   const payload = await request.text();
   const signature = request.headers.get('stripe-signature') as string;
