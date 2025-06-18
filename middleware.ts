@@ -84,5 +84,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api/stripe/webhook|api/webhooks|api/internal|_next/static|_next/image|favicon.ico).*)'],
 };
