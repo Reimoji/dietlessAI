@@ -1,4 +1,5 @@
 import { signToken, verifyToken } from '@/lib/auth/session';
+import { checkTeamSubscription } from '@/lib/subscription/check-team-status';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -21,28 +22,11 @@ export async function middleware(request: NextRequest) {
 
   if (isSubscriberRoute) {
     try {
-      const parsed = await verifyToken(sessionCookie?.value || '');
-      console.log('Middleware: Session verified for user:', parsed);
+      const subscriptionResult = await checkTeamSubscription(sessionCookie?.value);
+      console.log('Middleware: Subscription check result:', subscriptionResult);
 
-      const subscriptionResponse = await fetch(`${request.nextUrl.origin}/api/teams/subscription`, {
-        headers: {
-          Cookie: request.headers.get('cookie') || '',
-        },
-      });
-
-      console.log('Middleware: Subscription check response status:', subscriptionResponse.status);
-
-      const subscriptionData = await subscriptionResponse.json();
-      console.log('Middleware: Subscription data:', subscriptionData);
-
-      if (!subscriptionResponse.ok) {
-        console.log('Middleware: Subscription check failed:', subscriptionData);
-        return NextResponse.redirect(new URL('/pricing', request.url));
-      }
-
-      // Accept trialing status
-      if (subscriptionData.status !== 'active' && subscriptionData.status !== 'trialing') {
-        console.log('Middleware: Invalid subscription status:', subscriptionData.status);
+      if (!subscriptionResult.isValid) {
+        console.log('Middleware: Subscription check failed:', subscriptionResult.error);
         return NextResponse.redirect(new URL('/pricing', request.url));
       }
 
@@ -86,3 +70,4 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/((?!api/stripe/webhook|api/webhooks|api/internal|_next/static|_next/image|favicon.ico).*)'],
 };
+
