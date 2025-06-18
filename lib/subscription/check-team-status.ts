@@ -1,5 +1,5 @@
 import { verifyToken } from '@/lib/auth/session';
-import { db } from '@/lib/db/drizzle';
+import { db } from '@/lib/db/drizzle-edge'; // Changed to edge-compatible client
 import { teamMembers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
