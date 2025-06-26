@@ -123,7 +123,7 @@ export default async function HomePage() {
                     Personalized Plans, Tailored to You
                   </h2>
                   <p className='mt-2 text-base text-muted-foreground'>
-                    Developed with guidance from Erik Orgu, DietlessAI uses advanced technology to
+                    Developed with guidance from Erik, DietlessAI uses advanced technology to
                     tailor your nutrition plan based on your goals, preferences, and lifestyle—no
                     one-size-fits-all diets.
                   </p>
@@ -318,7 +318,7 @@ export default async function HomePage() {
               </p>
               <p className='text-muted-foreground text-base'>
                 Enter <strong>Dietless AI</strong> - an app inspired by years of experience from a
-                leading nutritionist, Erik Orgu and his work of helping people overcome the same
+                leading nutritionist, Erik and his work of helping people overcome the same
                 struggles you face today. Dietless AI is designed to simplify nutrition, learn your
                 tastes, and adapt to your daily routine, giving you the expert guidance you need to
                 build a healthier, more balanced lifestyle.
