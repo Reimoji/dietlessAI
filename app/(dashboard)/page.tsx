@@ -678,6 +678,7 @@ export default async function HomePage() {
                   Personalized Meal Plans That Evolve with Your Lifestyle—No Guesswork, No Strict
                   Rules, Just Sustainable Results
                 </p>
+                {/* Social icons hidden for now
                 <div className='flex space-x-4 pt-4'>
                   <a
                     href='#'
@@ -760,6 +761,7 @@ export default async function HomePage() {
                     </svg>
                   </a>
                 </div>
+                */}
               </div>
 
               {/* Column 2: About */}
@@ -799,6 +801,7 @@ export default async function HomePage() {
     </main>
   );
 }
+
 
 
 
