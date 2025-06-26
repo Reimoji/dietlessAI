@@ -29,6 +29,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang='en'
       className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
     >
+      <head>
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-7MQCV74XVZ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-7MQCV74XVZ');
+          `}
+        </Script>
+      </head>
       <body className='min-h-[100dvh] bg-gray-50'>
         <NavigationProgressWrapper />
         <UserProvider userPromise={userPromise}>{children}</UserProvider>
@@ -37,8 +52,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           closeButton
           theme='system'
           richColors
-          duration={5000} // Default duration for regular toasts
-          visibleToasts={3} // Show up to 3 toasts at once
+          duration={5000}
+          visibleToasts={3}
         />
         
         {/* Klaviyo Tracking Script */}
@@ -52,5 +67,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
 
 
