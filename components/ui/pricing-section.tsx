@@ -67,7 +67,7 @@ export function PricingSection({
   ];
 
   return (
-    <section className='py-24 bg-transparent relative overflow-visible'>
+    <section id='pricing' className='py-20 relative overflow-hidden'>
       {/* Gradient background for Pricing section - without the blue blob at top */}
       <div
         style={{
@@ -92,9 +92,9 @@ export function PricingSection({
         <div className='text-center mb-12'>
           <p className='text-primary font-medium mb-4'>Healthy Eating, Hassle-Free Plans</p>
           <h2 className='text-4xl font-bold text-foreground mb-6'>
-            Unlock Your Healthiest Self with One
+            Start your chat with DietlessAI using a
             <br />
-            Simple Subscription
+            2 day free trial
           </h2>
         </div>
 
@@ -145,21 +145,24 @@ export function PricingSection({
             <div className='md:w-1/2 md:border-l md:border-border md:pl-8 pt-6 md:pt-0 flex flex-col justify-center'>
               <div className='flex flex-col items-center justify-center space-y-6'>
                 <div className='flex flex-col items-center'>
+                  {/* First row: 0€ for 2 days */}
+                  <div className='flex items-baseline justify-center mb-2'>
+                    <span className='text-4xl text-foreground'>
+                      <strong>0€</strong> for 2-day trial
+                    </span>
+                  </div>
+                  
+                  {/* Second row: Monthly price afterwards */}
                   <div className='flex items-baseline justify-center'>
-                    <span className='text-5xl font-bold text-foreground'>
+                    <span className='text-1xl font-medium text-foreground'>
                       {displayPrice}
                     </span>
-                    <span className='text-muted-foreground ml-2'>/{interval}</span>
+                    <span className='text-muted-foreground ml-2 text-lg'>/{interval} afterwards</span>
                   </div>
-                  <p className='text-sm text-muted-foreground mt-2 text-center'>
-                    {billingInterval === 'annually' ? (
-                      <>Just {monthlyCost}€ per month, billed annually.</>
-                    ) : (
-                      <>Billed monthly. No commitment.</>
-                    )}
-                  </p>
-                  {savings && (
-                    <p className='text-sm text-primary font-medium mt-1'>
+                  
+                  {/* Additional pricing info - can be removed if not needed */}
+                  {billingInterval === 'annually' && (
+                    <p className='text-sm text-primary font-medium mt-2'>
                       {savings}
                     </p>
                   )}
@@ -180,5 +183,12 @@ export function PricingSection({
     </section>
   );
 }
+
+
+
+
+
+
+
 
 

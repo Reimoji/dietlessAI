@@ -25,7 +25,7 @@ function UserMenu() {
   const pathname = usePathname();
 
   const navItems = [
-    { href: '/dashboard/chat', icon: MessageSquare, label: 'Chat' },
+    { href: '/dashboard/chat', icon: MessageSquare, label: 'Chat with DietlessAI' },
     { href: '/dashboard', icon: Users, label: 'User Settings' },
     { href: '/dashboard/general', icon: Settings, label: 'General' },
   ];
