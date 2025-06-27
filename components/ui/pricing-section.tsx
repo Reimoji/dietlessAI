@@ -147,17 +147,17 @@ export function PricingSection({
                 <div className='flex flex-col items-center'>
                   {/* First row: 0€ for 2 days */}
                   <div className='flex items-baseline justify-center mb-2'>
-                    <span className='text-4xl text-foreground'>
-                      <strong>0€</strong> for 2-day trial
+                    <span className='text-5xl text-foreground tracking-tight mt-4'>
+                      <strong>FREE</strong> for 2 days
                     </span>
                   </div>
                   
                   {/* Second row: Monthly price afterwards */}
                   <div className='flex items-baseline justify-center'>
-                    <span className='text-1xl font-medium text-foreground'>
+                    <span className='text-md font-medium text-foreground mt-5'>
                       {displayPrice}
                     </span>
-                    <span className='text-muted-foreground ml-2 text-lg'>/{interval} afterwards</span>
+                    <span className='text-muted-foreground ml-2 text-md'>/{interval} afterwards</span>
                   </div>
                   
                   {/* Additional pricing info - can be removed if not needed */}
@@ -172,7 +172,7 @@ export function PricingSection({
                   <input type='hidden' name='priceId' value={currentPrice?.id} />
                   <SubmitButton />
                   <p className='text-xs text-center text-muted-foreground mt-4'>
-                    2-day free trial. Cancel anytime. No hidden fees.
+                    Cancel anytime. No hidden fees.
                   </p>
                 </form>
               </div>
