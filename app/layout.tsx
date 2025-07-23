@@ -43,8 +43,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             gtag('config', 'G-G89X3MDJEG');
           `}
         </Script>
+
+        {/* Facebook Pixel */}
+        <Script id="fb-pixel" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '744388881861337');
+            fbq('track', 'PageView');
+          `}
+        </Script>
       </head>
       <body className='min-h-[100dvh] bg-gray-50'>
+        {/* Facebook Pixel noscript fallback */}
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: 'none' }}
+            src="https://www.facebook.com/tr?id=744388881861337&ev=PageView&noscript=1"
+          />
+        </noscript>
+
         <NavigationProgressWrapper />
         <UserProvider userPromise={userPromise}>{children}</UserProvider>
         <Toaster
@@ -55,7 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           duration={5000}
           visibleToasts={3}
         />
-        
+
         {/* Klaviyo Tracking Script */}
         <Script
           async
@@ -67,6 +93,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
-
-
