@@ -1,7 +1,7 @@
 'use client';
 
 import { TeamDataWithMembers } from '@/lib/db/schema';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Settings } from './settings';
 
@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-export default function SettingsPage() {
+function DashboardContent() {
   const [teamData, setTeamData] = useState<TeamDataWithMembers | null>(null);
   const searchParams = useSearchParams();
 
@@ -64,4 +64,12 @@ export default function SettingsPage() {
   }
 
   return <Settings teamData={teamData} />;
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
 }
