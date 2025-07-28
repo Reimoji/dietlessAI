@@ -59,6 +59,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             fbq('track', 'PageView');
           `}
         </Script>
+
+        {/* Klaviyo Tracking Script */}
+        <Script
+          src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=WsXKj9"
+          strategy="afterInteractive"
+          async
+        />
       </head>
       <body className='min-h-[100dvh] bg-gray-50'>
         {/* Facebook Pixel noscript fallback */}
@@ -80,14 +87,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           richColors
           duration={5000}
           visibleToasts={3}
-        />
-
-        {/* Klaviyo Tracking Script */}
-        <Script
-          async
-          type='text/javascript'
-          src='https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=WsXtj9'
-          strategy="afterInteractive"
         />
       </body>
     </html>
