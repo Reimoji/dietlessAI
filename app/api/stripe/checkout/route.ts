@@ -185,7 +185,19 @@ export async function GET(request: NextRequest) {
     }
 
     await setSession(user[0]);
-    return NextResponse.redirect(`${process.env.BASE_URL}/dashboard`);
+    
+    // Calculate the purchase value for Facebook Pixel tracking
+    const purchaseValue = plan.unit_amount ? (plan.unit_amount / 100) : 0; // Convert from cents to euros
+    const isYearly = plan.recurring?.interval === 'year';
+    
+    // Redirect to dashboard with purchase tracking parameters
+    const dashboardUrl = new URL(`${process.env.BASE_URL}/dashboard`);
+    dashboardUrl.searchParams.set('from_checkout', 'true');
+    dashboardUrl.searchParams.set('purchase_value', purchaseValue.toString());
+    dashboardUrl.searchParams.set('subscription_status', subscription.status);
+    dashboardUrl.searchParams.set('plan_interval', plan.recurring?.interval || 'month');
+    
+    return NextResponse.redirect(dashboardUrl.toString());
   } catch (error) {
     console.error('Error handling successful checkout:', error);
     return NextResponse.redirect(`${process.env.BASE_URL}/error`);

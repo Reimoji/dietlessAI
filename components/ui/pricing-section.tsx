@@ -5,14 +5,30 @@ import { Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
+// Declare fbq for TypeScript
+declare global {
+  interface Window {
+    fbq: any;
+  }
+}
+
 // Submit button component
 function SubmitButton() {
   const { pending } = useFormStatus();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    // Track the checkout initiation before form submission
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'InitiateCheckout');
+    }
+    // Form will continue to submit normally after this
+  };
 
   return (
     <Button
       type='submit'
       disabled={pending}
+      onClick={handleSubmit}
       className='w-full bg-primary hover:bg-primary/90 hover:cursor-pointer text-primary-foreground rounded-md flex items-center justify-center py-3'
     >
       {pending ? (
@@ -94,7 +110,7 @@ export function PricingSection({
           <h2 className='text-4xl font-bold text-foreground mb-6'>
             Start your chat with DietlessAI using a
             <br />
-            2 day free trial
+            2 day free trial
           </h2>
         </div>
 
@@ -183,12 +199,3 @@ export function PricingSection({
     </section>
   );
 }
-
-
-
-
-
-
-
-
-
