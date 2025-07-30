@@ -70,7 +70,7 @@ export async function getChatCompletion(
     }
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4.1-nano-2025-04-14',
+      model: 'gpt-4.1-mini',
       messages: messagesWithSystem,
       store: true,
       temperature: 0.7,
