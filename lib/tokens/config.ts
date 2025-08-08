@@ -1,7 +1,7 @@
 // Central configuration for token limits
 export const TOKEN_LIMITS = {
   // Default monthly token limit for all users
-  DEFAULT_MONTHLY_LIMIT: 5000000,
+  DEFAULT_MONTHLY_LIMIT: 650000,
 
   // Warning thresholds (percentage of limit)
   WARNING_THRESHOLDS: {
