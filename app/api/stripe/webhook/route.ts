@@ -15,6 +15,7 @@ import Stripe from 'stripe';
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   console.log('Stripe webhook POST triggered');
 
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
           cancel_at_period_end: subscription.cancel_at_period_end,
         });
 
+        // Keep any extra sync logic here
         await handleSubscriptionChange(subscription);
 
         const customerId = subscription.customer as string;
@@ -76,21 +78,25 @@ export async function POST(request: NextRequest) {
 
         const userEmail = teamOwner.user.email;
 
+        // Always update DB subscription status & end date
+        await db.update(teams).set({
+          subscriptionStatus: subscription.status,
+          subscriptionEndDate: subscription.ended_at
+            ? new Date(subscription.ended_at * 1000)
+            : subscription.cancel_at_period_end && (subscription as any).current_period_end
+              ? new Date((subscription as any).current_period_end * 1000)
+              : null,
+          updatedAt: new Date(),
+        }).where(eq(teams.id, team.id));
+
         if (event.type === 'customer.subscription.created') {
           await handleSubscriptionCreated(userEmail, subscription, product);
         } else if (event.type === 'customer.subscription.updated') {
           await handleSubscriptionUpdated(userEmail, subscription, product);
 
           const currentPeriodEnd = (subscription as any).current_period_end;
-
           if (subscription.cancel_at_period_end && currentPeriodEnd) {
             const endDate = new Date(currentPeriodEnd * 1000);
-
-            await db.update(teams).set({
-              subscriptionEndDate: endDate,
-              updatedAt: new Date(),
-            }).where(eq(teams.id, team.id));
-
             await sendSubscriptionCancelledEmail(
               userEmail,
               teamOwner.user.name || 'there',
@@ -102,8 +108,19 @@ export async function POST(request: NextRequest) {
           }
         } else if (event.type === 'customer.subscription.deleted') {
           await handleSubscriptionCancelled(userEmail, subscription, product, 'Subscription deleted');
-        }
 
+          const endDate = subscription.ended_at
+            ? new Date(subscription.ended_at * 1000)
+            : new Date();
+          await sendSubscriptionCancelledEmail(
+            userEmail,
+            teamOwner.user.name || 'there',
+            team.planName || 'Premium',
+            formatDate(endDate),
+            `${process.env.BASE_URL}/dashboard/billing`,
+            `${process.env.BASE_URL}/feedback`
+          );
+        }
         break;
       }
       default:
