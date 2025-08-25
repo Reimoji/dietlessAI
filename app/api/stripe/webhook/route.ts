@@ -17,21 +17,23 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-  console.log('Stripe webhook POST triggered');
+  const startedAt = Date.now();
+  console.log('[stripe] webhook POST');
 
   const payload = await request.text();
-  const signature = request.headers.get('stripe-signature') as string;
+  const signature = request.headers.get('stripe-signature') as string | null;
 
-  console.log('Webhook received with signature:', signature ? 'present' : 'missing');
+  if (!signature) {
+    console.error('[stripe] missing signature header');
+    return NextResponse.json({ error: 'missing signature' }, { status: 400 });
+  }
 
   let event: Stripe.Event;
-
   try {
     event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
-    console.log('Received webhook event:', event.type);
   } catch (err) {
-    console.error('Webhook signature verification failed.', err);
-    return NextResponse.json({ error: 'Webhook signature verification failed.' }, { status: 400 });
+    console.error('[stripe] signature verification failed', err);
+    return NextResponse.json({ error: 'signature verification failed' }, { status: 400 });
   }
 
   try {
@@ -39,103 +41,135 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const sub = event.data.object as Stripe.Subscription;
 
-        console.log(`Subscription event received: ${event.type}`, {
-          id: subscription.id,
-          status: subscription.status,
-          trial_end: subscription.trial_end,
-          current_period_end: (subscription as any).current_period_end,
-          cancel_at_period_end: subscription.cancel_at_period_end,
+        // Safe access helpers
+        const customerId = (sub.customer || '') as string;
+        const status = sub.status;
+        const cancelAtPeriodEnd = !!sub.cancel_at_period_end;
+        const endedAt = sub.ended_at ? new Date(sub.ended_at * 1000) : null;
+        const currentPeriodEndUnix = (sub as any)?.current_period_end as number | undefined;
+        const currentPeriodEnd = currentPeriodEndUnix ? new Date(currentPeriodEndUnix * 1000) : null;
+
+        console.log('[stripe] subscription event', {
+          type: event.type,
+          id: sub.id,
+          status,
+          customerId,
+          cancelAtPeriodEnd,
+          hasEndedAt: !!endedAt,
+          hasCpe: !!currentPeriodEndUnix,
         });
 
-        // Keep any extra sync logic here
-        await handleSubscriptionChange(subscription);
+        // Keep your extra sync logic, but don't let it crash the webhook
+        try {
+          await handleSubscriptionChange(sub);
+        } catch (e) {
+          console.warn('[stripe] handleSubscriptionChange failed (non-fatal)', e);
+        }
 
-        const customerId = subscription.customer as string;
+        // Find owning team
         const team = await getTeamByStripeCustomerId(customerId);
-        if (!team) break;
+        if (!team) {
+          console.warn('[stripe] no team for customer', { customerId });
+          break; // still 200 OK
+        }
 
+        // Get owner email (optional)
         const teamOwner = await db.query.teamMembers.findFirst({
           where: and(eq(teamMembers.teamId, team.id), eq(teamMembers.role, 'owner')),
           with: {
-            user: {
-              columns: {
-                id: true,
-                email: true,
-                name: true,
-              },
-            },
+            user: { columns: { id: true, email: true, name: true } },
           },
         });
+        const userEmail = teamOwner?.user?.email ?? null;
+        const userName = (teamOwner?.user?.name || 'there') as string;
 
-        if (!teamOwner?.user?.email) break;
+        // Persist status & end date for ALL sub events
+        const subEndDate =
+          endedAt ??
+          (cancelAtPeriodEnd && currentPeriodEnd ? currentPeriodEnd : null);
 
-        const subscriptionItem = subscription.items.data[0];
-        const priceId = subscriptionItem?.price.id;
-        const price = priceId ? await stripe.prices.retrieve(priceId) : null;
-        const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+        try {
+          await db
+            .update(teams)
+            .set({
+              subscriptionStatus: status,
+              subscriptionEndDate: subEndDate,
+              updatedAt: new Date(),
+            })
+            .where(eq(teams.id, team.id));
+        } catch (e) {
+          console.error('[stripe] DB update failed', e);
+          // We still return 200 to avoid infinite retries; log is enough to fix data manually if needed.
+        }
 
-        const userEmail = teamOwner.user.email;
-
-        // Always update DB subscription status & end date
-        await db.update(teams).set({
-          subscriptionStatus: subscription.status,
-          subscriptionEndDate: subscription.ended_at
-            ? new Date(subscription.ended_at * 1000)
-            : subscription.cancel_at_period_end && (subscription as any).current_period_end
-              ? new Date((subscription as any).current_period_end * 1000)
-              : null,
-          updatedAt: new Date(),
-        }).where(eq(teams.id, team.id));
-
+        // Side-effects per event (don’t let failures 500 the webhook)
         if (event.type === 'customer.subscription.created') {
-          await handleSubscriptionCreated(userEmail, subscription, product);
+          if (userEmail) {
+            try {
+              await handleSubscriptionCreated(userEmail, sub, null);
+            } catch (e) {
+              console.warn('[stripe] handleSubscriptionCreated failed (non-fatal)', e);
+            }
+          }
         } else if (event.type === 'customer.subscription.updated') {
-          await handleSubscriptionUpdated(userEmail, subscription, product);
+          if (userEmail) {
+            try {
+              await handleSubscriptionUpdated(userEmail, sub, null);
+            } catch (e) {
+              console.warn('[stripe] handleSubscriptionUpdated failed (non-fatal)', e);
+            }
+          }
 
-          const currentPeriodEnd = (subscription as any).current_period_end;
-          if (subscription.cancel_at_period_end && currentPeriodEnd) {
-            const endDate = new Date(currentPeriodEnd * 1000);
-            await sendSubscriptionCancelledEmail(
-              userEmail,
-              teamOwner.user.name || 'there',
-              team.planName || 'Premium',
-              formatDate(endDate),
-              `${process.env.BASE_URL}/dashboard/billing`,
-              `${process.env.BASE_URL}/feedback`
-            );
+          // If user canceled at period end, send courtesy email with end date
+          if (userEmail && cancelAtPeriodEnd && currentPeriodEnd) {
+            try {
+              await sendSubscriptionCancelledEmail(
+                userEmail,
+                userName,
+                team.planName || 'Premium',
+                formatDate(currentPeriodEnd),
+                `${process.env.BASE_URL}/dashboard/billing`,
+                `${process.env.BASE_URL}/feedback`
+              );
+            } catch (e) {
+              console.warn('[stripe] sendSubscriptionCancelledEmail (updated) failed (non-fatal)', e);
+            }
           }
         } else if (event.type === 'customer.subscription.deleted') {
-          await handleSubscriptionCancelled(userEmail, subscription, product, 'Subscription deleted');
-
-          const endDate = subscription.ended_at
-            ? new Date(subscription.ended_at * 1000)
-            : new Date();
-          await sendSubscriptionCancelledEmail(
-            userEmail,
-            teamOwner.user.name || 'there',
-            team.planName || 'Premium',
-            formatDate(endDate),
-            `${process.env.BASE_URL}/dashboard/billing`,
-            `${process.env.BASE_URL}/feedback`
-          );
+          if (userEmail) {
+            try {
+              await handleSubscriptionCancelled(userEmail, sub, null, 'Subscription deleted');
+            } catch (e) {
+              console.warn('[stripe] handleSubscriptionCancelled failed (non-fatal)', e);
+            }
+            // Immediate cancel email
+            try {
+              await sendSubscriptionCancelledEmail(
+                userEmail,
+                userName,
+                team.planName || 'Premium',
+                formatDate(endedAt ?? new Date()),
+                `${process.env.BASE_URL}/dashboard/billing`,
+                `${process.env.BASE_URL}/feedback`
+              );
+            } catch (e) {
+              console.warn('[stripe] sendSubscriptionCancelledEmail (deleted) failed (non-fatal)', e);
+            }
+          }
         }
+
         break;
       }
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        console.log('[stripe] unhandled event', event.type);
     }
 
+    console.log('[stripe] webhook OK', { ms: Date.now() - startedAt });
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Error processing webhook:', error);
-    if (error instanceof Error) {
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-      });
-    }
-    return NextResponse.json({ error: 'Error processing webhook' }, { status: 500 });
+    console.error('[stripe] webhook top-level error', error);
+    return NextResponse.json({ error: 'internal' }, { status: 500 });
   }
 }
