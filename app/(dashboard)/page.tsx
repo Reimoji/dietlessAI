@@ -1,3 +1,4 @@
+import NewsletterForm from '@/components/newsletter-form';
 import {
   Accordion,
   AccordionContent,
@@ -6,7 +7,6 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
-import { Input } from '@/components/ui/input';
 import { PricingSection } from '@/components/ui/pricing-section';
 import { checkoutAction } from '@/lib/payments/actions';
 import { getStripePrices, getStripeProducts } from '@/lib/payments/stripe';
@@ -24,14 +24,12 @@ import {
   Grape,
   HelpCircle,
   Leaf,
+  Link,
   Mail,
   MessageSquare,
   Settings,
 } from 'lucide-react';
-import Image from 'next/image';
 import { Terminal } from './terminal';
-import NewsletterForm from '@/components/newsletter-form';
-import Link from 'next/link';
 
 // Prices are fresh for one hour max
 export const revalidate = 3600;
@@ -123,8 +121,8 @@ export default async function HomePage() {
                     Personalized Plans, Tailored to You
                   </h2>
                   <p className='mt-2 text-base text-muted-foreground'>
-                    Developed with guidance from Erik, DietlessAI uses advanced technology to
-                    tailor your nutrition plan based on your goals, preferences, and lifestyle—no
+                    Developed with guidance from Erik, DietlessAI uses advanced technology to tailor
+                    your nutrition plan based on your goals, preferences, and lifestyle—no
                     one-size-fits-all diets.
                   </p>
                 </div>
@@ -228,8 +226,9 @@ export default async function HomePage() {
                     alt='DietlessAI App Screenshot'
                     className='w-full h-auto object-cover'
                     style={{
-                      filter: 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3)) drop-shadow(-8px 15px 15px rgba(0, 0, 0, 0.2))',
-                      transform: 'perspective(1000px) rotateY(2deg)'
+                      filter:
+                        'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3)) drop-shadow(-8px 15px 15px rgba(0, 0, 0, 0.2))',
+                      transform: 'perspective(1000px) rotateY(2deg)',
                     }}
                   />
                 </div>
@@ -432,7 +431,7 @@ export default async function HomePage() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className='py-24 bg-background relative'>
+        <section id='pricing' className='py-24 bg-background relative'>
           <div className='relative w-full'>
             <PricingSection prices={prices} products={products} checkoutAction={checkoutAction} />
           </div>
@@ -801,8 +800,3 @@ export default async function HomePage() {
     </main>
   );
 }
-
-
-
-
-

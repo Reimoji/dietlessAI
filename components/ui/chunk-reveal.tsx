@@ -27,7 +27,7 @@ export function ChunkReveal({
     if (preFormatted) {
       setFormattedContent(formatMessage(content));
     }
-    
+
     // Reset when content changes
     setVisibleChunks([]);
     setIsComplete(false);
@@ -134,10 +134,10 @@ export function ChunkReveal({
       {/* Process and format the visible chunks */}
       <div
         className='animate-fadeIn whitespace-pre-wrap'
-        dangerouslySetInnerHTML={{ 
-          __html: preFormatted 
-            ? processContent(visibleChunks) 
-            : formatMessage(processContent(visibleChunks))
+        dangerouslySetInnerHTML={{
+          __html: preFormatted
+            ? processContent(visibleChunks)
+            : formatMessage(processContent(visibleChunks)),
         }}
       />
 
@@ -179,4 +179,3 @@ function formatChunk(chunk: string): string {
       .replace(/\n/g, '<br>')
   );
 }
-

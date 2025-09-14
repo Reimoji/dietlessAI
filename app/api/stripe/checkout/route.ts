@@ -1,9 +1,7 @@
 import { setSession } from '@/lib/auth/session';
 import { db } from '@/lib/db/drizzle';
 import { teamMembers, teams, users } from '@/lib/db/schema';
-import { 
-  handleSubscriptionCreated 
-} from '@/lib/klaviyo/stripe-integration';
+import { handleSubscriptionCreated } from '@/lib/klaviyo/stripe-integration';
 import {
   formatDate,
   formatPrice,
@@ -148,7 +146,9 @@ export async function GET(request: NextRequest) {
           const subscriptionItem = subscription.items.data[0];
           const priceId = subscriptionItem?.price.id;
           const price = priceId ? await stripe.prices.retrieve(priceId) : null;
-          const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+          const product = price?.product
+            ? await stripe.products.retrieve(price.product as string)
+            : null;
           await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
         } catch (error) {
           console.error('Failed to track trial subscription in Klaviyo:', error);
@@ -169,14 +169,19 @@ export async function GET(request: NextRequest) {
             `${process.env.BASE_URL}/dashboard`,
           );
         } catch (error) {
-          console.error('Failed to send subscription activated email from checkout handler:', error);
+          console.error(
+            'Failed to send subscription activated email from checkout handler:',
+            error,
+          );
         }
 
         try {
           const subscriptionItem = subscription.items.data[0];
           const priceId = subscriptionItem?.price.id;
           const price = priceId ? await stripe.prices.retrieve(priceId) : null;
-          const product = price?.product ? await stripe.products.retrieve(price.product as string) : null;
+          const product = price?.product
+            ? await stripe.products.retrieve(price.product as string)
+            : null;
           await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
         } catch (error) {
           console.error('Failed to track active subscription in Klaviyo:', error);
@@ -185,18 +190,18 @@ export async function GET(request: NextRequest) {
     }
 
     await setSession(user[0]);
-    
+
     // Calculate the purchase value for Facebook Pixel tracking
-    const purchaseValue = plan.unit_amount ? (plan.unit_amount / 100) : 0; // Convert from cents to euros
+    const purchaseValue = plan.unit_amount ? plan.unit_amount / 100 : 0; // Convert from cents to euros
     const isYearly = plan.recurring?.interval === 'year';
-    
+
     // Redirect to dashboard with purchase tracking parameters
     const dashboardUrl = new URL(`${process.env.BASE_URL}/dashboard`);
     dashboardUrl.searchParams.set('from_checkout', 'true');
     dashboardUrl.searchParams.set('purchase_value', purchaseValue.toString());
     dashboardUrl.searchParams.set('subscription_status', subscription.status);
     dashboardUrl.searchParams.set('plan_interval', plan.recurring?.interval || 'month');
-    
+
     return NextResponse.redirect(dashboardUrl.toString());
   } catch (error) {
     console.error('Error handling successful checkout:', error);

@@ -337,18 +337,22 @@ function ChatPage() {
               message.role === 'assistant' && message.id === typingMessageId;
 
             // Pre-format the message content if it's not the latest assistant message
-            const messageContent = message.role === 'user' || isLatestAssistantMessage 
-              ? message.content 
-              : formatMessage(message.content);
+            const messageContent =
+              message.role === 'user' || isLatestAssistantMessage
+                ? message.content
+                : formatMessage(message.content);
 
             return (
               <div
                 key={`${message.role}-${index}-${message.createdAt.getTime()}`}
                 className={`flex mb-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} w-full`}
               >
-                <div className={`${message.role === 'user' 
-                  ? 'max-w-[95%] sm:max-w-[90%] md:max-w-[85%] ml-auto' 
-                  : 'w-full sm:max-w-[95%] md:max-w-[90%] ml-0'}`}
+                <div
+                  className={`${
+                    message.role === 'user'
+                      ? 'max-w-[95%] sm:max-w-[90%] md:max-w-[85%] ml-auto'
+                      : 'w-full sm:max-w-[95%] md:max-w-[90%] ml-0'
+                  }`}
                 >
                   <div
                     className={`p-3 sm:p-4 rounded-lg text-left whitespace-pre-wrap ${
@@ -425,19 +429,3 @@ function ChatPage() {
 }
 
 export default ChatPage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -9,7 +9,9 @@ export type SubscriptionCheckResult = {
   error?: string;
 };
 
-export async function checkTeamSubscription(sessionCookieValue?: string): Promise<SubscriptionCheckResult> {
+export async function checkTeamSubscription(
+  sessionCookieValue?: string,
+): Promise<SubscriptionCheckResult> {
   try {
     if (!sessionCookieValue) {
       return { isValid: false, error: 'No session cookie' };
@@ -41,16 +43,16 @@ export async function checkTeamSubscription(sessionCookieValue?: string): Promis
 
     // Check if subscription is active or trialing
     if (subscriptionStatus !== 'active' && subscriptionStatus !== 'trialing') {
-      return { 
-        isValid: false, 
+      return {
+        isValid: false,
         status: subscriptionStatus,
-        error: 'Invalid subscription status' 
+        error: 'Invalid subscription status',
       };
     }
 
-    return { 
-      isValid: true, 
-      status: subscriptionStatus 
+    return {
+      isValid: true,
+      status: subscriptionStatus,
     };
   } catch (error) {
     console.error('Subscription check error:', error);

@@ -52,7 +52,7 @@ function UserMenu() {
       <>
         {pathname === '/' ? (
           <a
-            href="#pricing"
+            href='#pricing'
             onClick={scrollToPricing}
             className='text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer'
           >
@@ -60,7 +60,7 @@ function UserMenu() {
           </a>
         ) : (
           <Link
-            href="/pricing"
+            href='/pricing'
             className='text-sm font-medium text-muted-foreground hover:text-foreground'
           >
             Pricing

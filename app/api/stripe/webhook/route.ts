@@ -49,7 +49,9 @@ export async function POST(request: NextRequest) {
         const cancelAtPeriodEnd = !!sub.cancel_at_period_end;
         const endedAt = sub.ended_at ? new Date(sub.ended_at * 1000) : null;
         const currentPeriodEndUnix = (sub as any)?.current_period_end as number | undefined;
-        const currentPeriodEnd = currentPeriodEndUnix ? new Date(currentPeriodEndUnix * 1000) : null;
+        const currentPeriodEnd = currentPeriodEndUnix
+          ? new Date(currentPeriodEndUnix * 1000)
+          : null;
 
         console.log('[stripe] subscription event', {
           type: event.type,
@@ -87,8 +89,7 @@ export async function POST(request: NextRequest) {
 
         // Persist status & end date for ALL sub events
         const subEndDate =
-          endedAt ??
-          (cancelAtPeriodEnd && currentPeriodEnd ? currentPeriodEnd : null);
+          endedAt ?? (cancelAtPeriodEnd && currentPeriodEnd ? currentPeriodEnd : null);
 
         try {
           await db
@@ -131,10 +132,13 @@ export async function POST(request: NextRequest) {
                 team.planName || 'Premium',
                 formatDate(currentPeriodEnd),
                 `${process.env.BASE_URL}/dashboard/billing`,
-                `${process.env.BASE_URL}/feedback`
+                `${process.env.BASE_URL}/feedback`,
               );
             } catch (e) {
-              console.warn('[stripe] sendSubscriptionCancelledEmail (updated) failed (non-fatal)', e);
+              console.warn(
+                '[stripe] sendSubscriptionCancelledEmail (updated) failed (non-fatal)',
+                e,
+              );
             }
           }
         } else if (event.type === 'customer.subscription.deleted') {
@@ -152,10 +156,13 @@ export async function POST(request: NextRequest) {
                 team.planName || 'Premium',
                 formatDate(endedAt ?? new Date()),
                 `${process.env.BASE_URL}/dashboard/billing`,
-                `${process.env.BASE_URL}/feedback`
+                `${process.env.BASE_URL}/feedback`,
               );
             } catch (e) {
-              console.warn('[stripe] sendSubscriptionCancelledEmail (deleted) failed (non-fatal)', e);
+              console.warn(
+                '[stripe] sendSubscriptionCancelledEmail (deleted) failed (non-fatal)',
+                e,
+              );
             }
           }
         }

@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { useState } from 'react';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { resetPassword } from '../actions';
 
 export function ResetPasswordForm({ token }: { token: string }) {
@@ -126,5 +125,3 @@ export function ResetPasswordForm({ token }: { token: string }) {
     </form>
   );
 }
-
-

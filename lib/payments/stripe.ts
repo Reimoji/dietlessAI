@@ -72,9 +72,10 @@ export async function createCustomerPortalSession(team: Team) {
 }
 
 export async function handleSubscriptionChange(subscription: Stripe.Subscription) {
-  const customerId = typeof subscription.customer === 'string'
-    ? subscription.customer
-    : (subscription.customer as any)?.id;
+  const customerId =
+    typeof subscription.customer === 'string'
+      ? subscription.customer
+      : (subscription.customer as any)?.id;
 
   const subscriptionId = subscription.id;
   const status = subscription.status;
@@ -99,24 +100,30 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
   });
 
   const nextBillingDate = currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null;
-  const subscriptionEndDate = subscription.cancel_at_period_end && currentPeriodEnd
-    ? new Date(currentPeriodEnd * 1000)
-    : null;
+  const subscriptionEndDate =
+    subscription.cancel_at_period_end && currentPeriodEnd
+      ? new Date(currentPeriodEnd * 1000)
+      : null;
 
-  await db.update(teams).set({
-    stripeSubscriptionId: subscriptionId,
-    subscriptionStatus: status,
-    nextBillingDate,
-    subscriptionEndDate,
-    updatedAt: new Date(),
-  }).where(eq(teams.id, team.id));
+  await db
+    .update(teams)
+    .set({
+      stripeSubscriptionId: subscriptionId,
+      subscriptionStatus: status,
+      nextBillingDate,
+      subscriptionEndDate,
+      updatedAt: new Date(),
+    })
+    .where(eq(teams.id, team.id));
 
   const ownerEmail = teamOwner?.user?.email;
   const ownerName = teamOwner?.user?.name || 'there';
 
   if (status === 'trialing' && trialEnd) {
     const trialStart = new Date();
-    const trialDays = Math.ceil((trialEnd.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24));
+    const trialDays = Math.ceil(
+      (trialEnd.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     const subscriptionItem = subscription.items.data[0];
     const priceId = subscriptionItem?.price.id;
@@ -126,12 +133,15 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
     const planName = product?.name || 'Premium';
     const amount = formatPrice(price);
 
-    await db.update(teams).set({
-      stripeProductId: product?.id || null,
-      planName,
-      trialEndsAt: trialEnd,
-      updatedAt: new Date(),
-    }).where(eq(teams.id, team.id));
+    await db
+      .update(teams)
+      .set({
+        stripeProductId: product?.id || null,
+        planName,
+        trialEndsAt: trialEnd,
+        updatedAt: new Date(),
+      })
+      .where(eq(teams.id, team.id));
 
     if (ownerEmail) {
       await sendTrialEmail(
@@ -177,9 +187,7 @@ export async function getStripeProducts() {
     name: product.name,
     description: product.description,
     defaultPriceId:
-      typeof product.default_price === 'string'
-        ? product.default_price
-        : product.default_price?.id,
+      typeof product.default_price === 'string' ? product.default_price : product.default_price?.id,
   }));
 }
 
@@ -191,10 +199,4 @@ export function formatPrice(price: Stripe.Price | null): string {
   return `${symbol}${amount.toFixed(2)}/${interval}`;
 }
 
-export {
-  formatDate,
-  sendSubscriptionActivatedEmail,
-  sendTrialEmail,
-};
-
-
+export { formatDate, sendSubscriptionActivatedEmail, sendTrialEmail };

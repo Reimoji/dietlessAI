@@ -3,15 +3,15 @@ import { UserProvider } from '@/lib/auth';
 import { getUser } from '@/lib/db/queries';
 import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
+import Script from 'next/script';
 import { Toaster } from 'sonner';
 import './globals.css';
-import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'dietlessAI',
   description: 'Personalized Nutrition Coaching That Evolves with Your Lifestyle',
   icons: {
-    icon: 'favicon.ico',
+    icon: '/favicon.ico',
   },
 };
 
@@ -32,10 +32,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Google tag (gtag.js) */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-G89X3MDJEG"
-          strategy="afterInteractive"
+          src='https://www.googletagmanager.com/gtag/js?id=G-G89X3MDJEG'
+          strategy='afterInteractive'
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id='google-analytics' strategy='afterInteractive'>
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
 
         {/* Facebook Pixel */}
-        <Script id="fb-pixel" strategy="afterInteractive">
+        <Script id='fb-pixel' strategy='afterInteractive'>
           {`
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
 
         {/* Hotjar Tracking Code */}
-        <Script id="hotjar" strategy="afterInteractive">
+        <Script id='hotjar' strategy='afterInteractive'>
           {`
             (function(h,o,t,j,a,r){
                 h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
@@ -74,11 +74,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </Script>
 
-
         {/* Klaviyo Tracking Script */}
         <Script
-          src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=WsXKj9"
-          strategy="afterInteractive"
+          src='https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=WsXKj9'
+          strategy='afterInteractive'
           async
         />
       </head>
@@ -86,10 +85,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Facebook Pixel noscript fallback */}
         <noscript>
           <img
-            height="1"
-            width="1"
+            height='1'
+            width='1'
             style={{ display: 'none' }}
-            src="https://www.facebook.com/tr?id=744388881861337&ev=PageView&noscript=1"
+            src='https://www.facebook.com/tr?id=744388881861337&ev=PageView&noscript=1'
           />
         </noscript>
 

@@ -13,18 +13,18 @@ const KLAVIYO_API_V2_BASE_URL = 'https://a.klaviyo.com/api/v2';
 export async function addSubscriberToList(
   email: string,
   listId: string,
-  properties: Record<string, any> = {}
+  properties: Record<string, any> = {},
 ) {
   try {
     if (!process.env.KLAVIYO_PRIVATE_API_KEY) {
       console.error('KLAVIYO_PRIVATE_API_KEY is not set');
       return { success: false, error: 'API key not configured' };
     }
-    
+
     // Prepare properties with email included
     const allProperties = {
       email,
-      ...properties
+      ...properties,
     };
 
     // Format the request body according to v2 API with private key
@@ -35,14 +35,14 @@ export async function addSubscriberToList(
       },
       body: JSON.stringify({
         api_key: process.env.KLAVIYO_PRIVATE_API_KEY,
-        profiles: [allProperties]
+        profiles: [allProperties],
       }),
     });
 
     // Check if the response is JSON
     const contentType = response.headers.get('content-type');
     let data;
-    
+
     if (contentType && contentType.includes('application/json')) {
       data = await response.json();
     } else {
@@ -52,7 +52,10 @@ export async function addSubscriberToList(
 
     if (!response.ok) {
       console.error('Failed to add subscriber to Klaviyo:', data);
-      return { success: false, error: typeof data === 'object' && data.detail ? data.detail : 'Failed to subscribe' };
+      return {
+        success: false,
+        error: typeof data === 'object' && data.detail ? data.detail : 'Failed to subscribe',
+      };
     }
 
     return { success: true, data };
@@ -65,10 +68,7 @@ export async function addSubscriberToList(
 /**
  * Create or update a profile in Klaviyo
  */
-export async function createOrUpdateProfile(
-  email: string,
-  properties: Record<string, any> = {}
-) {
+export async function createOrUpdateProfile(email: string, properties: Record<string, any> = {}) {
   try {
     if (!process.env.KLAVIYO_PRIVATE_API_KEY) {
       console.error('KLAVIYO_PRIVATE_API_KEY is not set');
@@ -113,7 +113,7 @@ export async function createOrUpdateProfile(
 export async function trackEvent(
   event: string,
   email: string,
-  properties: Record<string, any> = {}
+  properties: Record<string, any> = {},
 ) {
   try {
     if (!process.env.KLAVIYO_PRIVATE_API_KEY) {
@@ -157,10 +157,3 @@ export async function trackEvent(
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
-
-
-
-
-
-
-

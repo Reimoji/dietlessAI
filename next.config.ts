@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
     ppr: false,
   },
   //TODO: If you want to enable ESLint during the build process, uncomment the following lines.
-   eslint: {
-     ignoreDuringBuilds: true,
-   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

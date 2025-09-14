@@ -29,7 +29,17 @@ const DEFAULT_OPTIONS: ProcessingOptions = {
   maxContentLength: 100000, // 100KB limit
 };
 
-const HEADER_KEYWORDS = ['Exercise', 'Sets', 'Reps', 'Day', 'Focus', 'Workout', 'Name', 'Type', 'Duration'];
+const HEADER_KEYWORDS = [
+  'Exercise',
+  'Sets',
+  'Reps',
+  'Day',
+  'Focus',
+  'Workout',
+  'Name',
+  'Type',
+  'Duration',
+];
 
 /**
  * Enhanced message formatter with improved architecture and error handling
@@ -55,7 +65,6 @@ export class MessageFormatter {
       let processedContent = this.preProcessContent(content);
       processedContent = this.applyFormatting(processedContent);
       return this.postProcessContent(processedContent);
-
     } catch (error) {
       console.error('Error formatting message:', error);
       return content; // Fallback to original content
@@ -135,14 +144,14 @@ export class MessageFormatter {
         name: 'tables',
         pattern: /^\|(.+)\|$/gm,
         replacement: (match: string, contents: string) => this.processTableRow(match, contents),
-        priority: 100
+        priority: 100,
       });
 
       rules.push({
         name: 'combineTableRows',
         pattern: /(<tr>.+?<\/tr>)(\s*<tr>.+?<\/tr>)+/gs,
         replacement: (match: string) => this.combineTableRows(match),
-        priority: 99
+        priority: 99,
       });
     }
 
@@ -153,20 +162,20 @@ export class MessageFormatter {
           name: 'header1',
           pattern: /^# (.+)$/gm,
           replacement: '<h2 class="text-2xl font-bold mt-8 mb-4">$1</h2>',
-          priority: 90
+          priority: 90,
         },
         {
           name: 'header2',
           pattern: /^## (.+)$/gm,
           replacement: '<h3 class="text-xl font-bold mt-6 mb-3">$1</h3>',
-          priority: 89
+          priority: 89,
         },
         {
           name: 'header3',
           pattern: /^### (.+)$/gm,
           replacement: '<h3 class="text-lg font-bold mt-6 mb-3">$1</h3>',
-          priority: 88
-        }
+          priority: 88,
+        },
       );
     }
 
@@ -176,21 +185,24 @@ export class MessageFormatter {
         {
           name: 'numberedLists',
           pattern: /^(\d+)\.\s+(.+)$/gm,
-          replacement: '<div class="flex items-start mb-3 ml-1"><span class="font-bold mr-2 min-w-[20px] text-right">$1.</span><span>$2</span></div>',
-          priority: 80
+          replacement:
+            '<div class="flex items-start mb-3 ml-1"><span class="font-bold mr-2 min-w-[20px] text-right">$1.</span><span>$2</span></div>',
+          priority: 80,
         },
         {
           name: 'nestedBulletLists',
           pattern: /^(\s{2,})[•\-\*]\s+(.+)$/gm,
-          replacement: '<div class="flex items-start mb-2 ml-8"><span class="text-sm mr-2 min-w-[20px] text-center">-</span><span>$2</span></div>',
-          priority: 79
+          replacement:
+            '<div class="flex items-start mb-2 ml-8"><span class="text-sm mr-2 min-w-[20px] text-center">-</span><span>$2</span></div>',
+          priority: 79,
         },
         {
           name: 'bulletLists',
           pattern: /^[•\-\*]\s+(.+)$/gm,
-          replacement: '<div class="flex items-start mb-3 ml-1"><span class="text-lg mr-2 min-w-[20px] text-center">•</span><span>$1</span></div>',
-          priority: 78
-        }
+          replacement:
+            '<div class="flex items-start mb-3 ml-1"><span class="text-lg mr-2 min-w-[20px] text-center">•</span><span>$1</span></div>',
+          priority: 78,
+        },
       );
     }
 
@@ -200,14 +212,14 @@ export class MessageFormatter {
         name: 'bold',
         pattern: /\*\*(.+?)\*\*/g,
         replacement: '<strong>$1</strong>',
-        priority: 70
+        priority: 70,
       },
       {
         name: 'italic',
         pattern: /\*([^*]+)\*/g,
         replacement: '<em>$1</em>',
-        priority: 69
-      }
+        priority: 69,
+      },
     );
 
     // Special formatting
@@ -215,21 +227,23 @@ export class MessageFormatter {
       {
         name: 'whyLabels',
         pattern: /^(Why:)(.+)$/gm,
-        replacement: '<div class="my-3"><span class="font-semibold text-primary mr-1">Why:</span><span>$2</span></div>',
-        priority: 60
+        replacement:
+          '<div class="my-3"><span class="font-semibold text-primary mr-1">Why:</span><span>$2</span></div>',
+        priority: 60,
       },
       {
         name: 'sampleSessionLabels',
         pattern: /^(Sample Session.+:)$/gm,
         replacement: '<div class="font-semibold text-lg mt-4 mb-3">$1</div>',
-        priority: 59
+        priority: 59,
       },
       {
         name: 'quotes',
         pattern: /^>[\s]+(.+)$/gm,
-        replacement: '<blockquote class="pl-4 border-l-4 border-muted italic text-muted-foreground my-3">$1</blockquote>',
-        priority: 58
-      }
+        replacement:
+          '<blockquote class="pl-4 border-l-4 border-muted italic text-muted-foreground my-3">$1</blockquote>',
+        priority: 58,
+      },
     );
 
     // Links
@@ -237,8 +251,9 @@ export class MessageFormatter {
       rules.push({
         name: 'autoLinks',
         pattern: /(https?:\/\/[^\s]+)/g,
-        replacement: '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline">$1</a>',
-        priority: 50
+        replacement:
+          '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline">$1</a>',
+        priority: 50,
       });
     }
 
@@ -248,26 +263,26 @@ export class MessageFormatter {
         name: 'sectionDividers',
         pattern: /^--+$/gm,
         replacement: '<hr class="my-5 border-t border-muted" />',
-        priority: 20
+        priority: 20,
       },
       {
         name: 'doubleLineBreaks',
         pattern: /\n\n/g,
         replacement: '<div class="my-4"></div>',
-        priority: 19
+        priority: 19,
       },
       {
         name: 'intentionalWhitespace',
         pattern: /  \n/g,
         replacement: '<br class="my-1">',
-        priority: 18
+        priority: 18,
       },
       {
         name: 'lineBreaks',
         pattern: /\n/g,
         replacement: '<br>',
-        priority: 10
-      }
+        priority: 10,
+      },
     );
 
     return rules;
@@ -277,14 +292,14 @@ export class MessageFormatter {
    * Process individual table rows
    */
   private processTableRow(match: string, contents: string): string {
-    const cells = contents.split('|').map(cell => cell.trim());
-    
+    const cells = contents.split('|').map((cell) => cell.trim());
+
     // Check if this is a header separator row
-    if (cells.every(cell => /^[-:]+$/.test(cell))) {
+    if (cells.every((cell) => /^[-:]+$/.test(cell))) {
       return ''; // Remove separator row
     }
-    
-    return `<tr>${cells.map(cell => `<td class="border px-3 py-2">${cell}</td>`).join('')}</tr>`;
+
+    return `<tr>${cells.map((cell) => `<td class="border px-3 py-2">${cell}</td>`).join('')}</tr>`;
   }
 
   /**
@@ -292,22 +307,24 @@ export class MessageFormatter {
    */
   private combineTableRows(match: string): string {
     const rows = match.match(/<tr>.+?<\/tr>/gs) || [];
-    
+
     if (rows.length === 0) return match;
-    
+
     const firstRow = rows[0] || '';
     const otherRows = rows.slice(1).join('');
-    
+
     // Check if first row should be a header
-    const isHeaderRow = HEADER_KEYWORDS.some(keyword => 
-      firstRow.toLowerCase().includes(keyword.toLowerCase())
+    const isHeaderRow = HEADER_KEYWORDS.some((keyword) =>
+      firstRow.toLowerCase().includes(keyword.toLowerCase()),
     );
-    
+
     if (isHeaderRow) {
-      const headerRow = firstRow.replace(/<td/g, '<th class="bg-muted/50 font-semibold py-2 px-3"').replace(/<\/td>/g, '</th>');
+      const headerRow = firstRow
+        .replace(/<td/g, '<th class="bg-muted/50 font-semibold py-2 px-3"')
+        .replace(/<\/td>/g, '</th>');
       return `<div class="overflow-x-auto w-full my-4"><table class="w-full border-collapse bg-card"><thead>${headerRow}</thead><tbody>${otherRows}</tbody></table></div>`;
     }
-    
+
     return `<div class="overflow-x-auto w-full my-4"><table class="w-full border-collapse bg-card"><tbody>${rows.join('')}</tbody></table></div>`;
   }
 
@@ -315,10 +332,7 @@ export class MessageFormatter {
    * Combine adjacent table blocks
    */
   private combineAdjacentTables(content: string): string {
-    return content.replace(
-      /(\|.+\|\n)+\n(\|.+\|\n)+/g, 
-      match => match.replace(/\n\n/g, '\n')
-    );
+    return content.replace(/(\|.+\|\n)+\n(\|.+\|\n)+/g, (match) => match.replace(/\n\n/g, '\n'));
   }
 
   /**
@@ -337,19 +351,25 @@ export class MessageFormatter {
       .replace(/(<br\s*\/?>)\s*(<br\s*\/?>)\s*(<br\s*\/?>)+/g, '<div class="my-4"></div>') // Replace multiple <br> with spacing
       .replace(/^\s+|\s+$/g, '') // Trim whitespace
       .replace(/\s{2,}/g, ' ') // Normalize excessive whitespace
-      .replace(/(<tr>.+?<\/tr>)(\s*<tr>.+?<\/tr>)+/gs, function(match) {
+      .replace(/(<tr>.+?<\/tr>)(\s*<tr>.+?<\/tr>)+/gs, function (match) {
         // Extract all rows
         const rows = match.match(/<tr>.+?<\/tr>/gs) || [];
-        
+
         if (rows.length === 0) return match;
-        
+
         // Check if first row should be a header
         const firstRow = rows[0] || '';
         const otherRows = rows.slice(1).join('');
-        
+
         // If there's a clear header row (e.g., Exercise, Sets, Reps)
-        if (firstRow.includes('Exercise') || firstRow.includes('Sets') || firstRow.includes('Reps') || 
-            firstRow.includes('Day') || firstRow.includes('Focus') || firstRow.includes('Workout')) {
+        if (
+          firstRow.includes('Exercise') ||
+          firstRow.includes('Sets') ||
+          firstRow.includes('Reps') ||
+          firstRow.includes('Day') ||
+          firstRow.includes('Focus') ||
+          firstRow.includes('Workout')
+        ) {
           const headerRow = firstRow
             .replace(/<td/g, '<th class="bg-muted/50 font-semibold py-2 px-3"')
             .replace(/<\/td>/g, '</th>');
@@ -360,7 +380,7 @@ export class MessageFormatter {
                     </table>
                   </div>`;
         }
-        
+
         // Otherwise, treat all rows as body rows
         return `<div class="overflow-x-auto w-full my-4">
                   <table class="w-full border-collapse bg-card">
@@ -378,8 +398,4 @@ export function formatMessage(content: string, options?: Partial<ProcessingOptio
 }
 
 // Export types for external use
-export type { ProcessingOptions, FormatRule };
-
-
-
-
+export type { FormatRule, ProcessingOptions };

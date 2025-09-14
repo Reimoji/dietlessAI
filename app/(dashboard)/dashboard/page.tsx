@@ -1,8 +1,8 @@
 'use client';
 
 import { TeamDataWithMembers } from '@/lib/db/schema';
-import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { Settings } from './settings';
 
 // Declare fbq for TypeScript
@@ -30,14 +30,14 @@ function DashboardContent() {
           value: parseFloat(purchaseValue),
           currency: 'EUR',
           content_type: 'subscription',
-          content_category: planInterval === 'year' ? 'annual_plan' : 'monthly_plan'
+          content_category: planInterval === 'year' ? 'annual_plan' : 'monthly_plan',
         });
 
         console.log('Facebook Pixel Purchase tracked:', {
           value: parseFloat(purchaseValue),
           currency: 'EUR',
           subscription_status: subscriptionStatus,
-          plan_interval: planInterval
+          plan_interval: planInterval,
         });
       }
 

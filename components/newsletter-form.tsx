@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowRight } from 'lucide-react';
-import { FormEvent } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 export default function NewsletterForm() {
   const [isKlaviyoLoaded, setIsKlaviyoLoaded] = useState(false);
@@ -21,7 +20,7 @@ export default function NewsletterForm() {
       script.src = 'https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=RiKpNi';
       script.async = true;
       document.body.appendChild(script);
-      
+
       // Add styles to hide Klaviyo form but keep it functional
       const style = document.createElement('style');
       style.textContent = `
@@ -34,7 +33,7 @@ export default function NewsletterForm() {
         }
       `;
       document.head.appendChild(style);
-      
+
       // Check if Klaviyo form is loaded
       const checkInterval = setInterval(() => {
         if (document.querySelector('.klaviyo-form-XFzSwY')) {
@@ -42,7 +41,7 @@ export default function NewsletterForm() {
           clearInterval(checkInterval);
         }
       }, 500);
-      
+
       return () => clearInterval(checkInterval);
     } else {
       setIsKlaviyoLoaded(true);
@@ -55,12 +54,12 @@ export default function NewsletterForm() {
     const form = e.currentTarget;
     const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
     const email = emailInput.value;
-    
+
     if (!email) return;
-    
+
     setIsSubmitting(true);
     setStatus('submitting');
-    
+
     // If Klaviyo is loaded, trigger their form submission
     if (isKlaviyoLoaded) {
       try {
@@ -68,15 +67,19 @@ export default function NewsletterForm() {
         const klaviyoForm = document.querySelector('.klaviyo-form-XFzSwY');
         if (klaviyoForm) {
           // Find the email input in Klaviyo form and set its value
-          const klaviyoEmailInput = klaviyoForm.querySelector('input[type="email"]') as HTMLInputElement;
+          const klaviyoEmailInput = klaviyoForm.querySelector(
+            'input[type="email"]',
+          ) as HTMLInputElement;
           if (klaviyoEmailInput) {
             klaviyoEmailInput.value = email;
-            
+
             // Find and click the submit button
-            const klaviyoSubmitButton = klaviyoForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+            const klaviyoSubmitButton = klaviyoForm.querySelector(
+              'button[type="submit"]',
+            ) as HTMLButtonElement;
             if (klaviyoSubmitButton) {
               klaviyoSubmitButton.click();
-              
+
               // Show success after a delay
               setTimeout(() => {
                 emailInput.value = '';
@@ -90,7 +93,7 @@ export default function NewsletterForm() {
             }
           }
         }
-        
+
         // Fallback if Klaviyo elements not found
         console.log('Klaviyo form elements not found, using fallback');
         simulateSuccess();
@@ -102,7 +105,7 @@ export default function NewsletterForm() {
       // Fallback if Klaviyo not loaded
       simulateSuccess();
     }
-    
+
     function simulateSuccess() {
       // Simulate API call with timeout
       setTimeout(() => {
@@ -113,7 +116,7 @@ export default function NewsletterForm() {
           setIsSubmitting(false);
         }, 2000);
       }, 800);
-      
+
       // Log to console
       console.log('Newsletter signup (fallback):', email);
     }
@@ -122,14 +125,14 @@ export default function NewsletterForm() {
   return (
     <>
       {/* Hidden Klaviyo form */}
-      <div className="klaviyo-form-XFzSwY" style={{ position: 'absolute', opacity: 0, height: 0, overflow: 'hidden' }}></div>
-      
+      <div
+        className='klaviyo-form-XFzSwY'
+        style={{ position: 'absolute', opacity: 0, height: 0, overflow: 'hidden' }}
+      ></div>
+
       {/* Custom styled form */}
       <div className='flex flex-col sm:flex-row gap-3 max-w-md mx-auto'>
-        <form 
-          className='flex flex-col sm:flex-row gap-3 w-full'
-          onSubmit={handleSubmit}
-        >
+        <form className='flex flex-col sm:flex-row gap-3 w-full' onSubmit={handleSubmit}>
           <Input
             type='email'
             placeholder='Enter your email'
@@ -160,4 +163,3 @@ export default function NewsletterForm() {
     </>
   );
 }
-

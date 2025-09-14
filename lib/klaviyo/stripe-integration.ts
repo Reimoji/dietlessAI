@@ -4,8 +4,7 @@ import { addSubscriberToList, createOrUpdateProfile, trackEvent } from './klaviy
 const unixToISO = (v: unknown): string | null =>
   typeof v === 'number' ? new Date(v * 1000).toISOString() : null;
 
-const centsTo = (v: unknown): number | null =>
-  typeof v === 'number' ? v / 100 : null;
+const centsTo = (v: unknown): number | null => (typeof v === 'number' ? v / 100 : null);
 
 const orNull = <T>(v: T | undefined | null): T | null => (v == null ? null : v);
 
@@ -48,25 +47,22 @@ export async function trackSubscriptionEvent(
     cancelReason?: string | null;
     cancelDate?: string | null;
     [key: string]: any;
-  }
+  },
 ) {
   try {
     // Build profile props (only include keys that have values)
     const profileProperties: Record<string, any> = {};
     if (subscriptionData.status) profileProperties.subscription_status = subscriptionData.status;
     if (subscriptionData.planName) profileProperties.subscription_plan = subscriptionData.planName;
-    if (subscriptionData.interval) profileProperties.subscription_interval = subscriptionData.interval;
+    if (subscriptionData.interval)
+      profileProperties.subscription_interval = subscriptionData.interval;
 
     // Create or update the profile
     await createOrUpdateProfile(email, profileProperties);
 
     // Add to customers list if configured
     if (process.env.KLAVIYO_CUSTOMERS_LIST_ID) {
-      await addSubscriberToList(
-        email,
-        process.env.KLAVIYO_CUSTOMERS_LIST_ID,
-        profileProperties
-      );
+      await addSubscriberToList(email, process.env.KLAVIYO_CUSTOMERS_LIST_ID, profileProperties);
     }
 
     // Track the specific event (safe payload — nulls are fine)
@@ -80,11 +76,7 @@ export async function trackSubscriptionEvent(
 /**
  * Handle subscription created event
  */
-export async function handleSubscriptionCreated(
-  email: string,
-  subscription: any,
-  product: any
-) {
+export async function handleSubscriptionCreated(email: string, subscription: any, product: any) {
   const { startISO, endISO, trialEndISO } = getPeriod(subscription);
   const { planId, amount, currency, interval } = getPriceBits(subscription);
 
@@ -105,11 +97,7 @@ export async function handleSubscriptionCreated(
 /**
  * Handle subscription updated event
  */
-export async function handleSubscriptionUpdated(
-  email: string,
-  subscription: any,
-  product: any
-) {
+export async function handleSubscriptionUpdated(email: string, subscription: any, product: any) {
   const { startISO, endISO } = getPeriod(subscription);
   const { planId, amount, currency, interval } = getPriceBits(subscription);
 
@@ -120,8 +108,8 @@ export async function handleSubscriptionUpdated(
     amount,
     currency,
     interval,
-    startDate: startISO,        // may be null on some updates — OK
-    endDate: endISO,            // may be null on some updates — OK
+    startDate: startISO, // may be null on some updates — OK
+    endDate: endISO, // may be null on some updates — OK
   });
 }
 
@@ -132,7 +120,7 @@ export async function handleSubscriptionCancelled(
   email: string,
   subscription: any,
   product: any,
-  cancelReason?: string
+  cancelReason?: string,
 ) {
   const { endedAtISO } = getPeriod(subscription);
   const { planId } = getPriceBits(subscription);

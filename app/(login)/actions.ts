@@ -587,13 +587,13 @@ const resetPasswordSchema = z
 // Action to handle password reset
 export const resetPassword = validatedAction(resetPasswordSchema, async (data) => {
   const { token, password } = data;
-  
+
   console.log('Reset password attempt with token:', token);
-  
+
   // Verify token
   const tokenData = passwordResetTokens.get(token);
   console.log('Token data found:', tokenData ? 'yes' : 'no');
-  
+
   if (!tokenData) {
     console.log('Token not found in passwordResetTokens map');
     return {
@@ -643,4 +643,3 @@ export const resetPassword = validatedAction(resetPasswordSchema, async (data) =
     expired: false,
   };
 });
-

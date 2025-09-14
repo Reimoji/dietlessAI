@@ -61,16 +61,16 @@ export function PricingSection({
 
   // Get the appropriate plan based on billing interval
   const currentPlan = billingInterval === 'monthly' ? monthlyPlan : yearlyPlan;
-  
+
   // Find the price for the current plan
   const currentPrice = prices.find((price) => price.productId === currentPlan?.id);
 
   // Set fixed prices based on billing interval
   const displayPrice = billingInterval === 'monthly' ? '9.90 €' : '89.90 €';
   const interval = billingInterval === 'monthly' ? 'month' : 'year';
-  
+
   // Calculate savings for yearly plan (approximately 24% savings)
-  const monthlyCost = billingInterval === 'monthly' ? 9.90 : (89.90 / 12).toFixed(2);
+  const monthlyCost = billingInterval === 'monthly' ? 9.9 : (89.9 / 12).toFixed(2);
   const savings = billingInterval === 'annually' ? 'Save 24% compared to monthly' : '';
 
   // Features are the same for both plans
@@ -109,8 +109,7 @@ export function PricingSection({
           <p className='text-primary font-medium mb-4'>Healthy Eating, Hassle-Free Plans</p>
           <h2 className='text-4xl font-bold text-foreground mb-6'>
             Start your chat with DietlessAI using a
-            <br />
-            2 day free trial
+            <br />2 day free trial
           </h2>
         </div>
 
@@ -167,20 +166,18 @@ export function PricingSection({
                       <strong>FREE</strong> for 2 days
                     </span>
                   </div>
-                  
+
                   {/* Second row: Monthly price afterwards */}
                   <div className='flex items-baseline justify-center'>
-                    <span className='text-md font-medium text-foreground mt-5'>
-                      {displayPrice}
+                    <span className='text-md font-medium text-foreground mt-5'>{displayPrice}</span>
+                    <span className='text-muted-foreground ml-2 text-md'>
+                      /{interval} afterwards
                     </span>
-                    <span className='text-muted-foreground ml-2 text-md'>/{interval} afterwards</span>
                   </div>
-                  
+
                   {/* Additional pricing info - can be removed if not needed */}
                   {billingInterval === 'annually' && (
-                    <p className='text-sm text-primary font-medium mt-2'>
-                      {savings}
-                    </p>
+                    <p className='text-sm text-primary font-medium mt-2'>{savings}</p>
                   )}
                 </div>
 
