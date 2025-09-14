@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/lib/auth';
-import { EggFried, LogOut, MessageSquare, Settings, Users } from 'lucide-react';
+import { BookOpen, EggFried, LogOut, MessageSquare, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Suspense, use, useState } from 'react';
@@ -28,6 +28,7 @@ function UserMenu() {
     { href: '/dashboard/chat', icon: MessageSquare, label: 'Chat with DietlessAI' },
     { href: '/dashboard', icon: Users, label: 'User Settings' },
     { href: '/dashboard/general', icon: Settings, label: 'General' },
+    //{ href: '/en/blog', icon: BookOpen, label: 'Blog' },
   ];
 
   async function handleSignOut() {
@@ -46,10 +47,22 @@ function UserMenu() {
       }
     }
   };
-
+      const SHOW_BLOG = false;
   if (!user) {
     return (
       <>
+
+
+      {SHOW_BLOG && (
+        <Link
+          href="/en/blog"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
+          Blog
+        </Link>
+      )}
+
+
         {pathname === '/' ? (
           <a
             href='#pricing'
@@ -66,6 +79,8 @@ function UserMenu() {
             Pricing
           </Link>
         )}
+
+
         <Button
           asChild
           className='bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-4 py-2 rounded-full'
