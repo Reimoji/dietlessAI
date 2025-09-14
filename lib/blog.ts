@@ -1,6 +1,6 @@
-import fs from 'fs';
-import matter from 'gray-matter';
-import path from 'path';
+import fs from "fs";
+import matter from "gray-matter";
+import path from "path";
 
 export type BlogMeta = {
   slug: string;
@@ -11,18 +11,20 @@ export type BlogMeta = {
   coverImageUrl: string;
 };
 
-export function getPosts(lang: 'en' | 'et'): BlogMeta[] {
-  const dir = path.join(process.cwd(), 'content/blog', lang);
+export function getPosts(lang: "en" | "et"): BlogMeta[] {
+  const dir = path.join(process.cwd(), "content/blog", lang);
+  if (!fs.existsSync(dir)) return []; // ✅ prevent crash if no folder yet
+
   const files = fs.readdirSync(dir);
 
   return files
-    .filter((f) => f.endsWith('.mdx'))
+    .filter((f) => f.endsWith(".mdx"))
     .map((file) => {
-      const raw = fs.readFileSync(path.join(dir, file), 'utf-8');
+      const raw = fs.readFileSync(path.join(dir, file), "utf-8");
       const { data } = matter(raw);
 
       return {
-        slug: file.replace(/\.mdx$/, ''),
+        slug: file.replace(/\.mdx$/, ""),
         lang,
         title: data.title,
         date: data.date,
@@ -33,7 +35,12 @@ export function getPosts(lang: 'en' | 'et'): BlogMeta[] {
     .sort((a, b) => (a.date > b.date ? -1 : 1));
 }
 
-export function getPostFile(lang: 'en' | 'et', slug: string) {
-  const filePath = path.join(process.cwd(), 'content/blog', lang, `${slug}.mdx`);
-  return fs.readFileSync(filePath, 'utf-8');
+export function getPostFile(lang: "en" | "et", slug: string) {
+  const filePath = path.join(process.cwd(), "content/blog", lang, `${slug}.mdx`);
+
+  if (!fs.existsSync(filePath)) {
+    return null; // ✅ return null instead of throwing ENOENT
+  }
+
+  return fs.readFileSync(filePath, "utf-8");
 }

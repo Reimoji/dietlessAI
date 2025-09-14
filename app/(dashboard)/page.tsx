@@ -1,4 +1,3 @@
-import NewsletterForm from '@/components/newsletter-form';
 import {
   Accordion,
   AccordionContent,
@@ -20,11 +19,9 @@ import {
   Citrus,
   Clock,
   CreditCard,
-  EggFried,
   Grape,
   HelpCircle,
   Leaf,
-  Link,
   Mail,
   MessageSquare,
   Settings,
