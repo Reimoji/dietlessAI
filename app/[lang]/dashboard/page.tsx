@@ -1,9 +1,12 @@
 'use client';
 
 import { TeamDataWithMembers } from '@/lib/db/schema';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Settings } from './settings';
+
+const SUPPORTED_LANGS = ['en', 'et'] as const;
+type Lang = (typeof SUPPORTED_LANGS)[number];
 
 // Declare fbq for TypeScript
 declare global {
@@ -15,6 +18,11 @@ declare global {
 function DashboardContent() {
   const [teamData, setTeamData] = useState<TeamDataWithMembers | null>(null);
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  
+  // Extract language from URL path
+  const langFromPath = pathname?.split('/')[1] as Lang | undefined;
+  const lang = SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath! : 'en';
 
   useEffect(() => {
     // Handle Facebook Pixel Purchase tracking from Stripe checkout
@@ -24,7 +32,6 @@ function DashboardContent() {
     const planInterval = searchParams.get('plan_interval');
 
     if (fromCheckout === 'true' && purchaseValue) {
-      // Track the purchase completion
       if (typeof window !== 'undefined' && window.fbq) {
         window.fbq('track', 'Purchase', {
           value: parseFloat(purchaseValue),
@@ -41,12 +48,12 @@ function DashboardContent() {
         });
       }
 
-      // Clean up URL parameters to avoid re-tracking on page refresh
+      // Clean up URL parameters
       if (window.history && window.history.replaceState) {
-        window.history.replaceState({}, '', '/dashboard');
+        window.history.replaceState({}, '', `/${lang}/dashboard`);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, lang]);
 
   useEffect(() => {
     async function fetchTeamData() {
@@ -63,7 +70,7 @@ function DashboardContent() {
     return <div>Loading...</div>;
   }
 
-  return <Settings teamData={teamData} />;
+  return <Settings teamData={teamData} lang={lang} />;
 }
 
 export default function SettingsPage() {

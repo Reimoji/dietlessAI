@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
           ? new Date(currentPeriodEndUnix * 1000)
           : null;
 
+        // 👇 read language from metadata (default en)
+        const lang = (sub.metadata?.lang as string) || 'en';
+
         console.log('[stripe] subscription event', {
           type: event.type,
           id: sub.id,
@@ -61,6 +64,7 @@ export async function POST(request: NextRequest) {
           cancelAtPeriodEnd,
           hasEndedAt: !!endedAt,
           hasCpe: !!currentPeriodEndUnix,
+          lang,
         });
 
         // Keep your extra sync logic, but don't let it crash the webhook
@@ -102,7 +106,6 @@ export async function POST(request: NextRequest) {
             .where(eq(teams.id, team.id));
         } catch (e) {
           console.error('[stripe] DB update failed', e);
-          // We still return 200 to avoid infinite retries; log is enough to fix data manually if needed.
         }
 
         // Side-effects per event (don’t let failures 500 the webhook)
@@ -131,8 +134,8 @@ export async function POST(request: NextRequest) {
                 userName,
                 team.planName || 'Premium',
                 formatDate(currentPeriodEnd),
-                `${process.env.BASE_URL}/dashboard/billing`,
-                `${process.env.BASE_URL}/feedback`,
+                `${process.env.BASE_URL}/${lang}/dashboard/billing`,
+                `${process.env.BASE_URL}/${lang}/feedback`,
               );
             } catch (e) {
               console.warn(
@@ -155,8 +158,8 @@ export async function POST(request: NextRequest) {
                 userName,
                 team.planName || 'Premium',
                 formatDate(endedAt ?? new Date()),
-                `${process.env.BASE_URL}/dashboard/billing`,
-                `${process.env.BASE_URL}/feedback`,
+                `${process.env.BASE_URL}/${lang}/dashboard/billing`,
+                `${process.env.BASE_URL}/${lang}/feedback`,
               );
             } catch (e) {
               console.warn(

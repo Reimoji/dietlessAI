@@ -119,6 +119,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // 👇 read lang from subscription metadata (default to "en")
+    const lang = (subscription.metadata?.lang as string) || 'en';
+
     if (subscription.status === 'trialing' && trialEndsAt) {
       if (teamOwner?.user?.email) {
         const trialStart = new Date();
@@ -135,8 +138,8 @@ export async function GET(request: NextRequest) {
             formatDate(trialEndsAt),
             formatDate(trialEndsAt),
             formatPrice(plan),
-            `${process.env.BASE_URL}/dashboard`,
-            `${process.env.BASE_URL}/pricing`,
+            `${process.env.BASE_URL}/${lang}/dashboard`,
+            `${process.env.BASE_URL}/${lang}/pricing`,
           );
         } catch (error) {
           console.error('Failed to send trial email from checkout handler:', error);
@@ -166,7 +169,7 @@ export async function GET(request: NextRequest) {
             billingPeriod,
             formatPrice(plan),
             formatDate(nextBillingDate),
-            `${process.env.BASE_URL}/dashboard`,
+            `${process.env.BASE_URL}/${lang}/dashboard`,
           );
         } catch (error) {
           console.error(
@@ -192,15 +195,15 @@ export async function GET(request: NextRequest) {
     await setSession(user[0]);
 
     // Calculate the purchase value for Facebook Pixel tracking
-    const purchaseValue = plan.unit_amount ? plan.unit_amount / 100 : 0; // Convert from cents to euros
-    const isYearly = plan.recurring?.interval === 'year';
+    const purchaseValue = plan.unit_amount ? plan.unit_amount / 100 : 0;
+    const planInterval = plan.recurring?.interval || 'month';
 
-    // Redirect to dashboard with purchase tracking parameters
-    const dashboardUrl = new URL(`${process.env.BASE_URL}/dashboard`);
+    // 👇 redirect into correct language dashboard
+    const dashboardUrl = new URL(`${process.env.BASE_URL}/${lang}/dashboard`);
     dashboardUrl.searchParams.set('from_checkout', 'true');
     dashboardUrl.searchParams.set('purchase_value', purchaseValue.toString());
     dashboardUrl.searchParams.set('subscription_status', subscription.status);
-    dashboardUrl.searchParams.set('plan_interval', plan.recurring?.interval || 'month');
+    dashboardUrl.searchParams.set('plan_interval', planInterval);
 
     return NextResponse.redirect(dashboardUrl.toString());
   } catch (error) {

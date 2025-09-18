@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 const protectedRoutes = '/dashboard';
+const SUPPORTED_LANGS = ['en', 'et'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,9 +12,37 @@ export async function middleware(request: NextRequest) {
 
   console.log('Middleware: Processing request for path:', pathname);
 
+  // 1. Locale handling
+  if (pathname === '/') {
+    // Root → redirect to default locale
+    return NextResponse.redirect(new URL('/en', request.url));
+  }
+
+  // Already has supported lang
+  const startsWithLang = SUPPORTED_LANGS.some((lang) =>
+    pathname.startsWith(`/${lang}`)
+  );
+
+  if (
+    !startsWithLang &&
+    !pathname.startsWith('/api') &&
+    !pathname.startsWith('/_next')
+  ) {
+    // Prefix with default locale (en)
+    const url = request.nextUrl.clone();
+    url.pathname = `/en${pathname}`;
+    return NextResponse.redirect(url);
+  }
+
+  // 2. Auth handling
   if (isProtectedRoute && !sessionCookie) {
-    console.log('Middleware: No session cookie found, redirecting to sign-in');
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+    console.log('Middleware: No session cookie found, redirecting to sign-up');
+    const locale =
+      SUPPORTED_LANGS.find((lang) => pathname.startsWith(`/${lang}`)) || 'en';
+
+    return NextResponse.redirect(
+      new URL(`/${locale}/sign-up`, request.url)
+    );
   }
 
   let res = NextResponse.next();
@@ -38,7 +67,9 @@ export async function middleware(request: NextRequest) {
       console.error('Error updating session:', error);
       res.cookies.delete('session');
       if (isProtectedRoute) {
-        return NextResponse.redirect(new URL('/sign-in', request.url));
+        const url = request.nextUrl.clone();
+        url.pathname = `/en/sign-in`;
+        return NextResponse.redirect(url);
       }
     }
   }
@@ -48,6 +79,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api/stripe/webhook|api/webhooks|api/internal|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api/stripe/webhook|api/webhooks|api/internal|_next/static|_next/image|favicon.ico|images/).*)',
   ],
 };

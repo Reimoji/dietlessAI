@@ -3,7 +3,7 @@
 import { withTeam } from '@/lib/auth/middleware';
 import { TeamDataWithMembers } from '@/lib/db/schema';
 import { redirect } from 'next/navigation';
-import { createCheckoutSession, createCustomerPortalSession } from './stripe';
+import { createCheckoutSession, createCustomerPortalSession } from '@/lib/payments/stripe';
 
 // Helper function to convert TeamDataWithMembers to Team format
 function convertTeamData(team: TeamDataWithMembers) {
@@ -23,14 +23,20 @@ function convertTeamData(team: TeamDataWithMembers) {
   };
 }
 
+// 🔑 Checkout action
 export const checkoutAction = withTeam(async (formData, team) => {
   const priceId = formData.get('priceId') as string;
+  const lang = formData.get('lang') as string; // 👈 added
   const convertedTeam = convertTeamData(team);
-  await createCheckoutSession({ team: convertedTeam, priceId });
+
+  await createCheckoutSession({ team: convertedTeam, priceId, lang });
 });
 
-export const customerPortalAction = withTeam(async (_, team) => {
+// 🔑 Customer portal action
+export const customerPortalAction = withTeam(async (formData, team) => {
+  const lang = formData.get('lang') as string; // 👈 added
   const convertedTeam = convertTeamData(team);
-  const portalSession = await createCustomerPortalSession(convertedTeam);
+
+  const portalSession = await createCustomerPortalSession(convertedTeam, lang);
   redirect(portalSession.url);
 });

@@ -2,6 +2,7 @@ import { getTeamForUser, getUser } from '@/lib/db/queries';
 import { TeamDataWithMembers, User } from '@/lib/db/schema';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { redirectWithLocale } from '@/lib/redirect-with-locale';
 
 export type ActionState = {
   error?: string;
@@ -41,7 +42,9 @@ export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
   return async (prevState: ActionState, formData: FormData): Promise<T> => {
     const user = await getUser();
     if (!user) {
-      throw new Error('User is not authenticated');
+      const pathname = formData.get('pathname')?.toString();
+      redirectWithLocale(pathname, 'sign-up');
+      throw new Error('Redirecting...'); // TS will now know execution stops here
     }
 
     const result = schema.safeParse(Object.fromEntries(formData));
@@ -59,7 +62,9 @@ export function withTeam<T>(action: ActionWithTeamFunction<T>) {
   return async (formData: FormData): Promise<T> => {
     const user = await getUser();
     if (!user) {
-      redirect('/sign-in');
+      const pathname = formData.get('pathname')?.toString();
+      redirectWithLocale(pathname, 'sign-up');
+      throw new Error('Redirecting...');
     }
 
     const team = await getTeamForUser(user.id);

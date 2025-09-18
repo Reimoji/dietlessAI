@@ -24,21 +24,23 @@ function getDateOnly(timestamp: number | null): Date | null {
 export async function createCheckoutSession({
   team,
   priceId,
+  lang,
 }: {
   team: Team | null;
   priceId: string;
+  lang: string;
 }) {
   const user = await getUser();
 
   if (!team || !user) {
-    redirect(`/sign-up?redirect=checkout&priceId=${priceId}`);
+    redirect(`/${lang}/sign-up?redirect=checkout&priceId=${priceId}`);
   }
 
   if (
     team.stripeSubscriptionId &&
     ['active', 'trialing', 'incomplete'].includes(team.subscriptionStatus || '')
   ) {
-    const portalSession = await createCustomerPortalSession(team);
+    const portalSession = await createCustomerPortalSession(team, lang);
     redirect(portalSession.url);
     return;
   }
@@ -47,25 +49,29 @@ export async function createCheckoutSession({
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
     mode: 'subscription',
-    success_url: `${process.env.BASE_URL}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.BASE_URL}/pricing`,
+    success_url: `${process.env.BASE_URL}/${lang}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.BASE_URL}/${lang}/pricing`,
     customer: team.stripeCustomerId || undefined,
     client_reference_id: user.id.toString(),
     allow_promotion_codes: true,
-    subscription_data: { trial_period_days: 2 },
+    subscription_data: {
+      trial_period_days: 2,
+      metadata: { lang }, // 👈 ensure subscription carries lang
+    },
+    metadata: { lang }, // 👈 also on the session
   });
 
   redirect(session.url!);
 }
 
-export async function createCustomerPortalSession(team: Team) {
+export async function createCustomerPortalSession(team: Team, lang: string) {
   if (!team.stripeCustomerId) {
-    redirect('/pricing');
+    redirect(`/${lang}/pricing`);
   }
 
   const portalSession = await stripe.billingPortal.sessions.create({
     customer: team.stripeCustomerId,
-    return_url: `${process.env.BASE_URL}/dashboard`,
+    return_url: `${process.env.BASE_URL}/${lang}/dashboard`,
   });
 
   return portalSession;
@@ -119,6 +125,9 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
   const ownerEmail = teamOwner?.user?.email;
   const ownerName = teamOwner?.user?.name || 'there';
 
+  // 👇 read language from subscription metadata (fallback = en)
+  const lang = (subscription.metadata?.lang as string) || 'en';
+
   if (status === 'trialing' && trialEnd) {
     const trialStart = new Date();
     const trialDays = Math.ceil(
@@ -152,8 +161,8 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
         formatDate(trialEnd),
         formatDate(trialEnd),
         amount,
-        `${process.env.BASE_URL}/dashboard`,
-        `${process.env.BASE_URL}/pricing`,
+        `${process.env.BASE_URL}/${lang}/dashboard`,
+        `${process.env.BASE_URL}/${lang}/pricing`,
       );
     }
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { signOut } from '@/app/(login)/actions';
+import { signOut } from '@/app/[lang]/(login)/actions';
 import { AnimatedMenuIcon } from '@/components/ui/animated-menu-icon';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -24,26 +24,25 @@ function UserMenu() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // detect current lang and build blog url
+  // detect current lang
   const lang = pathname?.startsWith('/et') ? 'et' : 'en';
-  const blogUrl = `/${lang}/blog`;
 
   const navItems = [
-    { href: '/dashboard/chat', icon: MessageSquare, label: 'Chat with DietlessAI' },
-    { href: '/dashboard', icon: Users, label: 'User Settings' },
-    { href: '/dashboard/general', icon: Settings, label: 'General' },
-    { href: blogUrl, icon: BookOpen, label: 'Blog' },
+    { href: `/${lang}/dashboard/chat`, icon: MessageSquare, label: 'Chat with DietlessAI' },
+    { href: `/${lang}/dashboard`, icon: Users, label: 'User Settings' },
+    { href: `/${lang}/dashboard/general`, icon: Settings, label: 'General' },
+    { href: `/${lang}/blog`, icon: BookOpen, label: 'Blog' },
   ];
 
   async function handleSignOut() {
     await signOut();
     router.refresh();
-    router.push('/');
+    router.push(`/${lang}`);
   }
 
-  // smooth-scroll Pricing if we're on /
+  // smooth-scroll Pricing if we're on home
   const scrollToPricing = (e: React.MouseEvent) => {
-    if (pathname === '/') {
+    if (pathname === `/${lang}`) {
       e.preventDefault();
       document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -53,13 +52,13 @@ function UserMenu() {
     return (
       <>
         <Link
-          href={blogUrl}
+          href={`/${lang}/blog`}
           className="text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           Blog
         </Link>
 
-        {pathname === '/' ? (
+        {pathname === `/${lang}` ? (
           <a
             href="#pricing"
             onClick={scrollToPricing}
@@ -69,7 +68,7 @@ function UserMenu() {
           </a>
         ) : (
           <Link
-            href="/pricing"
+            href={`/${lang}/pricing`}
             className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             Pricing
@@ -80,7 +79,7 @@ function UserMenu() {
           asChild
           className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-4 py-2 rounded-full"
         >
-          <Link href="/sign-up">Sign Up</Link>
+          <Link href={`/${lang}/sign-up`}>Sign Up</Link>
         </Button>
       </>
     );
@@ -129,10 +128,13 @@ function UserMenu() {
 }
 
 export default function SiteHeader() {
+  const pathname = usePathname();
+  const lang = pathname?.startsWith('/et') ? 'et' : 'en';
+
   return (
     <header className="border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center">
+        <Link href={`/${lang}`} className="flex items-center">
           <div className="transition-all duration-300 hover:scale-110 hover:rotate-12">
             <EggFried className="h-6 w-6 text-primary" />
           </div>

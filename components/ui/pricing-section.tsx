@@ -48,10 +48,12 @@ export function PricingSection({
   prices,
   products,
   checkoutAction,
+  lang, // 👈 added
 }: {
   prices: any[];
   products: any[];
   checkoutAction: any;
+  lang: string; // 👈 added
 }) {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annually'>('monthly');
 
@@ -181,10 +183,11 @@ export function PricingSection({
                   )}
                 </div>
 
-                <form action={checkoutAction} className='w-full'>
-                  <input type='hidden' name='priceId' value={currentPrice?.id} />
+                <form action={checkoutAction} className="w-full">
+                  <input type="hidden" name="priceId" value={currentPrice?.id} />
+                  <input type="hidden" name="lang" value={lang} />   {/* 👈 add this */}
                   <SubmitButton />
-                  <p className='text-xs text-center text-muted-foreground mt-4'>
+                  <p className="text-xs text-center text-muted-foreground mt-4">
                     Cancel anytime. No hidden fees.
                   </p>
                 </form>

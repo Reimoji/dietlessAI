@@ -26,14 +26,16 @@ import {
   MessageSquare,
   Settings,
 } from 'lucide-react';
-import { Terminal } from './terminal';
+import { Terminal } from '@/components/ui/terminal';
 import Footer from '@/components/layout/Footer';
+import Image from "next/image";
 
 // Prices are fresh for one hour max
 export const revalidate = 3600;
 
-export default async function HomePage() {
-  // Fetch pricing data for the pricing section
+export default async function HomePage({ params }: { params: Promise<{ lang: string }> }) {
+  // Extract lang from async params
+  const { lang } = await params;
   const [prices, products] = await Promise.all([getStripePrices(), getStripeProducts()]);
   return (
     <main>
@@ -219,14 +221,16 @@ export default async function HomePage() {
               {/* Image side */}
               <div className='flex-1 flex justify-center items-center'>
                 <div className='relative w-full aspect-[9/16] max-w-[380px] mx-auto lg:mx-0'>
-                  <img
-                    src='/images/dietlessai_screenshot.png'
-                    alt='DietlessAI App Screenshot'
-                    className='w-full h-auto object-cover'
+                  <Image
+                    src="/images/dietlessai_screenshot.png"
+                    alt="DietlessAI App Screenshot"
+                    width={380}
+                    height={700}
+                    className="w-full h-auto object-cover"
                     style={{
                       filter:
-                        'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3)) drop-shadow(-8px 15px 15px rgba(0, 0, 0, 0.2))',
-                      transform: 'perspective(1000px) rotateY(2deg)',
+                        "drop-shadow(0 10px 15px rgba(0, 0, 0, 0.3)) drop-shadow(-8px 15px 15px rgba(0, 0, 0, 0.2))",
+                      transform: "perspective(1000px) rotateY(2deg)",
                     }}
                   />
                 </div>
@@ -431,7 +435,12 @@ export default async function HomePage() {
         {/* Pricing Section */}
         <section id='pricing' className='py-24 bg-background relative'>
           <div className='relative w-full'>
-            <PricingSection prices={prices} products={products} checkoutAction={checkoutAction} />
+            <PricingSection 
+              prices={prices} 
+              products={products} 
+              checkoutAction={checkoutAction} 
+              lang={lang}
+            />
           </div>
         </section>
 

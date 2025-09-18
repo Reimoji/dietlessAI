@@ -98,7 +98,8 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
   const redirectTo = formData.get('redirect') as string | null;
   if (redirectTo === 'checkout') {
     const priceId = formData.get('priceId') as string;
-    return createCheckoutSession({ team: foundTeam, priceId });
+    const lang = formData.get('lang') as string || 'en';
+    return createCheckoutSession({ team: foundTeam, priceId, lang });
   }
 
   redirect('/dashboard');
@@ -235,7 +236,8 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
   const redirectTo = formData.get('redirect') as string | null;
   if (redirectTo === 'checkout') {
     const priceId = formData.get('priceId') as string;
-    return createCheckoutSession({ team: createdTeam, priceId });
+    const lang = formData.get('lang') as string || 'en';
+    return createCheckoutSession({ team: createdTeam, priceId, lang });
   }
 
   redirect('/dashboard');

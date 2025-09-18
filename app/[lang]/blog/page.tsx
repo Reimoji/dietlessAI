@@ -4,7 +4,7 @@ import Footer from '@/components/layout/Footer';
 import { getPosts } from '@/lib/blog';
 
 type Props = {
-  params: Promise<{ lang: 'en' | 'et' }>;
+  params: Promise<{ lang: 'en' | 'et' }>; // ✅ Now a Promise
 };
 
 export default async function BlogIndex({ params }: Props) {
