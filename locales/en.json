@@ -416,5 +416,9 @@
     "success": "Subscribed! ✓",
     "error": "Failed! Try again",
     "subscribe": "Subscribe"
+  },
+  "blog": {
+    "title": "Blog",
+    "no_posts": "No posts yet. Check back soon!"
   }
 }

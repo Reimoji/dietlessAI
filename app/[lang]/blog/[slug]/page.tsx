@@ -1,5 +1,5 @@
 // app/[lang]/blog/[slug]/page.tsx
-import Footer from '@/components/layout/Footer';
+
 import { getPostFile } from '@/lib/blog';
 import matter from 'gray-matter';
 import { compileMDX } from 'next-mdx-remote/rsc';
@@ -92,8 +92,6 @@ export default async function BlogPost({ params }: Props) {
           {compiled.content}
         </div>
       </section>
-
-      <Footer />
     </main>
   );
 }

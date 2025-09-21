@@ -416,5 +416,9 @@
     "success": "Liitunud! ✓",
     "error": "Ebaõnnestus! Proovi uuesti",
     "subscribe": "Liitu"
+  },
+  "blog": {
+    "title": "Blogi",
+    "no_posts": "Postitusi veel pole. Tule varsti tagasi!"
   }
 }

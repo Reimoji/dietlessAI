@@ -61,7 +61,7 @@ export default function UserMenu() {
     }
   };
 
-  const SHOW_BLOG = false;
+  const SHOW_BLOG = true;
 
   if (!user) {
     return (
