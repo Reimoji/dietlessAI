@@ -1,23 +1,420 @@
 {
-  "common": {
-    "home": "Home",
-    "pricing": "Pricing",
-    "dashboard": "Dashboard",
-    "manageSubscription": "Manage Subscription"
+  "home": {
+    "hero": {
+      "title": "Unlock Effortless Nutrition and Achieve a Healthier You with",
+      "highlight": "dietlessAI",
+      "subtitle": "Personalized Meal Plans That Evolve with Your Lifestyle—No Guesswork, No Strict Rules, Just Sustainable Results",
+      "cta": "Try for free now!"
+    },    
+    "features": {
+      "title": "Why Dietless AI Will Transform the Way You Eat—and Help You Lose Weight Naturally",
+      "personalized": {
+        "title": "Personalized Plans, Tailored to You",
+        "description": "Developed with guidance from Erik, DietlessAI uses advanced technology to tailor your nutrition plan based on your goals, preferences, and lifestyle—no one-size-fits-all diets."
+      },
+      "realtime": {
+        "title": "Real-Time Adjustments",
+        "description": "Craving something different or going out with friends? Your plan adapts on the spot, so you can still enjoy life while shedding pounds."
+      },
+      "support": {
+        "title": "Built-In Motivation and Support",
+        "description": "Get daily tips, hacks and progress nudges that keep you focused on your targets. Dietless AI acts like your personal coach, ready to encourage you at every step."
+      }
+    },
+    "science": {
+      "title": "Science You Can Trust",
+      "description": "Dietless AI is built on a foundation of the most respected and credible nutrition science. It combines insights from evidence-based dietary principles, ensuring every recommendation aligns with proven strategies for weight loss and healthy living. No fads, no guesswork—just reliable guidance for achieving your goals.",
+      "cta": "Get Started!"
+    },
+    "benefits": {
+      "shopping": {
+        "title": "Time-Saving Shopping Lists",
+        "description": "Shop quickly and avoid impulse buys, helping you keep those extra calories at bay"
+      },
+      "recipes": {
+        "title": "Expert-Approved Recipes",
+        "description": "Chef-curated meals that taste amazing while keeping you on track for healthy weight loss"
+      },
+      "family": {
+        "title": "Family-Friendly Planning",
+        "description": "Use Dietless AI on your own or involve the whole family—everyone gets meal plans tailored to their unique goals"
+      },
+      "flexible": {
+        "title": "Flexible Meal Swaps",
+        "description": "Switch out ingredients to suit your cravings, allergies, or time constraints—no more feeling trapped in a rigid diet"
+      },
+      "insights": {
+        "title": "Goal-Focused Insights",
+        "description": "Whether you aim to lose a few pounds or maintain your ideal weight, Dietless AI adapts to keep you moving forward"
+      }
+    },
+    "story": {
+      "heading": "Story time..",
+      "paragraph1": "You're juggling long work hours, family responsibilities, and maybe a workout or two—only to realize your eating habits are all over the place. You want to feel healthier, perhaps lose a bit of weight, but conflicting advice and busy schedules keep you stuck. Following rigid meal plans feels overwhelming, and those fad diets never seem to fit into your real life.",
+      "paragraph2": "Enter DietlessAI, an app inspired by years of experience from a leading nutritionist, Erik and his work of helping people overcome the same struggles you face today. Dietless AI is designed to simplify nutrition, learn your tastes, and adapt to your daily routine, giving you the expert guidance you need to build a healthier, more balanced lifestyle."
+    },
+    "testimonials": {
+      "title": "What Our Users Say",
+      "mark": {
+        "name": "Mark D.",
+        "role": "Entrepreneur",
+        "quote": "The grocery list feature alone saves me so much time. Plus, I'm finally seeing real results on the scale. Dietless AI is a game-changer!"
+      },
+      "jamie": {
+        "name": "Jamie L.",
+        "role": "Full-Time Student",
+        "quote": "It's so nice having a plan that adapts when I go out to eat or have a change in schedule. Dietless AI takes away the guilt and keeps me moving forward."
+      },
+      "taylor": {
+        "name": "Taylor K.",
+        "role": "Busy Parent",
+        "quote": "No more guesswork! The app's smart suggestions have helped me maintain a balanced diet without feeling like I'm missing out on anything."
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "questions": {
+        "how_it_works": {
+          "question": "How does DietlessAI work?",
+          "answer": "DietlessAI uses advanced artificial intelligence to analyze your preferences, dietary requirements, and goals. It then creates personalized nutrition plans and provides real-time advice to help you achieve optimal health and wellness."
+        },
+        "what_different": {
+          "question": "What makes Dietless AI different from other nutrition apps?",
+          "answer": "Dietless AI adapts to your day-to-day routine, offering real-life solutions instead of rigid rules. Whether you're on the go or making a home-cooked meal, the app adjusts to your lifestyle."
+        },
+        "dietary_needs": {
+          "question": "Is Dietless AI suitable for specific dietary needs?",
+          "answer": "Absolutely. Whether you're gluten-free, vegan, or focusing on moderate weight management, Dietless AI personalizes plans to fit your unique requirements."
+        },
+        "update_frequency": {
+          "question": "How often does the app update my meal plan?",
+          "answer": "Dietless AI monitors your progress and can update recommendations daily. It ensures your plan remains relevant, flexible, and aligned with your goals."
+        },
+        "cancel_subscription": {
+          "question": "Can I cancel my subscription at any time?",
+          "answer": "You can cancel your subscription at any time with no long-term commitments. If you cancel, you will continue to have access to DietlessAI until the end of your current billing period"
+        },
+        "ai_accuracy": {
+          "question": "How accurate is the AI nutrition advice?",
+          "answer": "Our AI is trained on extensive, up-to-date nutrition data and provides evidence-based recommendations. While highly accurate for general nutrition advice, we always recommend consulting with healthcare professionals for specific medical conditions or concerns."
+        },
+        "reliability": {
+          "question": "What makes Dietless AI reliable?",
+          "answer": "Dietless AI is built on a foundation of rigorously researched, science-based nutrition principles. Its recommendations are informed by the most trusted insights in the field of nutrition, ensuring that your personalized plan is both effective and sustainable. Whether your goal is weight loss, maintaining your current weight, or simply eating healthier, you can feel confident that Dietless AI is designed to deliver evidence-backed results."
+        }
+      }
+    },
+    "cta": {
+      "title_part1": "Take the First Step Toward",
+      "title_highlight": "Effortless Nutrition",
+      "subtitle_part1": "Start Your",
+      "trial_highlight": "Free 2-Day Trial",
+      "subtitle_part2": "and Discover the Simplicity of Dietless AI Today",
+      "button": "GET STARTED!"
+    }
   },
-  "auth": {
-    "signInTitle": "Sign in to your account",
-    "signUpTitle": "Create your account",
+  "footer": {
+    "newsletter": {
+      "title": "Stay Updated with DietlessAI",
+      "description": "Get the latest nutrition tips, recipes, and updates delivered straight to your inbox."
+    },
+    "brand": {
+      "name": "DietlessAI",
+      "description": "Personalized Meal Plans That Evolve with Your Lifestyle—No Guesswork, No Strict Rules, Just Sustainable Results"
+    },
+    "links": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    },
+    "copyright_text": "DietlessAI. All rights reserved."
+  },
+  "simplefooter": {
+    "home": "Home",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy",
+    "rights": "All rights reserved."
+  },
+  "pricing": {
+    "subtitle": "Healthy Eating, Hassle-Free Plans",
+    "title": "Start your chat with DietlessAI using a",
+    "trial_period": "2 day free trial",
+    "monthly": "Monthly",
+    "annually": "Annually",
+    "monthly_plan": "Monthly Plan",
+    "annual_plan": "Annual Plan",
+    "monthly_description": "Get started with personalized nutrition advice.",
+    "annual_description": "Get the best value with our annual subscription.",
+    "features": {
+      "ai_recommendations": "AI-powered meal recommendations",
+      "personalized_insights": "Personalized nutritional insights",
+      "weekly_plans": "Weekly meal plans",
+      "chat_support": "24/7 AI chat support",
+      "recipe_access": "Recipe database access"
+    },
+    "free_trial": "FREE for 2 days",
+    "month": "month",
+    "year": "year",
+    "afterwards": "afterwards",
+    "savings": "Save 24% compared to monthly",
+    "subscribe_button": "SUBSCRIBE NOW",
+    "loading": "Loading...",
+    "cancel_anytime": "Cancel anytime. No hidden fees."
+  },
+  "cookie_policy": {
+    "title": "Cookie Policy",
+    "last_updated": "Last updated:",
+    "what_are_cookies": {
+      "title": "1. What Are Cookies?",
+      "content": "Cookies are small files stored on your device to help websites remember things like login status, preferences, and usage patterns. Most websites use them — including ours."
+    },
+    "how_we_use": {
+      "title": "2. How We Use Cookies",
+      "content": "DietlessAI uses cookies for two main reasons:\n- To keep you logged in securely using a session cookie\n- To track general site usage and email performance (via Klaviyo)"
+    },
+    "essential_cookies": {
+      "title": "3. Essential Cookies",
+      "content": "We use a cookie to keep you securely logged in. It remembers who you are between visits and helps the app work properly. This cookie expires after a short time and doesn't store any personal information you can see."
+    },
+    "analytics_marketing": {
+      "title": "4. Analytics & Marketing Cookies",
+      "content": "Klaviyo may use cookies to help us understand how people interact with our site and emails. These cookies are used for things like open rates and click tracking."
+    },
+    "managing_cookies": {
+      "title": "5. Managing Cookies",
+      "content": "You can control or block cookies in your browser settings at any time. Just be aware that disabling essential cookies may prevent you from logging into the app."
+    }
+  },
+  "privacy_policy": {
+    "title": "Privacy Policy",
+    "last_updated": "Last updated:",
+    "introduction": {
+      "title": "1. Introduction",
+      "content": "This Privacy Policy describes how Dietless OÜ (\"we\", \"us\", or \"our\") collects, uses, and protects your personal information when you use the DietlessAI application. By accessing or using our service, you agree to this policy."
+    },
+    "what_we_collect": {
+      "title": "2. What Information We Collect",
+      "content": "We collect only the essential personal data needed to operate the service:\n- Email address (provided during sign-up or newsletter subscription)\nInformation such as weight, macros, or gender may be shared voluntarily during AI chat interactions, but we do not store these inputs in a structured or permanent form."
+    },
+    "how_we_use": {
+      "title": "3. How We Use Your Information",
+      "content": "We use your email to:\n- Let you log into the app\n- Send important updates, like subscription info\n- Send you newsletters or product news if you’ve subscribed"
+    },
+    "cookies": {
+      "title": "4. Cookies & Tracking",
+      "content": "We use cookies to keep you logged in and to help improve the experience. Marketing tools like Klaviyo may also place cookies to better understand user behavior. You can manage or block cookies in your browser settings."
+    },
+    "third_party": {
+      "title": "5. Third-Party Services",
+      "content": "We rely on the following services to run DietlessAI:\n- Stripe for payment processing\n- OpenAI API to power our chat responses\n- Klaviyo for email marketing and (optionally) analytics\n- Resend for transactional email delivery"
+    },
+    "data_security": {
+      "title": "6. Data Security",
+      "content": "We take reasonable steps to protect your data using secure authentication, encrypted communications, and access controls. However, no system is 100% secure — use of the service is at your own risk."
+    },
+    "your_rights": {
+      "title": "7. Your Rights",
+      "content": "You may request deletion of your data by contacting us at dietlessai@dietless.ai. If you are subscribed to marketing emails, you can unsubscribe at any time using the link in the email."
+    },
+    "ai_content": {
+      "title": "8. AI-Generated Content",
+      "content": "All responses within the app are generated by an AI model and should not be considered professional advice. Do not rely on DietlessAI for decisions relating to medical treatment, nutrition for medical conditions, or any life-threatening scenarios."
+    },
+    "changes": {
+      "title": "9. Changes to This Policy",
+      "content": "We may update this Privacy Policy from time to time. We will notify users via the app or email if material changes are made."
+    },
+    "contact": {
+      "title": "10. Contact",
+      "content": "For questions about this policy or your data, contact:"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "last_updated": "Last updated:",
+    "introduction": {
+      "title": "1. Introduction",
+      "content": "Welcome to DietlessAI, a product operated by Dietless OÜ, located at Semuvälja, Koovi küla, 93314 Saaremaa vald, Saare maakond, Estonia. By accessing or using our services, you agree to the following terms."
+    },
+    "services": {
+      "title": "2. Services Provided",
+      "content": "DietlessAI offers AI-powered assistance and advice related to fitness, nutrition, and health. The information is provided for informational and educational purposes only and should not be considered medical advice."
+    },
+    "eligibility": {
+      "title": "3. Eligibility",
+      "content": "You must be at least 18 years old to use this service. By using the service, you confirm that you are legally permitted to do so under applicable law."
+    },
+    "account": {
+      "title": "4. Account & Subscription",
+      "content": "Access to DietlessAI may require a paid subscription. You agree to provide accurate billing information. Subscriptions are billed monthly or annually, depending on your selection, and will auto-renew unless canceled prior to renewal."
+    },
+    "cancellation": {
+      "title": "5. Cancellation and Refunds",
+      "content": "You may cancel your subscription at any time. We do not offer refunds for partial subscription periods. Trials, if provided, will be clearly communicated before billing begins."
+    },
+    "restrictions": {
+      "title": "6. Use Restrictions",
+      "content": "You agree not to misuse the service, attempt to reverse-engineer the AI, use it for unlawful purposes, or share access with others without permission."
+    },
+    "health_disclaimer": {
+      "title": "7. Health & Medical Disclaimer",
+      "content": "The content provided by DietlessAI is generated by an AI model and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider before making decisions related to your health or diet.\n\nDietless OÜ is not liable for any injuries, illnesses, or death that may occur due to decisions made based on information provided by this service. Use at your own risk."
+    },
+    "liability": {
+      "title": "8. Limitation of Liability",
+      "content": "To the maximum extent permitted by law, Dietless OÜ shall not be liable for any indirect, incidental, or consequential damages resulting from your use of the service."
+    },
+    "modifications": {
+      "title": "9. Modifications",
+      "content": "We reserve the right to update these Terms at any time. Continued use after changes means you accept the updated terms."
+    },
+    "law": {
+      "title": "10. Governing Law",
+      "content": "These Terms are governed by the laws of the Republic of Estonia."
+    },
+    "contact": {
+      "title": "11. Contact",
+      "content": "For questions, contact us at:"
+    }
+  },
+  "terminal": {
+    "title": "Chat Example",
+    "step1": "Can you help me get started with DietlessAI?",
+    "step2": "Absolutely! Let’s build a plan that fits your lifestyle and goals. First, tell me your weight, height, and your goal.",
+    "step3": "I weigh 84 kg, I’m 172 cm tall, and I want to lose fat.",
+    "step4": "Got it. We’ll focus on fat loss while keeping your muscle sharp 💪",
+    "step5": "Next, I’ll generate your macros, meal plan, and weekly tweaks to keep you on track 🔁"
+  },
+  "usermenu": {
+    "chat": "Chat with DietlessAI",
+    "user_settings": "User Settings",
+    "general": "General",
+    "blog": "Blog",
+    "pricing": "Pricing",
+    "signup": "Sign Up",
+    "signout": "Sign out"
+  },
+  "login": {
+    "aria_home": "Go to homepage",
+    "signin_title": "Sign in to your account",
+    "signup_title": "Create your account",
     "email": "Email",
+    "email_placeholder": "Enter your email",
     "password": "Password",
-    "forgotPassword": "Forgot your password?",
-    "signIn": "Sign in",
-    "signUp": "Sign up"
+    "password_placeholder": "Enter your password",
+    "forgot_password": "Forgot your password?",
+    "loading": "Loading...",
+    "signin": "Sign in",
+    "signup": "Sign up",
+    "new_here": "New to our platform?",
+    "already_have": "Already have an account?",
+    "create_account": "Create an account",
+    "signin_existing": "Sign in to existing account"
+  },
+  "forgot": {
+    "title": "Reset your password",
+    "subtitle": "Enter your email address and we'll send you a link to reset your password.",
+    "loading": "Loading..."
+  },
+  "forgotform": {
+    "email_label": "Email address",
+    "email_placeholder": "Enter your email",
+    "back_to_signin": "Back to sign in",
+    "sending": "Sending...",
+    "send_link": "Send reset link"
+  },
+  "resetpassword": {
+    "title": "Create new password",
+    "subtitle": "Enter your new password below",
+    "loading": "Loading...",
+    "invalid_link": "Invalid reset link. Please request a new password reset.",
+    "expired_link": "This password reset link has expired.",
+    "request_new_question": "Would you like to request a new password reset link?",
+    "request_new_button": "Request New Link",
+    "new_password": "New Password",
+    "confirm_password": "Confirm Password",
+    "resetting": "Resetting...",
+    "reset_button": "Reset Password",
+    "sign_in": "Sign in",
+    "back_to_signin": "Back to sign in"
+  },
+  "submit": {
+    "loading": "Loading...",
+    "get_started": "Get Started"
+  },
+  "general": {
+    "title": "General Settings",
+    "account_info": "Account Information",
+    "name": "Name",
+    "name_placeholder": "Enter your name",
+    "email": "Email",
+    "email_placeholder": "Enter your email",
+    "saving": "Saving...",
+    "save_changes": "Save Changes"
   },
   "settings": {
-    "userSettings": "User Settings",
-    "deleteAccount": "Delete Account",
-    "deleteChatHistory": "Delete Chat History",
-    "updatePassword": "Update Password"
+    "title": "User Settings",
+    "unknown_user": "Unknown User",
+    "subscription": {
+      "title": "User Subscription",
+      "current_plan": "Current Plan",
+      "free": "Free",
+      "active": "Active subscription",
+      "trial_active": "Trial is currently active",
+      "next_billing": "Next billing date",
+      "access_until": "Access until",
+      "manage_hint": "Manage your subscription, update payment methods, or change your plan.",
+      "manage_button": "Manage Subscription"
+    },
+    "user": {
+      "title": "User"
+    },
+    "password": {
+      "title": "Password",
+      "current": "Current Password",
+      "new": "New Password",
+      "confirm": "Confirm New Password",
+      "updating": "Updating...",
+      "update_button": "Update Password"
+    },
+    "delete_chat": {
+      "title": "Delete Chat History",
+      "warning": "Chat history deletion is non-reversable. Please proceed with caution.",
+      "confirm": "Confirm Password",
+      "deleting": "Deleting...",
+      "button": "Delete Chat History"
+    },
+    "delete_account": {
+      "title": "Delete Account",
+      "warning": "Account deletion is non-reversable. Please proceed with caution.",
+      "confirm": "Confirm Password",
+      "deleting": "Deleting...",
+      "button": "Delete Account"
+    }
+  },
+  "dashboard": {
+    "chat": "Chat with DietlessAI",
+    "user_settings": "User Settings",
+    "general": "General"
+  },
+  "chat": {
+    "subscription_required": "Subscription Required",
+    "subscription_message": "Chat feature is only available for subscribed users.",
+    "view_pricing": "View Pricing Plans",
+    "error_too_long": "Your message is too long. Please shorten it a bit.",
+    "error_limit_exceeded": "You've reached your monthly token limit. Try implementing some of the nutrition and fitness advice we've discussed!",
+    "error_empty_response": "Received an empty response from the AI. Please try again.",
+    "error_generic": "Sorry, there was an error processing your request. Please try again.",
+    "empty_title": "Hey! I'm your nutrition coach – DietlessAI",
+    "empty_subtitle": "Ask me anything — from daily meal tips to long-term goals.",
+    "placeholder": "Ask anything..."
+  },
+  "newsletter": {
+    "placeholder": "Enter your email",
+    "submitting": "Subscribing...",
+    "success": "Subscribed! ✓",
+    "error": "Failed! Try again",
+    "subscribe": "Subscribe"
   }
 }

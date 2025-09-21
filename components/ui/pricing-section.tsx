@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
+import { Lang, t } from "@/lib/i18n";
+
+const SUPPORTED_LANGS = ['en', 'et'] as const;
 
 // Declare fbq for TypeScript
 declare global {
@@ -13,7 +16,7 @@ declare global {
 }
 
 // Submit button component
-function SubmitButton() {
+function SubmitButton({ lang }: { lang: Lang }) {
   const { pending } = useFormStatus();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,10 +37,10 @@ function SubmitButton() {
       {pending ? (
         <>
           <Loader2 className='animate-spin mr-2 h-4 w-4' />
-          Loading...
+          {t(lang, "pricing.loading")}
         </>
       ) : (
-        'SUBSCRIBE NOW'
+        t(lang, "pricing.subscribe_button")
       )}
     </Button>
   );
@@ -48,13 +51,14 @@ export function PricingSection({
   prices,
   products,
   checkoutAction,
-  lang, // 👈 added
+  lang,
 }: {
   prices: any[];
   products: any[];
   checkoutAction: any;
-  lang: string; // 👈 added
+  lang: string;
 }) {
+  const typedLang = (SUPPORTED_LANGS.includes(lang as Lang) ? lang : 'en') as Lang;
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annually'>('monthly');
 
   // Find monthly and yearly products
@@ -69,19 +73,19 @@ export function PricingSection({
 
   // Set fixed prices based on billing interval
   const displayPrice = billingInterval === 'monthly' ? '9.90 €' : '89.90 €';
-  const interval = billingInterval === 'monthly' ? 'month' : 'year';
+  const interval = billingInterval === 'monthly' ? t(typedLang, "pricing.month") : t(typedLang, "pricing.year");
 
   // Calculate savings for yearly plan (approximately 24% savings)
   const monthlyCost = billingInterval === 'monthly' ? 9.9 : (89.9 / 12).toFixed(2);
-  const savings = billingInterval === 'annually' ? 'Save 24% compared to monthly' : '';
+  const savings = billingInterval === 'annually' ? t(typedLang, "pricing.savings") : '';
 
   // Features are the same for both plans
   const features = [
-    'AI-powered meal recommendations',
-    'Personalized nutritional insights',
-    'Weekly meal plans',
-    '24/7 AI chat support',
-    'Recipe database access',
+    t(typedLang, "pricing.features.ai_recommendations"),
+    t(typedLang, "pricing.features.personalized_insights"),
+    t(typedLang, "pricing.features.weekly_plans"),
+    t(typedLang, "pricing.features.chat_support"),
+    t(typedLang, "pricing.features.recipe_access"),
   ];
 
   return (
@@ -108,10 +112,10 @@ export function PricingSection({
       />
       <div className='max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
         <div className='text-center mb-12'>
-          <p className='text-primary font-medium mb-4'>Healthy Eating, Hassle-Free Plans</p>
+          <p className='text-primary font-medium mb-4'>{t(typedLang, "pricing.subtitle")}</p>
           <h2 className='text-4xl font-bold text-foreground mb-6'>
-            Start your chat with DietlessAI using a
-            <br />2 day free trial
+            {t(typedLang, "pricing.title")}
+            <br />{t(typedLang, "pricing.trial_period")}
           </h2>
         </div>
 
@@ -123,13 +127,13 @@ export function PricingSection({
                 onClick={() => setBillingInterval('monthly')}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${billingInterval === 'monthly' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
               >
-                Monthly
+                {t(typedLang, "pricing.monthly")}
               </button>
               <button
                 onClick={() => setBillingInterval('annually')}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${billingInterval === 'annually' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
               >
-                Annually
+                {t(typedLang, "pricing.annually")}
               </button>
             </div>
           </div>
@@ -139,12 +143,12 @@ export function PricingSection({
             <div className='md:w-1/2 md:pr-8 flex flex-col justify-center'>
               <div>
                 <h3 className='text-2xl font-bold text-foreground mb-4'>
-                  {billingInterval === 'monthly' ? 'Monthly Plan' : 'Annual Plan'}
+                  {billingInterval === 'monthly' ? t(typedLang, "pricing.monthly_plan") : t(typedLang, "pricing.annual_plan")}
                 </h3>
                 <p className='text-muted-foreground mb-6'>
                   {billingInterval === 'monthly'
-                    ? 'Get started with personalized nutrition advice.'
-                    : 'Get the best value with our annual subscription.'}
+                    ? t(typedLang, "pricing.monthly_description")
+                    : t(typedLang, "pricing.annual_description")}
                 </p>
 
                 <ul className='space-y-4'>
@@ -165,7 +169,7 @@ export function PricingSection({
                   {/* First row: 0€ for 2 days */}
                   <div className='flex items-baseline justify-center mb-2'>
                     <span className='text-5xl text-foreground tracking-tight mt-4'>
-                      <strong>FREE</strong> for 2 days
+                      <strong>{t(typedLang, "pricing.free_trial")}</strong>
                     </span>
                   </div>
 
@@ -173,7 +177,7 @@ export function PricingSection({
                   <div className='flex items-baseline justify-center'>
                     <span className='text-md font-medium text-foreground mt-5'>{displayPrice}</span>
                     <span className='text-muted-foreground ml-2 text-md'>
-                      /{interval} afterwards
+                      /{interval} {t(typedLang, "pricing.afterwards")}
                     </span>
                   </div>
 
@@ -185,10 +189,10 @@ export function PricingSection({
 
                 <form action={checkoutAction} className="w-full">
                   <input type="hidden" name="priceId" value={currentPrice?.id} />
-                  <input type="hidden" name="lang" value={lang} />   {/* 👈 add this */}
-                  <SubmitButton />
+                  <input type="hidden" name="lang" value={lang} />
+                  <SubmitButton lang={typedLang} />
                   <p className="text-xs text-center text-muted-foreground mt-4">
-                    Cancel anytime. No hidden fees.
+                    {t(typedLang, "pricing.cancel_anytime")}
                   </p>
                 </form>
               </div>

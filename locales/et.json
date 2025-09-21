@@ -1,23 +1,420 @@
 {
-  "common": {
-    "home": "Avaleht",
-    "pricing": "Hinnakiri",
-    "dashboard": "Töölaud",
-    "manageSubscription": "Halda tellimust"
+  "home": {
+    "hero": {
+      "title": "Tee tervislik toitumine pingevabaks ja muuda end paremaks koos",
+      "highlight": "dietlessAI",
+      "subtitle": "Isikupärased toitumiskavad, mis kohanduvad sinu elustiiliga — ilma oletuste ja range dieedita, mis annab püsivad tulemused.",
+      "cta": "Proovi tasuta kohe!"
+    },
+    "features": {
+      "title": "Miks Dietless AI muudab sinu toitumist—ja aitab kaalus alla võtta loomulikul viisil",
+      "personalized": {
+        "title": "Personaliseeritud plaanid, sinu jaoks kohandatud",
+        "description": "Eriku juhendamisel välja töötatud DietlessAI kasutab kõrgtasemel tehnoloogiat, et kohandada sinu toitumiskava vastavalt eesmärkidele, eelistustele ja elustiilik—mitte ühte suurt kõigile sobivat dieeti."
+      },
+      "realtime": {
+        "title": "Reaalajas kohandused",
+        "description": "Tahad midagi teistsugust või lähed sõpradega väljas? Sinu plaan kohaneb koheselt, et saaksid ikka elust rõõmu tunda ja samal ajal kaalu kaotada."
+      },
+      "support": {
+        "title": "Sisseehitatud motivatsioon ja tugi",
+        "description": "Saa igapäevaseid näpunäiteid ja edusammude tõukeid, mis hoiavad sind keskendununa eesmärkidele. Dietless AI toimib kui sinu isiklik treener, valmis sind igal sammul julgustama."
+      }
+    },
+    "science": {
+      "title": "Teadus mida saad usaldada",
+      "description": "Dietless AI on ehitatud kõige usaldusväärsema ja tunnustatud toitumiseteaduse alusel. See ühendab tõenduspõhiste toitumispõhimõtete teadmisi, tagades, et iga soovitus on kooskõlas tõestatud kaalulanguse ja tervisliku elu strateegiatega. Pole moefänne, pole arvamist—ainult usaldusväärne juhendamine eesmärkide saavutamiseks.",
+      "cta": "Alusta!"
+    },
+    "benefits": {
+      "shopping": {
+        "title": "Aega säästev ostunimekiri",
+        "description": "Osta kiiresti ja väldi impulssoste, aidates hoida need lisakilokalorid eemal"
+      },
+      "recipes": {
+        "title": "Ekspertide heaks kiidetud retseptid",
+        "description": "Kokkade valitud toidud, mis maitsvad suurepäraselt ja hoiavad sind tervisliku kaalulangetuse rajal"
+      },
+      "family": {
+        "title": "Peresõbralik planeerimine",
+        "description": "Kasuta Dietless AI üksi või kaasa kogu pere—igaüks saab oma ainulaadsete eesmärkide jaoks kohandatud toiduplaani"
+      },
+      "flexible": {
+        "title": "Paindlikud toiduvahetused",
+        "description": "Vaheta välja koostisosad vastavalt oma himudele, allergiatelele või ajapiirangutelel—enam ei pea end jäiga dieedi vangis tundma"
+      },
+      "insights": {
+        "title": "Eesmärgikesksed teadmised",
+        "description": "Olenemata sellest, kas tahad kaotada mõned kilod või hoida oma ideaalkaalu, Dietless AI kohaneb, et hoida sind edasi liikumas"
+      }
+    },
+    "story": {
+      "heading": "Kas tunned ennast ära?",
+      "paragraph1": "Sa pead tasakaalustama pikki tööpäevi, perekondlikke kohustusi ja võib-olla mõnd trenni—ainult et märgata, et sinu toitumisharjumused on täiesti segamini. Sa tahad tunda end tervemana, võib-olla kaotada natuke kaalu, aga vastuolulised nõuanded ja kiire elutempo hoiavad sind kinni. Jäikade toitumiskavade järgimine tundub ülejõu käiv ja need moeimpulsid ei tundu kunagi sinu tegelikku ellu sobivat.",
+      "paragraph2": "Siia tuleb DietlessAI rakendus, mis on inspireeritud juhtiva toitumisspetsialisti Eriku aastatepikkusest kogemusest ja tema tööst inimeste aitamisel ületada samu raskusi, millega sina täna silmitsi seisad. Dietless AI on loodud toitumise lihtsustamiseks, sinu maitse õppimiseks ja sinu igapäevarutiiniga kohanemiseks, pakkudes sulle eksperdijuhendamist, mida vajad tervema ja tasakaalustatuma eluviisi loomiseks."
+    },
+    "testimonials": {
+      "title": "Mida meie kasutajad räägivad",
+      "mark": {
+        "name": "Mark D.",
+        "role": "Ettevõtja",
+        "quote": "Juba ainuüksi ostunimekirja funktsioon säästab mulle nii palju aega. Pluss, näen lõpuks tõelisi tulemusi kaalul. Dietless AI on mängumuutja!"
+      },
+      "jamie": {
+        "name": "Jamie L.",
+        "role": "Töötav tudeng",
+        "quote": "On nii kena omada plaani, mis kohaneb, kui lähen väljas sööma või mul tekib ajakava muudatus. Dietless AI võtab süütunde ära ja hoiab mind edasi liikumas."
+      },
+      "taylor": {
+        "name": "Taylor K.",
+        "role": "Lapsevanem",
+        "quote": "Enam pole vaja aimata! Rakenduse targad soovitused on aidanud mul hoida tasakaalustatud dieeti, ilma et tunneksin, et millestki ilma jään."
+      }
+    },
+    "faq": {
+      "title": "Korduma kippuvad küsimused",
+      "questions": {
+        "how_it_works": {
+          "question": "Kuidas DietlessAI töötab?",
+          "answer": "DietlessAI kasutab kõrgtasemel tehisintellekti, et analüüsida sinu eelistusi, toiduvajadustet ja eesmärke. Seejärel loob see personaliseeritud toitumisplaanid ja pakub reaalajas nõuandeid, et aidata sul saavutada optimaalset tervist ja heaolu."
+        },
+        "what_different": {
+          "question": "Mis teeb Dietless AI teistest toitumusrakendustest erinevaks?",
+          "answer": "Dietless AI kohaneb sinu igapäevase rutiiniga, pakkudes reaalseid lahendusi jäikade reeglite asemel. Olenemata sellest, kas oled teel või teed kodust toitu, kohaneb rakendus sinu elustiiliga."
+        },
+        "dietary_needs": {
+          "question": "Kas Dietless AI sobib spetsiifilisteks toiduvajadusteks?",
+          "answer": "Kindlasti. Olenemata sellest, kas oled gluteenivaba, vegan või keskendud mõõdukale kaalujuhtimisele, kohandab Dietless AI plaanid vastavalt sinu unikaalsetele vajadustele."
+        },
+        "update_frequency": {
+          "question": "Kui sageli rakendus mu toiduplaani uuendab?",
+          "answer": "Dietless AI jälgib sinu edu ja võib soovitusi uuendada igapäevaselt. See tagab, et sinu plaan jääb asjakohaseks, paindlikuks ja sinu eesmärkidega kooskõlas."
+        },
+        "cancel_subscription": {
+          "question": "Kas saan tellimust igal ajal tühistada?",
+          "answer": "Saad tellimust igal ajal tühistada ilma pikaajaliste kohustusteta. Kui tühistad, on sul DietlessAI-le ligipääs kuni praeguse arveldusperioodi lõpuni"
+        },
+        "ai_accuracy": {
+          "question": "Kui täpsed on AI toitumisnõuanded?",
+          "answer": "Meie AI on treenitud ulatuslike, ajakohaste toitumusandmete põhjal ja pakub tõenduspõhiseid soovitusi. Kuigi üldiste toitumisnõuannete puhul väga täpne, soovitame alati konsulteerida tervishoiutöötajatega spetsiifiliste meditsiiniliste seisundite või muredega."
+        },
+        "reliability": {
+          "question": "Mis teeb Dietless AI usaldusväärseks?",
+          "answer": "Dietless AI on ehitatud rangelt uuritud, teaduspõhiste toitumispõhimõtete alusel. Selle soovitused lähtuvad toitumisala kõige usaldusväärsematest teadmistest, tagades, et sinu personaliseeritud plaan on nii tõhus kui ka jätkusuutlik. Olenemata sellest, kas sinu eesmärk on kaalulangetus, praeguse kaalu hoidmine või lihtsalt tervem toitumine, võid olla kindel, et Dietless AI on loodud pakkuma tõenduspõhiseid tulemusi."
+        }
+      }
+    },
+    "cta": {
+      "title_part1": "Tee esimene samm",
+      "title_highlight": "Vaevatu toitumise",
+      "subtitle_part1": "Alusta",
+      "trial_highlight": "2-päevase tasuta prooviperioodiga",
+      "subtitle_part2": "ja avasta DietlessAI lihtsus täna",
+      "button": "ALUSTA!"
+    }
   },
-  "auth": {
-    "signInTitle": "Logi oma kontole sisse",
-    "signUpTitle": "Loo konto",
+  "footer": {
+    "newsletter": {
+      "title": "Ole DietlessAI-ga kursis",
+      "description": "Saa uusi toitumisnõuandeid, retsepte ja uudiseid otse oma postkasti."
+    },
+    "brand": {
+      "name": "DietlessAI",
+      "description": "Personaliseeritud toitumiskavad, mis kohanduvad sinu elustiiliga - ei nuputamisele, karmidele reeglitele. Lihtsalt jätkusuutlikud tulemused!"
+    },
+    "links": {
+      "privacy": "Privaatsuspoliitika",
+      "terms": "Kasutustingimused",
+      "cookies": "Küpsiste poliitika"
+    },
+    "copyright_text": "DietlessAI. Kõik õigused kaitstud."
+  },
+  "simplefooter": {
+    "home": "Avaleht",
+    "terms": "Kasutustingimused",
+    "privacy": "Privaatsuspoliitika",
+    "cookies": "Küpsiste poliitika",
+    "rights": "Kõik õigused kaitstud."
+  },
+  "pricing": {
+    "subtitle": "Tervislik toitumine, vaevavabad plaanid",
+    "title": "Alusta oma vestlust DietlessAI-ga kasutades",
+    "trial_period": "2-päevast tasuta prooviperioodi",
+    "monthly": "Igakuine",
+    "annually": "Aastatasu",
+    "monthly_plan": "Igakuine plaan",
+    "annual_plan": "Aastane plaan",
+    "monthly_description": "Alusta personaliseeritud toitumisnõuannetega.",
+    "annual_description": "Saa parim väärtus meie aastase tellimusega.",
+    "features": {
+      "ai_recommendations": "AI-juhitud toidusoovitused",
+      "personalized_insights": "Personaliseeritud toitumisanalüüs",
+      "weekly_plans": "Nädalased toiduplaanid",
+      "chat_support": "24/7 AI vestlustugi",
+      "recipe_access": "Ligipääs retseptide andmebaasile"
+    },
+    "free_trial": "TASUTA 2 päeva",
+    "month": "kuu",
+    "year": "aasta",
+    "afterwards": "pärast seda",
+    "savings": "Säästab 24% võrreldes igakuise tellimusega",
+    "subscribe_button": "TELLI KOHE",
+    "loading": "Laeb...",
+    "cancel_anytime": "Tühista igal ajal. Ükski varjatud tasud."
+  },
+  "cookie_policy": {
+    "title": "Küpsiste poliitika",
+    "last_updated": "Viimati uuendatud:",
+    "what_are_cookies": {
+      "title": "1. Mis on küpsised?",
+      "content": "Küpsised on väikesed failid, mis talletatakse teie seadmesse, et aidata veebisaitidel meelde jätta asju nagu sisselogimise staatus, eelistused ja kasutamismustrid. Enamik veebisaite kasutab neid — sealhulgas ka meie."
+    },
+    "how_we_use": {
+      "title": "2. Kuidas me küpsiseid kasutame",
+      "content": "DietlessAI kasutab küpsiseid kahel põhipõhjusel:\n- Et hoida teid turvaliselt sisse logituna, kasutades seansiküpsist\n- Et jälgida üldist saidi kasutamist ja e-kirjade jõudlust (Klaviyo kaudu)"
+    },
+    "essential_cookies": {
+      "title": "3. Olulised küpsised",
+      "content": "Kasutame küpsist, et hoida teid turvaliselt sisse logituna. See mäletab, kes te olete külastuste vahel ja aitab rakendusel korralikult töötada. See küpsis aegub lühikese aja pärast ega salvesta mingit isiklikku teavet, mida saaksite näha."
+    },
+    "analytics_marketing": {
+      "title": "4. Analüütika- ja turundusküpsised",
+      "content": "Klaviyo võib kasutada küpsiseid, et aidata meil mõista, kuidas inimesed meie saidi ja e-kirjadega suhtlevad. Neid küpsiseid kasutatakse selliste asjade jaoks nagu avamismäärad ja klõpsjälgimine."
+    },
+    "managing_cookies": {
+      "title": "5. Küpsiste haldamine",
+      "content": "Saate küpsiseid igal ajal oma brauseri seadetes kontrollida või blokeerida. Pidage meeles, et oluliste küpsiste keelamine võib takistada teil rakendusse sisselogimist."
+    }
+  },
+  "privacy_policy": {
+    "title": "Privaatsuspoliitika",
+    "last_updated": "Viimati uuendatud:",
+    "introduction": {
+      "title": "1. Sissejuhatus",
+      "content": "See privaatsuspoliitika kirjeldab, kuidas Dietless OÜ (\"meie\") kogub, kasutab ja kaitseb teie isikuandmeid, kui kasutate DietlessAI rakendust. Teenuse kasutamisega nõustute selle poliitikaga."
+    },
+    "what_we_collect": {
+      "title": "2. Millist teavet me kogume",
+      "content": "Kogume ainult teenuse toimimiseks vajalikke põhiandmeid:\n- E-posti aadress (esitatud registreerumisel või uudiskirja tellimisel)\nSellist teavet nagu kaal, makrod või sugu võidakse vabatahtlikult jagada AI vestluste käigus, kuid me ei salvesta neid sisendeid struktureeritud ega püsival kujul."
+    },
+    "how_we_use": {
+      "title": "3. Kuidas me teie andmeid kasutame",
+      "content": "Kasutame teie e-posti aadressi, et:\n- Lubada teil rakendusse sisse logida\n- Saata olulisi teateid, nagu tellimuse info\n- Saata uudiskirju või tooteteateid, kui olete tellinud"
+    },
+    "cookies": {
+      "title": "4. Küpsised ja jälgimine",
+      "content": "Kasutame küpsiseid, et hoida teid sisse logituna ja parandada kasutuskogemust. Turundustööriistad nagu Klaviyo võivad samuti paigutada küpsiseid, et paremini mõista kasutajate käitumist. Saate oma brauseri seadetes küpsiseid hallata või blokeerida."
+    },
+    "third_party": {
+      "title": "5. Kolmandate osapoolte teenused",
+      "content": "DietlessAI töötab järgmiste teenuste abil:\n- Stripe maksete töötlemiseks\n- OpenAI API vestlusvastuste loomiseks\n- Klaviyo e-kirjade turunduseks ja (valikuliselt) analüütikaks\n- Resend tehinguliste e-kirjade edastamiseks"
+    },
+    "data_security": {
+      "title": "6. Andmete turvalisus",
+      "content": "Astume mõistlikke samme teie andmete kaitsmiseks, kasutades turvalist autentimist, krüpteeritud suhtlust ja juurdepääsukontrolle. Kuid ükski süsteem ei ole 100% turvaline — teenuse kasutamine toimub teie enda vastutusel."
+    },
+    "your_rights": {
+      "title": "7. Teie õigused",
+      "content": "Võite taotleda oma andmete kustutamist, võttes meiega ühendust aadressil dietlessai@dietless.ai. Kui olete tellinud turunduslikke e-kirju, saate igal ajal loobuda e-kirjas oleva lingi kaudu."
+    },
+    "ai_content": {
+      "title": "8. AI poolt loodud sisu",
+      "content": "Kõik rakenduses olevad vastused on loodud AI mudeli poolt ning neid ei tohiks käsitleda professionaalse nõuandena. Ärge tuginege DietlessAI-le otsuste tegemisel, mis on seotud meditsiinilise ravi, haigusseisundite toitumise või eluohtlike olukordadega."
+    },
+    "changes": {
+      "title": "9. Muudatused poliitikas",
+      "content": "Võime seda privaatsuspoliitikat aeg-ajalt uuendada. Kui tehakse olulisi muudatusi, teavitame kasutajaid rakenduse või e-posti kaudu."
+    },
+    "contact": {
+      "title": "10. Kontakt",
+      "content": "Küsimuste korral selle poliitika või teie andmete kohta võtke ühendust:"
+    }
+  },
+  "terms": {
+    "title": "Kasutustingimused",
+    "last_updated": "Viimati uuendatud:",
+    "introduction": {
+      "title": "1. Sissejuhatus",
+      "content": "Tere tulemast DietlessAI-sse, mida haldab Dietless OÜ aadressil Semuvälja, Koovi küla, 93314 Saaremaa vald, Saare maakond, Eesti. Meie teenuseid kasutades nõustute järgmiste tingimustega."
+    },
+    "services": {
+      "title": "2. Pakutavad teenused",
+      "content": "DietlessAI pakub tehisintellektil põhinevat abi ja nõuandeid, mis on seotud treeningu, toitumise ja tervisega. Teave on mõeldud üksnes informatiivsetel ja hariduslikel eesmärkidel ning seda ei tohiks käsitleda meditsiinilise nõuandena."
+    },
+    "eligibility": {
+      "title": "3. Kasutamise tingimused",
+      "content": "Teenuse kasutamiseks peate olema vähemalt 18-aastane. Teenust kasutades kinnitate, et teil on seaduslik õigus seda teha vastavalt kohaldatavale õigusele."
+    },
+    "account": {
+      "title": "4. Konto ja tellimus",
+      "content": "DietlessAI kasutamine võib nõuda tasulist tellimust. Nõustute esitama täpset arveldusteavet. Tellimused arveldatakse igakuiselt või kord aastas, sõltuvalt teie valikust, ja need pikendatakse automaatselt, kui neid ei tühistata enne uuendamist."
+    },
+    "cancellation": {
+      "title": "5. Tühistamine ja tagasimaksed",
+      "content": "Võite oma tellimuse igal ajal tühistada. Me ei paku osaliste tellimusperioodide eest tagasimakseid. Kui pakume prooviperioodi, teavitatakse sellest selgelt enne arveldamise algust."
+    },
+    "restrictions": {
+      "title": "6. Kasutuspiirangud",
+      "content": "Nõustute teenust mitte kuritarvitama, mitte püüdma AI-d pöördprojekteerida, mitte kasutama seda ebaseaduslikel eesmärkidel ega jagama juurdepääsu teistega ilma loata."
+    },
+    "health_disclaimer": {
+      "title": "7. Tervise- ja meditsiiniline vastutusest loobumine",
+      "content": "DietlessAI poolt pakutav sisu on loodud tehisintellekti mudeli poolt ega asenda professionaalset meditsiinilist nõu, diagnoosi ega ravi. Enne tervise või dieediga seotud otsuste tegemist konsulteerige alati kvalifitseeritud tervishoiutöötajaga.\n\nDietless OÜ ei vastuta ühegi vigastuse, haiguse ega surma eest, mis võivad tekkida teenuse kaudu saadud teabe põhjal tehtud otsuste tõttu. Kasutate teenust omal vastutusel."
+    },
+    "liability": {
+      "title": "8. Vastutuse piiramine",
+      "content": "Maksimaalses seadusega lubatud ulatuses ei vastuta Dietless OÜ ühegi kaudse, juhusliku või sellest tuleneva kahju eest, mis tekib teenuse kasutamisest."
+    },
+    "modifications": {
+      "title": "9. Muudatused",
+      "content": "Jätame endale õiguse neid tingimusi igal ajal uuendada. Teenuse jätkuv kasutamine pärast muudatusi tähendab, et nõustute uuendatud tingimustega."
+    },
+    "law": {
+      "title": "10. Kohaldatav õigus",
+      "content": "Neid tingimusi reguleerib Eesti Vabariigi seadus."
+    },
+    "contact": {
+      "title": "11. Kontakt",
+      "content": "Küsimuste korral võtke meiega ühendust:"
+    }
+  },
+    "terminal": {
+    "title": "Vestluse näidis",
+    "step1": "Kas saad mind DietlessAI-ga alustamisel aidata?",
+    "step2": "Muidugi! Loome plaani, mis sobib sinu elustiili ja eesmärkidega. Alustuseks ütle oma kaal, pikkus ja peamine eesmärk.",
+    "step3": "Kaalun 84 kg, olen 172 cm pikk ja tahan rasva kaotada.",
+    "step4": "Suurepärane. Keskendume rasva põletamisele, samal ajal hoides lihased tugevad 💪",
+    "step5": "Järgmiseks arvutan sinu makrod, koostan toitumisplaani ja panen paika iganädalased kohandused, et sind rajal hoida 🔁"
+  },
+    "usermenu": {
+    "chat": "Vestle DietlessAI-ga",
+    "user_settings": "Kasutaja seaded",
+    "general": "Üldine",
+    "blog": "Blogi",
+    "pricing": "Hinnad",
+    "signup": "Loo konto",
+    "signout": "Logi välja"
+  },
+  "login": {
+    "aria_home": "Mine avalehele",
+    "signin_title": "Logi oma kontole sisse",
+    "signup_title": "Loo oma konto",
     "email": "E-post",
+    "email_placeholder": "Sisesta oma e-post",
     "password": "Parool",
-    "forgotPassword": "Unustasid parooli?",
-    "signIn": "Logi sisse",
-    "signUp": "Registreeru"
+    "password_placeholder": "Sisesta oma parool",
+    "forgot_password": "Unustasid parooli?",
+    "loading": "Laadimine...",
+    "signin": "Logi sisse",
+    "signup": "Loo konto",
+    "new_here": "Uus meie platvormil?",
+    "already_have": "Sul juba on konto?",
+    "create_account": "Loo konto",
+    "signin_existing": "Logi olemasolevale kontole"
+  },
+  "forgot": {
+    "title": "Lähtesta oma parool",
+    "subtitle": "Sisesta oma e-posti aadress ja saadame sulle lingi parooli lähtestamiseks.",
+    "loading": "Laadimine..."
+  },
+  "forgotform": {
+    "email_label": "E-posti aadress",
+    "email_placeholder": "Sisesta oma e-post",
+    "back_to_signin": "Tagasi sisselogimise juurde",
+    "sending": "Saatmine...",
+    "send_link": "Saada lähtestamise link"
+  },
+  "resetpassword": {
+    "title": "Loo uus parool",
+    "subtitle": "Sisesta oma uus parool allpool",
+    "loading": "Laadimine...",
+        "invalid_link": "Vale taastamislink. Palun taotle uus parooli taastamine.",
+    "expired_link": "See parooli taastamise link on aegunud.",
+    "request_new_question": "Kas soovid taotleda uut parooli taastamise linki?",
+    "request_new_button": "Taotle uut linki",
+    "new_password": "Uus parool",
+    "confirm_password": "Kinnita parool",
+    "resetting": "Parooli lähtestamine...",
+    "reset_button": "Lähtesta parool",
+    "sign_in": "Logi sisse",
+    "back_to_signin": "Tagasi sisselogimise juurde"
+  },
+  "submit": {
+    "loading": "Laadimine...",
+    "get_started": "Alusta"
+  },
+  "general": {
+    "title": "Üldseaded",
+    "account_info": "Konto andmed",
+    "name": "Nimi",
+    "name_placeholder": "Sisesta oma nimi",
+    "email": "E-post",
+    "email_placeholder": "Sisesta oma e-post",
+    "saving": "Salvestan...",
+    "save_changes": "Salvesta muudatused"
   },
   "settings": {
-    "userSettings": "Kasutaja seaded",
-    "deleteAccount": "Kustuta konto",
-    "deleteChatHistory": "Kustuta vestlusajalugu",
-    "updatePassword": "Muuda parooli"
+    "title": "Kasutaja seaded",
+    "unknown_user": "Tundmatu kasutaja",
+    "subscription": {
+      "title": "Kasutaja tellimus",
+      "current_plan": "Praegune pakett",
+      "free": "Tasuta",
+      "active": "Aktiivne tellimus",
+      "trial_active": "Prooviperiood on aktiivne",
+      "next_billing": "Järgmine arvelduskuupäev",
+      "access_until": "Juurdepääs kuni",
+      "manage_hint": "Halda oma tellimust, uuenda makseviise või muuda paketti.",
+      "manage_button": "Halda tellimust"
+    },
+    "user": {
+      "title": "Kasutaja"
+    },
+    "password": {
+      "title": "Parool",
+      "current": "Praegune parool",
+      "new": "Uus parool",
+      "confirm": "Kinnita uus parool",
+      "updating": "Uuendan...",
+      "update_button": "Uuenda parooli"
+    },
+    "delete_chat": {
+      "title": "Kustuta vestluse ajalugu",
+      "warning": "Vestluse ajaloo kustutamine on pöördumatu. Palun ole ettevaatlik.",
+      "confirm": "Kinnita parool",
+      "deleting": "Kustutan...",
+      "button": "Kustuta vestluse ajalugu"
+    },
+    "delete_account": {
+      "title": "Kustuta konto",
+      "warning": "Konto kustutamine on pöördumatu. Palun ole ettevaatlik.",
+      "confirm": "Kinnita parool",
+      "deleting": "Kustutan...",
+      "button": "Kustuta konto"
+    }
+  },
+  "dashboard": {
+    "chat": "Vestle DietlessAI-ga",
+    "user_settings": "Kasutaja seaded",
+    "general": "Üldine"
+  },
+  "chat": {
+    "subscription_required": "Liitumine on vajalik",
+    "subscription_message": "Vestlus on saadaval ainult tellijatele.",
+    "view_pricing": "Vaata hindu",
+    "error_too_long": "Sinu sõnum on liiga pikk. Palun tee see lühemaks.",
+    "error_limit_exceeded": "Oled oma igakuise vestluse limiidi ületanud. Proovi rakendada osa nõuannetest, mida oleme arutanud!",
+    "error_empty_response": "AI saatis tühja vastuse. Palun proovi uuesti.",
+    "error_generic": "Vabandame, sinu päringu töötlemisel tekkis viga. Palun proovi uuesti.",
+    "empty_title": "Hei! Olen sinu toitumisnõustaja – DietlessAI",
+    "empty_subtitle": "Küsi ükskõik mida — alates igapäevastest toidunippidest kuni pikaajaliste eesmärkideni.",
+    "placeholder": "Sisesta oma sõnum..."
+  },
+  "newsletter": {
+    "placeholder": "Sisesta oma e-post",
+    "submitting": "Liitumine...",
+    "success": "Liitunud! ✓",
+    "error": "Ebaõnnestus! Proovi uuesti",
+    "subscribe": "Liitu"
   }
 }

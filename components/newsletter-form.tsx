@@ -4,8 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowRight } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
+import { t, Lang } from '@/lib/i18n';
+import { usePathname } from 'next/navigation';
+
+const SUPPORTED_LANGS = ['en', 'et'] as const;
 
 export default function NewsletterForm() {
+  const pathname = usePathname();
+  const langFromPath = pathname?.split('/')[1] as Lang | undefined;
+  const lang = (SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath : 'en') as Lang;
+
   const [isKlaviyoLoaded, setIsKlaviyoLoaded] = useState(false);
   const [isCustomFormVisible, setIsCustomFormVisible] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -13,7 +21,6 @@ export default function NewsletterForm() {
 
   // Load Klaviyo script and hide their form
   useEffect(() => {
-    // Check if Klaviyo script is already loaded
     if (!document.getElementById('klaviyo-form-script')) {
       const script = document.createElement('script');
       script.id = 'klaviyo-form-script';
@@ -21,7 +28,6 @@ export default function NewsletterForm() {
       script.async = true;
       document.body.appendChild(script);
 
-      // Add styles to hide Klaviyo form but keep it functional
       const style = document.createElement('style');
       style.textContent = `
         .klaviyo-form-XFzSwY {
@@ -34,7 +40,6 @@ export default function NewsletterForm() {
       `;
       document.head.appendChild(style);
 
-      // Check if Klaviyo form is loaded
       const checkInterval = setInterval(() => {
         if (document.querySelector('.klaviyo-form-XFzSwY')) {
           setIsKlaviyoLoaded(true);
@@ -48,7 +53,6 @@ export default function NewsletterForm() {
     }
   }, []);
 
-  // Handle form submission
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -60,27 +64,22 @@ export default function NewsletterForm() {
     setIsSubmitting(true);
     setStatus('submitting');
 
-    // If Klaviyo is loaded, trigger their form submission
     if (isKlaviyoLoaded) {
       try {
-        // Find the Klaviyo form
         const klaviyoForm = document.querySelector('.klaviyo-form-XFzSwY');
         if (klaviyoForm) {
-          // Find the email input in Klaviyo form and set its value
           const klaviyoEmailInput = klaviyoForm.querySelector(
             'input[type="email"]',
           ) as HTMLInputElement;
           if (klaviyoEmailInput) {
             klaviyoEmailInput.value = email;
 
-            // Find and click the submit button
             const klaviyoSubmitButton = klaviyoForm.querySelector(
               'button[type="submit"]',
             ) as HTMLButtonElement;
             if (klaviyoSubmitButton) {
               klaviyoSubmitButton.click();
 
-              // Show success after a delay
               setTimeout(() => {
                 emailInput.value = '';
                 setStatus('success');
@@ -93,21 +92,16 @@ export default function NewsletterForm() {
             }
           }
         }
-
-        // Fallback if Klaviyo elements not found
-        console.log('Klaviyo form elements not found, using fallback');
         simulateSuccess();
       } catch (error) {
         console.error('Error submitting to Klaviyo:', error);
         simulateSuccess();
       }
     } else {
-      // Fallback if Klaviyo not loaded
       simulateSuccess();
     }
 
     function simulateSuccess() {
-      // Simulate API call with timeout
       setTimeout(() => {
         emailInput.value = '';
         setStatus('success');
@@ -116,26 +110,22 @@ export default function NewsletterForm() {
           setIsSubmitting(false);
         }, 2000);
       }, 800);
-
-      // Log to console
       console.log('Newsletter signup (fallback):', email);
     }
   }
 
   return (
     <>
-      {/* Hidden Klaviyo form */}
       <div
         className='klaviyo-form-XFzSwY'
         style={{ position: 'absolute', opacity: 0, height: 0, overflow: 'hidden' }}
       ></div>
 
-      {/* Custom styled form */}
       <div className='flex flex-col sm:flex-row gap-3 max-w-md mx-auto'>
         <form className='flex flex-col sm:flex-row gap-3 w-full' onSubmit={handleSubmit}>
           <Input
             type='email'
-            placeholder='Enter your email'
+            placeholder={t(lang, 'newsletter.placeholder')}
             className='flex-1 rounded-3xl px-4 py-4 h-auto border-primary/20 focus-visible:ring-primary group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300 bg-white'
             required
           />
@@ -146,12 +136,12 @@ export default function NewsletterForm() {
             style={{ minHeight: '44px' }}
           >
             <span className='relative z-10 flex items-center'>
-              {status === 'submitting' && 'Subscribing...'}
-              {status === 'success' && 'Subscribed! ✓'}
-              {status === 'error' && 'Failed! Try again'}
+              {status === 'submitting' && t(lang, 'newsletter.submitting')}
+              {status === 'success' && t(lang, 'newsletter.success')}
+              {status === 'error' && t(lang, 'newsletter.error')}
               {status === 'idle' && (
                 <>
-                  Subscribe
+                  {t(lang, 'newsletter.subscribe')}
                   <ArrowRight className='ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300' />
                 </>
               )}

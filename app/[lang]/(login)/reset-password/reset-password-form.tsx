@@ -8,9 +8,9 @@ import Link from 'next/link';
 import { useActionState, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { resetPassword } from '../actions';
+import { Lang, t } from '@/lib/i18n';
 
 const SUPPORTED_LANGS = ['en', 'et'] as const;
-type Lang = (typeof SUPPORTED_LANGS)[number];
 
 export function ResetPasswordForm({ token }: { token: string }) {
   // Provide a proper initial state that matches all possible return types
@@ -20,7 +20,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   const pathname = usePathname();
   const langFromPath = pathname?.split('/')[1] as Lang | undefined;
-  const lang = SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath! : 'en';
+  const typedLang = (SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath : 'en') as Lang;
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
@@ -37,7 +37,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       {!token && (
         <Alert variant="destructive">
           <AlertDescription>
-            Invalid reset link. Please request a new password reset.
+            {t(typedLang, 'resetpassword.invalid_link')}
           </AlertDescription>
         </Alert>
       )}
@@ -46,17 +46,17 @@ export function ResetPasswordForm({ token }: { token: string }) {
         <div className="space-y-4">
           <Alert variant="destructive">
             <AlertDescription>
-              {state.error || 'This password reset link has expired.'}
+              {state.error || t(typedLang, 'resetpassword.expired_link')}
             </AlertDescription>
           </Alert>
 
           <div className="text-center">
-            <p className="mb-4">Would you like to request a new password reset link?</p>
+            <p className="mb-4">{t(typedLang, 'resetpassword.request_new_question')}</p>
             <Link
-              href={`/${lang}/forgot-password`}
+              href={`/${typedLang}/forgot-password`}
               className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Request New Link
+              {t(typedLang, 'resetpassword.request_new_button')}
             </Link>
           </div>
         </div>
@@ -65,7 +65,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           {token && (
             <>
               <div>
-                <Label htmlFor="password">New Password</Label>
+                <Label htmlFor="password">{t(typedLang, 'resetpassword.new_password')}</Label>
                 <div className="mt-1">
                   <Input
                     id="password"
@@ -81,7 +81,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
               </div>
 
               <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">{t(typedLang, 'resetpassword.confirm_password')}</Label>
                 <div className="mt-1">
                   <Input
                     id="confirmPassword"
@@ -109,10 +109,10 @@ export function ResetPasswordForm({ token }: { token: string }) {
               <AlertDescription>
                 {state.success}{' '}
                 <Link
-                  href={`/${lang}/sign-in`}
+                  href={`/${typedLang}/sign-in`}
                   className="font-medium text-primary hover:text-primary/90"
                 >
-                  Sign in
+                  {t(typedLang, 'resetpassword.sign_in')}
                 </Link>
               </AlertDescription>
             </Alert>
@@ -123,17 +123,19 @@ export function ResetPasswordForm({ token }: { token: string }) {
             className="w-full"
             disabled={isSubmitting || !token || isTokenExpired}
           >
-            {isSubmitting ? 'Resetting...' : 'Reset Password'}
+            {isSubmitting
+              ? t(typedLang, 'resetpassword.resetting')
+              : t(typedLang, 'resetpassword.reset_button')}
           </Button>
         </>
       )}
 
       <div className="text-center">
         <Link
-          href={`/${lang}/sign-in`}
+          href={`/${typedLang}/sign-in`}
           className="text-sm font-medium text-primary hover:text-primary/90"
         >
-          Back to sign in
+          {t(typedLang, 'resetpassword.back_to_signin')}
         </Link>
       </div>
     </form>

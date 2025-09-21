@@ -10,11 +10,14 @@ import { TeamDataWithMembers, TeamMemberWithUser } from '@/lib/db/schema';
 import { customerPortalAction } from '@/lib/payments/actions';
 import { Loader2, Lock, Shredder, Trash2 } from 'lucide-react';
 import { startTransition, useActionState, useEffect } from 'react';
+import { Lang, t } from '@/lib/i18n';
 
 type ActionState = {
   error?: string;
   success?: string;
 };
+
+const SUPPORTED_LANGS = ['en', 'et'] as const;
 
 export function Settings({
   teamData,
@@ -23,8 +26,10 @@ export function Settings({
   teamData: TeamDataWithMembers;
   lang: string;
 }) {
+  const typedLang = (SUPPORTED_LANGS.includes(lang as Lang) ? lang : 'en') as Lang;
+
   const getUserDisplayName = (user: { id: number; name: string | null; email: string | null }) => {
-    return user.name || user.email || 'Unknown User';
+    return user.name || user.email || t(typedLang, 'settings.unknown_user');
   };
 
   const [passwordState, passwordAction, isPasswordPending] = useActionState<ActionState, FormData>(
@@ -42,21 +47,21 @@ export function Settings({
     FormData
   >(deleteChatHistory, { error: '', success: '' });
 
-  const handlePasswordSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handlePasswordSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(() => {
       passwordAction(new FormData(event.currentTarget));
     });
   };
 
-  const handleDeleteSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleDeleteSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(() => {
       deleteAction(new FormData(event.currentTarget));
     });
   };
 
-  const handleDeleteChatSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleDeleteChatSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(() => {
       deleteChatAction(new FormData(event.currentTarget));
@@ -73,29 +78,34 @@ export function Settings({
   return (
     <section className="flex-1 overflow-y-auto h-[calc(100vh-4rem)]">
       <div className="p-4 lg:p-8">
-        <h1 className="text-lg lg:text-2xl font-medium mb-6">User Settings</h1>
+        <h1 className="text-lg lg:text-2xl font-medium mb-6">
+          {t(typedLang, 'settings.title')}
+        </h1>
 
         <div className="space-y-8">
           {/* Subscription card */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>User Subscription</CardTitle>
+              <CardTitle>{t(typedLang, 'settings.subscription.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row justify-between">
                   <div className="mb-4 sm:mb-0 sm:w-1/2 sm:self-start">
                     <Label className="block mb-1">
-                      Current Plan: {teamData.planName || 'Free'}
+                      {t(typedLang, 'settings.subscription.current_plan')}:{' '}
+                      {teamData.planName || t(typedLang, 'settings.subscription.free')}
                     </Label>
                     <div className="text-sm text-muted-foreground">
-                      {teamData.subscriptionStatus === 'active' && <p>Active subscription</p>}
+                      {teamData.subscriptionStatus === 'active' && (
+                        <p>{t(typedLang, 'settings.subscription.active')}</p>
+                      )}
                       {teamData.subscriptionStatus === 'trialing' && (
-                        <p>Trial is currently active</p>
+                        <p>{t(typedLang, 'settings.subscription.trial_active')}</p>
                       )}
                       {teamData.trialEndsAt && teamData.subscriptionStatus === 'trialing' && (
                         <p>
-                          {new Date(teamData.trialEndsAt).toLocaleDateString('en-GB', {
+                          {new Date(teamData.trialEndsAt).toLocaleDateString(lang, {
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric',
@@ -103,22 +113,28 @@ export function Settings({
                         </p>
                       )}
                       {teamData.nextBillingDate && (
-                        <p>Next billing date: {teamData.nextBillingDate}</p>
+                        <p>
+                          {t(typedLang, 'settings.subscription.next_billing')}:{' '}
+                          {teamData.nextBillingDate}
+                        </p>
                       )}
                       {teamData.subscriptionStatus === 'canceled' &&
                         teamData.subscriptionEndDate && (
-                          <p>Access until: {teamData.subscriptionEndDate}</p>
+                          <p>
+                            {t(typedLang, 'settings.subscription.access_until')}:{' '}
+                            {teamData.subscriptionEndDate}
+                          </p>
                         )}
                     </div>
                   </div>
                   <div className="sm:ml-auto sm:w-1/3">
                     <p className="text-sm text-muted-foreground mb-2">
-                      Manage your subscription, update payment methods, or change your plan.
+                      {t(typedLang, 'settings.subscription.manage_hint')}
                     </p>
                     <form action={customerPortalAction}>
-                      <input type="hidden" name="lang" value={lang} /> {/* ✅ locale aware */}
+                      <input type="hidden" name="lang" value={lang} />
                       <Button type="submit" variant="outline">
-                        Manage Subscription
+                        {t(typedLang, 'settings.subscription.manage_button')}
                       </Button>
                     </form>
                   </div>
@@ -130,7 +146,7 @@ export function Settings({
           {/* User list */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>User</CardTitle>
+              <CardTitle>{t(typedLang, 'settings.user.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-4">
@@ -151,7 +167,6 @@ export function Settings({
                       </Avatar>
                       <div>
                         <p className="font-medium">{getUserDisplayName(member.user)}</p>
-                        <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
                       </div>
                     </div>
                   </li>
@@ -163,48 +178,29 @@ export function Settings({
           {/* Password Section */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Password</CardTitle>
+              <CardTitle>{t(typedLang, 'settings.password.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <form className="space-y-4" onSubmit={handlePasswordSubmit}>
                 <div>
-                  <Label htmlFor="current-password">Current Password</Label>
-                  <Input
-                    id="current-password"
-                    name="currentPassword"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    minLength={8}
-                    maxLength={100}
-                  />
+                  <Label htmlFor="current-password">
+                    {t(typedLang, 'settings.password.current')}
+                  </Label>
+                  <Input id="current-password" name="currentPassword" type="password" required />
                 </div>
                 <div>
-                  <Label htmlFor="new-password">New Password</Label>
-                  <Input
-                    id="new-password"
-                    name="newPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    minLength={8}
-                    maxLength={100}
-                  />
+                  <Label htmlFor="new-password">
+                    {t(typedLang, 'settings.password.new')}
+                  </Label>
+                  <Input id="new-password" name="newPassword" type="password" required />
                 </div>
                 <div>
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input
-                    id="confirm-password"
-                    name="confirmPassword"
-                    type="password"
-                    required
-                    minLength={8}
-                    maxLength={100}
-                  />
+                  <Label htmlFor="confirm-password">
+                    {t(typedLang, 'settings.password.confirm')}
+                  </Label>
+                  <Input id="confirm-password" name="confirmPassword" type="password" required />
                 </div>
-                {passwordState.error && (
-                  <p className="text-red-500 text-sm">{passwordState.error}</p>
-                )}
+                {passwordState.error && <p className="text-red-500 text-sm">{passwordState.error}</p>}
                 {passwordState.success && (
                   <p className="text-green-500 text-sm">{passwordState.success}</p>
                 )}
@@ -216,12 +212,12 @@ export function Settings({
                   {isPasswordPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating...
+                      {t(typedLang, 'settings.password.updating')}
                     </>
                   ) : (
                     <>
                       <Lock className="mr-2 h-4 w-4" />
-                      Update Password
+                      {t(typedLang, 'settings.password.update_button')}
                     </>
                   )}
                 </Button>
@@ -229,26 +225,21 @@ export function Settings({
             </CardContent>
           </Card>
 
-          {/* Delete Chat History Section */}
+          {/* Delete Chat History */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Delete Chat History</CardTitle>
+              <CardTitle>{t(typedLang, 'settings.delete_chat.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500 mb-4">
-                Chat history deletion is non-reversable. Please proceed with caution.
+                {t(typedLang, 'settings.delete_chat.warning')}
               </p>
               <form id="delete-chat-form" onSubmit={handleDeleteChatSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="delete-chat-password">Confirm Password</Label>
-                  <Input
-                    id="delete-chat-password"
-                    name="password"
-                    type="password"
-                    required
-                    minLength={8}
-                    maxLength={100}
-                  />
+                  <Label htmlFor="delete-chat-password">
+                    {t(typedLang, 'settings.delete_chat.confirm')}
+                  </Label>
+                  <Input id="delete-chat-password" name="password" type="password" required />
                 </div>
                 {deleteChatState.error && (
                   <p className="text-red-500 text-sm">{deleteChatState.error}</p>
@@ -260,12 +251,12 @@ export function Settings({
                   {isDeleteChatPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Deleting...
+                      {t(typedLang, 'settings.delete_chat.deleting')}
                     </>
                   ) : (
                     <>
                       <Shredder className="mr-2 h-4 w-4" />
-                      Delete Chat History
+                      {t(typedLang, 'settings.delete_chat.button')}
                     </>
                   )}
                 </Button>
@@ -273,26 +264,21 @@ export function Settings({
             </CardContent>
           </Card>
 
-          {/* Delete Account Section */}
+          {/* Delete Account */}
           <Card>
             <CardHeader>
-              <CardTitle>Delete Account</CardTitle>
+              <CardTitle>{t(typedLang, 'settings.delete_account.title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500 mb-4">
-                Account deletion is non-reversable. Please proceed with caution.
+                {t(typedLang, 'settings.delete_account.warning')}
               </p>
               <form onSubmit={handleDeleteSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="delete-password">Confirm Password</Label>
-                  <Input
-                    id="delete-password"
-                    name="password"
-                    type="password"
-                    required
-                    minLength={8}
-                    maxLength={100}
-                  />
+                  <Label htmlFor="delete-password">
+                    {t(typedLang, 'settings.delete_account.confirm')}
+                  </Label>
+                  <Input id="delete-password" name="password" type="password" required />
                 </div>
                 {deleteState.error && <p className="text-red-500 text-sm">{deleteState.error}</p>}
                 <Button
@@ -304,12 +290,12 @@ export function Settings({
                   {isDeletePending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Deleting...
+                      {t(typedLang, 'settings.delete_account.deleting')}
                     </>
                   ) : (
                     <>
                       <Trash2 className="mr-2 h-4 w-4" />
-                      Delete Account
+                      {t(typedLang, 'settings.delete_account.button')}
                     </>
                   )}
                 </Button>

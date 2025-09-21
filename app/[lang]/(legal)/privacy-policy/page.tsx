@@ -1,117 +1,79 @@
 import { Metadata } from 'next';
+import { Lang, t } from "@/lib/i18n";
+
+const SUPPORTED_LANGS = ['en', 'et'] as const;
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - dietlessAI',
   description: 'Privacy Policy for dietlessAI',
 };
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  const typedLang = (SUPPORTED_LANGS.includes(lang as Lang) ? lang : 'en') as Lang;
+
   return (
     <div className='container mx-auto px-4 py-8 max-w-4xl'>
-      <h1 className='text-3xl font-bold mb-6'>Privacy Policy</h1>
+      <h1 className='text-3xl font-bold mb-6'>{t(typedLang, "privacy_policy.title")}</h1>
 
       <p className='text-sm text-muted-foreground mb-6'>
-        Last updated:{' '}
-        {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        {t(typedLang, "privacy_policy.last_updated")}{' '}
+        {new Date().toLocaleDateString(typedLang === 'et' ? 'et-EE' : 'en-US', { 
+          month: 'long', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })}
       </p>
 
       <div className='space-y-6'>
         <section>
-          <h2 className='text-xl font-semibold mb-2'>1. Introduction</h2>
-          <p>
-            This Privacy Policy describes how Dietless OÜ ("we", "us", or "our") collects, uses, and
-            protects your personal information when you use the DietlessAI application. By accessing
-            or using our service, you agree to this policy.
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.introduction.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.introduction.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>2. What Information We Collect</h2>
-          <p>
-            We collect only the essential personal data needed to operate the service:
-            <br />- <strong>Email address</strong> (provided during sign-up or newsletter
-            subscription)
-            <br />
-            Information such as weight, macros, or gender may be shared voluntarily during AI chat
-            interactions, but we do not store these inputs in a structured or permanent form.
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.what_we_collect.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.what_we_collect.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>3. How We Use Your Information</h2>
-          <p>
-            We use your email to:
-            <br />
-            - Let you log into the app
-            <br />
-            - Send important updates, like subscription info
-            <br />- Send you newsletters or product news if you’ve subscribed
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.how_we_use.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.how_we_use.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>4. Cookies & Tracking</h2>
-          <p>
-            We use cookies to keep you logged in and to help improve the experience. Marketing tools
-            like Klaviyo may also place cookies to better understand user behavior. You can manage
-            or block cookies in your browser settings.
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.cookies.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.cookies.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>5. Third-Party Services</h2>
-          <p>
-            We rely on the following services to run DietlessAI:
-            <br />- <strong>Stripe</strong> for payment processing
-            <br />- <strong>OpenAI API</strong> to power our chat responses
-            <br />- <strong>Klaviyo</strong> for email marketing and (optionally) analytics
-            <br />- <strong>Resend</strong> for transactional email delivery
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.third_party.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.third_party.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>6. Data Security</h2>
-          <p>
-            We take reasonable steps to protect your data using secure authentication, encrypted
-            communications, and access controls. However, no system is 100% secure — use of the
-            service is at your own risk.
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.data_security.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.data_security.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>7. Your Rights</h2>
-          <p>
-            You may request deletion of your data by contacting us at
-            <a href='mailto:dietlessai@dietless.ai'> dietlessai@dietless.ai</a>. If you are
-            subscribed to marketing emails, you can unsubscribe at any time using the link in the
-            email.
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.your_rights.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.your_rights.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>8. AI-Generated Content</h2>
-          <p>
-            All responses within the app are generated by an AI model and should not be considered
-            professional advice. Do not rely on DietlessAI for decisions relating to medical
-            treatment, nutrition for medical conditions, or any life-threatening scenarios.
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.ai_content.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.ai_content.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>9. Changes to This Policy</h2>
-          <p>
-            We may update this Privacy Policy from time to time. We will notify users via the app or
-            email if material changes are made.
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.changes.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.changes.content")}</p>
         </section>
 
         <section>
-          <h2 className='text-xl font-semibold mb-2'>10. Contact</h2>
-          <p>
-            For questions about this policy or your data, contact:
-            <br />
-            📧 <a href='mailto:dietlessai@dietless.ai'>dietlessai@dietless.ai</a>
-          </p>
+          <h2 className='text-xl font-semibold mb-2'>{t(typedLang, "privacy_policy.contact.title")}</h2>
+          <p>{t(typedLang, "privacy_policy.contact.content")} 📧 <a href='mailto:dietlessai@dietless.ai'>dietlessai@dietless.ai</a> </p>
         </section>
       </div>
     </div>

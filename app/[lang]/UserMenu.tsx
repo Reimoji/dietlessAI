@@ -23,7 +23,9 @@ import {
   Users,
 } from "lucide-react";
 import LangToggle from "@/components/layout/LangToggle";
+import { Lang, t } from "@/lib/i18n";
 
+const SUPPORTED_LANGS = ["en", "et"] as const;
 
 export default function UserMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,11 +37,12 @@ export default function UserMenu() {
 
   // detect current lang
   const currentLang = pathname?.startsWith("/et") ? "et" : "en";
+  const typedLang = (SUPPORTED_LANGS.includes(currentLang as Lang) ? currentLang : "en") as Lang;
 
   const navItems = [
-    { href: href("/dashboard/chat"), icon: MessageSquare, label: "Chat with DietlessAI" },
-    { href: href("/dashboard"), icon: Users, label: "User Settings" },
-    { href: href("/dashboard/general"), icon: Settings, label: "General" },
+    { href: href("/dashboard/chat"), icon: MessageSquare, label: t(typedLang, "usermenu.chat") },
+    { href: href("/dashboard"), icon: Users, label: t(typedLang, "usermenu.user_settings") },
+    { href: href("/dashboard/general"), icon: Settings, label: t(typedLang, "usermenu.general") },
   ];
 
   async function handleSignOut() {
@@ -68,7 +71,7 @@ export default function UserMenu() {
             href={href("/blog")}
             className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            Blog
+            {t(typedLang, "usermenu.blog")}
           </Link>
         )}
 
@@ -78,25 +81,25 @@ export default function UserMenu() {
             onClick={scrollToPricing}
             className="text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
           >
-            Pricing
+            {t(typedLang, "usermenu.pricing")}
           </a>
         ) : (
           <Link
             href={href("/pricing")}
             className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            Pricing
+            {t(typedLang, "usermenu.pricing")}
           </Link>
         )}
 
         {/* Always show language toggle */}
-        <LangToggle current={currentLang as "en" | "et"} />
+        <LangToggle current={typedLang} />
 
         <Button
           asChild
           className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-4 py-2 rounded-full"
         >
-          <Link href={href("/sign-up")}>Sign Up</Link>
+          <Link href={href("/sign-up")}>{t(typedLang, "usermenu.signup")}</Link>
         </Button>
       </>
     );
@@ -105,7 +108,7 @@ export default function UserMenu() {
   return (
     <div className="flex items-center gap-2">
       {/* Always show language toggle */}
-      <LangToggle current={currentLang as "en" | "et"} />
+      <LangToggle current={typedLang} />
 
       <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DropdownMenuTrigger asChild>
@@ -140,7 +143,7 @@ export default function UserMenu() {
             <button type="submit" className="flex w-full">
               <DropdownMenuItem className="w-full flex-1 cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Sign out</span>
+                <span>{t(typedLang, "usermenu.signout")}</span>
               </DropdownMenuItem>
             </button>
           </form>

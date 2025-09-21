@@ -29,6 +29,7 @@ import {
 import { Terminal } from '@/components/ui/terminal';
 import Footer from '@/components/layout/Footer';
 import Image from "next/image";
+import { Lang, t } from "@/lib/i18n";
 
 // Prices are fresh for one hour max
 export const revalidate = 3600;
@@ -36,7 +37,9 @@ export const revalidate = 3600;
 export default async function HomePage({ params }: { params: Promise<{ lang: string }> }) {
   // Extract lang from async params
   const { lang } = await params;
+  const typedLang = lang as Lang; // Add this line
   const [prices, products] = await Promise.all([getStripePrices(), getStripeProducts()]);
+  
   return (
     <main>
       <div className='overflow-x-hidden w-full'>
@@ -83,24 +86,23 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             <div className='lg:grid lg:grid-cols-12 lg:gap-8'>
               <div className='sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left'>
                 <h1 className='text-4xl font-bold text-foreground tracking-tight sm:text-5xl md:text-6xl'>
-                  Unlock Effortless Nutrition and Achieve a Healthier You with
+                    {t(typedLang, "home.hero.title")}
                   <span className='block text-primary'>dietlessAI</span>
                 </h1>
                 <p className='mt-3 text-base text-muted-foreground sm:mt-5 sm:text-xl lg:text-lg xl:text-xl'>
-                  Personalized Meal Plans That Evolve with Your Lifestyle—No Guesswork, No Strict
-                  Rules, Just Sustainable Results
+                  {t(typedLang, "home.hero.subtitle")}
                 </p>
                 <div className='mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0'>
                   <a href='#pricing'>
                     <Button className='bg-background hover:bg-primary text-foreground hover:text-secondary cursor-pointer border border-border rounded-full text-lg px-8 py-4 inline-flex items-center justify-center'>
-                      Get Started
+                      {t(typedLang, "home.hero.cta")}
                       <ArrowRight className='ml-2 h-5 w-5' />
                     </Button>
                   </a>
                 </div>
               </div>
               <div className='mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center'>
-                <Terminal />
+                <Terminal lang={typedLang} />
               </div>
             </div>
           </div>
@@ -109,7 +111,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         <section className='py-16 bg-background w-full'>
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
             <h2 className='text-3xl font-bold text-center mb-20 text-foreground'>
-              Why Dietless AI Will Transform the Way You Eat—and Help You Lose Weight Naturally
+              {t(typedLang, "home.features.title")}
             </h2>
             <div className='lg:grid lg:grid-cols-3 lg:gap-8'>
               <div className='z-20'>
@@ -118,12 +120,10 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                 </div>
                 <div className='mt-5'>
                   <h2 className='text-lg font-medium text-foreground'>
-                    Personalized Plans, Tailored to You
+                    {t(typedLang, "home.features.personalized.title")}
                   </h2>
                   <p className='mt-2 text-base text-muted-foreground'>
-                    Developed with guidance from Erik, DietlessAI uses advanced technology to tailor
-                    your nutrition plan based on your goals, preferences, and lifestyle—no
-                    one-size-fits-all diets.
+                    {t(typedLang, "home.features.personalized.description")}
                   </p>
                 </div>
               </div>
@@ -133,10 +133,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                   <MessageSquare className='h-6 w-6' />
                 </div>
                 <div className='mt-5'>
-                  <h2 className='text-lg font-medium text-foreground'>Real-Time Adjustments</h2>
+                  <h2 className='text-lg font-medium text-foreground'>
+                    {t(typedLang, "home.features.realtime.title")}
+                  </h2>
                   <p className='mt-2 text-base text-muted-foreground'>
-                    Craving something different or going out with friends? Your plan adapts on the
-                    spot, so you can still enjoy life while shedding pounds.
+                    {t(typedLang, "home.features.realtime.description")}
                   </p>
                 </div>
               </div>
@@ -147,11 +148,10 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                 </div>
                 <div className='mt-5'>
                   <h2 className='text-lg font-medium text-foreground'>
-                    Built-In Motivation and Support
+                    {t(typedLang, "home.features.support.title")}
                   </h2>
                   <p className='mt-2 text-base text-muted-foreground'>
-                    Get daily tips, hacks and progress nudges that keep you focused on your targets.
-                    Dietless AI acts like your personal coach, ready to encourage you at every step.
+                    {t(typedLang, "home.features.support.description")}
                   </p>
                 </div>
               </div>
@@ -195,18 +195,15 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           />
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
             <h2 className='text-3xl font-bold text-center mb-20 text-foreground'>
-              Science You Can Trust
+              {t(typedLang, "home.science.title")}
             </h2>
             <p className='text-base text-muted-foreground text-center max-w-3xl mx-auto mb-12'>
-              Dietless AI is built on a foundation of the most respected and credible nutrition
-              science. It combines insights from evidence-based dietary principles, ensuring every
-              recommendation aligns with proven strategies for weight loss and healthy living. No
-              fads, no guesswork—just reliable guidance for achieving your goals.
+              {t(typedLang, "home.science.description")}
             </p>
             <div className='flex justify-center mb-12'>
               <a href='#pricing'>
                 <Button className='bg-background hover:bg-primary text-foreground hover:text-secondary cursor-pointer border border-border rounded-full text-lg px-8 py-4 inline-flex items-center justify-center'>
-                  Get Started
+                  {t(typedLang, "home.science.cta")}
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Button>
               </a>
@@ -244,10 +241,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                       <Citrus className='h-7 w-7 text-primary' />
                     </div>
                     <div>
-                      <h3 className='font-medium text-foreground'>Time-Saving Shopping Lists</h3>
+                      <h3 className='font-medium text-foreground'>{t(typedLang, "home.benefits.shopping.title")}</h3>
                       <p className='text-muted-foreground'>
-                        Shop quickly and avoid impulse buys, helping you keep those extra calories
-                        at bay
+                        {t(typedLang, "home.benefits.shopping.description")}
                       </p>
                     </div>
                   </li>
@@ -257,10 +253,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                       <Apple className='h-7 w-7 text-primary' />
                     </div>
                     <div>
-                      <h3 className='font-medium text-foreground'>Expert-Approved Recipes</h3>
+                      <h3 className='font-medium text-foreground'>{t(typedLang, "home.benefits.recipes.title")}</h3>
                       <p className='text-muted-foreground'>
-                        Chef-curated meals that taste amazing while keeping you on track for healthy
-                        weight loss
+                        {t(typedLang, "home.benefits.recipes.description")}
                       </p>
                     </div>
                   </li>
@@ -270,10 +265,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                       <Cherry className='h-7 w-7 text-primary' />
                     </div>
                     <div>
-                      <h3 className='font-medium text-foreground'>Family-Friendly Planning</h3>
+                      <h3 className='font-medium text-foreground'>{t(typedLang, "home.benefits.family.title")}</h3>
                       <p className='text-muted-foreground'>
-                        Use Dietless AI on your own or involve the whole family—everyone gets meal
-                        plans tailored to their unique goals
+                        {t(typedLang, "home.benefits.family.description")}
                       </p>
                     </div>
                   </li>
@@ -283,10 +277,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                       <Banana className='h-7 w-7 text-primary' />
                     </div>
                     <div>
-                      <h3 className='font-medium text-foreground'>Flexible Meal Swaps</h3>
+                      <h3 className='font-medium text-foreground'>{t(typedLang, "home.benefits.flexible.title")}</h3>
                       <p className='text-muted-foreground'>
-                        Switch out ingredients to suit your cravings, allergies, or time
-                        constraints—no more feeling trapped in a rigid diet
+                        {t(typedLang, "home.benefits.flexible.description")}
                       </p>
                     </div>
                   </li>
@@ -296,10 +289,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                       <Grape className='h-7 w-7 text-primary' />
                     </div>
                     <div>
-                      <h3 className='font-medium text-foreground'>Goal-Focused Insights</h3>
+                      <h3 className='font-medium text-foreground'>{t(typedLang, "home.benefits.insights.title")}</h3>
                       <p className='text-muted-foreground'>
-                        Whether you aim to lose a few pounds or maintain your ideal weight, Dietless
-                        AI adapts to keep you moving forward
+                        {t(typedLang, "home.benefits.insights.description")}
                       </p>
                     </div>
                   </li>
@@ -309,20 +301,12 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
             {/* Heading and paragraph underneath */}
             <div className='mt-20 w-full'>
-              <h3 className='text-2xl font-bold text-foreground mb-6'>Storytime...</h3>
+              <h3 className='text-2xl font-bold text-foreground mb-6'>{t(typedLang, "home.story.heading")}</h3>
               <p className='text-muted-foreground text-base mb-6'>
-                You're juggling long work hours, family responsibilities, and maybe a workout or
-                two—only to realize your eating habits are all over the place. You want to feel
-                healthier, perhaps lose a bit of weight, but conflicting advice and busy schedules
-                keep you stuck. Following rigid meal plans feels overwhelming, and those fad diets
-                never seem to fit into your real life.
+                {t(typedLang, "home.story.paragraph1")}
               </p>
               <p className='text-muted-foreground text-base'>
-                Enter <strong>Dietless AI</strong> - an app inspired by years of experience from a
-                leading nutritionist, Erik and his work of helping people overcome the same
-                struggles you face today. Dietless AI is designed to simplify nutrition, learn your
-                tastes, and adapt to your daily routine, giving you the expert guidance you need to
-                build a healthier, more balanced lifestyle.
+                {t(typedLang, "home.story.paragraph2")}
               </p>
             </div>
           </div>
@@ -332,7 +316,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         <section className='py-24 bg-background relative z-10 overflow-visible'>
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
             <h2 className='text-3xl font-bold text-center mb-16 text-foreground'>
-              What Our Users Say
+              {t(typedLang, "home.testimonials.title")}
             </h2>
 
             {/* Testimonials grid */}
@@ -351,12 +335,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               >
                 <div className='bg-card p-6 rounded-xl shadow-md relative z-20 h-full'>
                   <div className='mb-4'>
-                    <h4 className='font-semibold text-foreground'>Mark D.</h4>
-                    <p className='text-sm text-muted-foreground'>Entrepreneur</p>
+                    <h4 className='font-semibold text-foreground'>{t(typedLang, "home.testimonials.mark.name")}</h4>
+                    <p className='text-sm text-muted-foreground'>{t(typedLang, "home.testimonials.mark.role")}</p>
                   </div>
                   <p className='text-muted-foreground'>
-                    "The grocery list feature alone saves me so much time. Plus, I'm finally seeing
-                    real results on the scale. Dietless AI is a game-changer!"
+                    {t(typedLang, "home.testimonials.mark.quote")}
                   </p>
                 </div>
               </GlowingEffect>
@@ -375,12 +358,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               >
                 <div className='bg-card p-6 rounded-xl shadow-md relative z-20 h-full'>
                   <div className='mb-4'>
-                    <h4 className='font-semibold text-foreground'>Jamie L.</h4>
-                    <p className='text-sm text-muted-foreground'>Full-Time Student</p>
+                    <h4 className='font-semibold text-foreground'>{t(typedLang, "home.testimonials.jamie.name")}</h4>
+                    <p className='text-sm text-muted-foreground'>{t(typedLang, "home.testimonials.jamie.role")}</p>
                   </div>
                   <p className='text-muted-foreground'>
-                    "It's so nice having a plan that adapts when I go out to eat or have a change in
-                    schedule. Dietless AI takes away the guilt and keeps me moving forward."
+                    {t(typedLang, "home.testimonials.jamie.quote")}
                   </p>
                 </div>
               </GlowingEffect>
@@ -399,12 +381,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
               >
                 <div className='bg-card p-6 rounded-xl shadow-md relative z-20 h-full'>
                   <div className='mb-4'>
-                    <h4 className='font-semibold text-foreground'>Taylor K.</h4>
-                    <p className='text-sm text-muted-foreground'>Busy Parent</p>
+                    <h4 className='font-semibold text-foreground'>{t(typedLang, "home.testimonials.taylor.name")}</h4>
+                    <p className='text-sm text-muted-foreground'>{t(typedLang, "home.testimonials.taylor.role")}</p>
                   </div>
                   <p className='text-muted-foreground'>
-                    "No more guesswork! The app's smart suggestions have helped me maintain a
-                    balanced diet without feeling like I'm missing out on anything."
+                    {t(typedLang, "home.testimonials.taylor.quote")}
                   </p>
                 </div>
               </GlowingEffect>
@@ -471,7 +452,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           />
           <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
             <h2 className='text-3xl font-bold text-center mb-16 text-foreground'>
-              Frequently Asked Questions
+              {t(typedLang, "home.faq.title")}
             </h2>
 
             <Accordion type='single' collapsible className='space-y-4'>
@@ -484,13 +465,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     <div className='flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary'>
                       <HelpCircle className='h-4 w-4' />
                     </div>
-                    <span className='font-medium'>How does DietlessAI work?</span>
+                    <span className='font-medium'>{t(typedLang, "home.faq.questions.how_it_works.question")}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className='px-6 text-muted-foreground'>
-                  DietlessAI uses advanced artificial intelligence to analyze your preferences,
-                  dietary requirements, and goals. It then creates personalized nutrition plans and
-                  provides real-time advice to help you achieve optimal health and wellness.
+                  {t(typedLang, "home.faq.questions.how_it_works.answer")}
                 </AccordionContent>
               </AccordionItem>
 
@@ -503,15 +482,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     <div className='flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary'>
                       <Clock className='h-4 w-4' />
                     </div>
-                    <span className='font-medium'>
-                      What makes Dietless AI different from other nutrition apps?
-                    </span>
+                    <span className='font-medium'>{t(typedLang, "home.faq.questions.what_different.question")}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className='px-6 text-muted-foreground'>
-                  Dietless AI adapts to your day-to-day routine, offering real-life solutions
-                  instead of rigid rules. Whether you’re on the go or making a home-cooked meal, the
-                  app adjusts to your lifestyle.
+                  {t(typedLang, "home.faq.questions.what_different.answer")}
                 </AccordionContent>
               </AccordionItem>
 
@@ -524,14 +499,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     <div className='flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary'>
                       <AlertCircle className='h-4 w-4' />
                     </div>
-                    <span className='font-medium'>
-                      Is Dietless AI suitable for specific dietary needs?
-                    </span>
+                    <span className='font-medium'>{t(typedLang, "home.faq.questions.dietary_needs.question")}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className='px-6 text-muted-foreground'>
-                  Absolutely. Whether you’re gluten-free, vegan, or focusing on moderate weight
-                  management, Dietless AI personalizes plans to fit your unique requirements.
+                  {t(typedLang, "home.faq.questions.dietary_needs.answer")}
                 </AccordionContent>
               </AccordionItem>
 
@@ -544,12 +516,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     <div className='flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary'>
                       <CreditCard className='h-4 w-4' />
                     </div>
-                    <span className='font-medium'>How often does the app update my meal plan?</span>
+                    <span className='font-medium'>{t(typedLang, "home.faq.questions.update_frequency.question")}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className='px-6 text-muted-foreground'>
-                  Dietless AI monitors your progress and can update recommendations daily. It
-                  ensures your plan remains relevant, flexible, and aligned with your goals.
+                  {t(typedLang, "home.faq.questions.update_frequency.answer")}
                 </AccordionContent>
               </AccordionItem>
 
@@ -562,13 +533,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     <div className='flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary'>
                       <CreditCard className='h-4 w-4' />
                     </div>
-                    <span className='font-medium'>Can I cancel my subscription at any time?</span>
+                    <span className='font-medium'>{t(typedLang, "home.faq.questions.cancel_subscription.question")}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className='px-6 text-muted-foreground'>
-                  You can cancel your subscription at any time with no long-term commitments. If you
-                  cancel, you will continue to have access to DietlessAI until the end of your
-                  current billing period
+                  {t(typedLang, "home.faq.questions.cancel_subscription.answer")}
                 </AccordionContent>
               </AccordionItem>
 
@@ -581,14 +550,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     <div className='flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary'>
                       <Mail className='h-4 w-4' />
                     </div>
-                    <span className='font-medium'>How accurate is the AI nutrition advice?</span>
+                    <span className='font-medium'>{t(typedLang, "home.faq.questions.ai_accuracy.question")}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className='px-6 text-muted-foreground'>
-                  Our AI is trained on extensive, up-to-date nutrition data and provides
-                  evidence-based recommendations. While highly accurate for general nutrition
-                  advice, we always recommend consulting with healthcare professionals for specific
-                  medical conditions or concerns.
+                  {t(typedLang, "home.faq.questions.ai_accuracy.answer")}
                 </AccordionContent>
               </AccordionItem>
 
@@ -601,16 +567,11 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
                     <div className='flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary'>
                       <Settings className='h-4 w-4' />
                     </div>
-                    <span className='font-medium'>What makes Dietless AI reliable?</span>
+                    <span className='font-medium'>{t(typedLang, "home.faq.questions.reliability.question")}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className='px-6 text-muted-foreground'>
-                  Dietless AI is built on a foundation of rigorously researched, science-based
-                  nutrition principles. Its recommendations are informed by the most trusted
-                  insights in the field of nutrition, ensuring that your personalized plan is both
-                  effective and sustainable. Whether your goal is weight loss, maintaining your
-                  current weight, or simply eating healthier, you can feel confident that Dietless
-                  AI is designed to deliver evidence-backed results.
+                  {t(typedLang, "home.faq.questions.reliability.answer")}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -625,25 +586,25 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
             <div className='absolute bottom-0 right-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-70 -z-10'></div>
 
             <h2 className='text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight'>
-              Take the First Step Toward
+              {t(typedLang, "home.cta.title_part1")}
               <br />
               <span className='relative inline-block'>
-                <span className='relative z-10'>Effortless Nutrition</span>
+                <span className='relative z-10'>{t(typedLang, "home.cta.title_highlight")}</span>
                 <span className='absolute bottom-2 left-0 w-full h-3 bg-primary/20 -z-10 rounded-full'></span>
               </span>
             </h2>
 
             <p className='text-xl text-muted-foreground mb-8 max-w-2xl mx-auto'>
-              Start Your{' '}
+              {t(typedLang, "home.cta.subtitle_part1")}{' '}
               <span className='bg-primary text-primary-foreground opacity-75 px-1 py-0.5 rounded-sm font-medium'>
-                Free 2-Day Trial
+                {t(typedLang, "home.cta.trial_highlight")}
               </span>{' '}
-              and Discover the Simplicity of Dietless AI Today
+              {t(typedLang, "home.cta.subtitle_part2")}
             </p>
 
             <a href='#' className='inline-block'>
               <Button className='bg-background hover:bg-primary text-foreground hover:text-secondary cursor-pointer border border-border rounded-full text-lg px-8 py-4 inline-flex items-center justify-center group'>
-                GET STARTED!
+                {t(typedLang, "home.cta.button")}
                 <ArrowRight className='ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300' />
               </Button>
             </a>

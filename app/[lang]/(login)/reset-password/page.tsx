@@ -1,24 +1,42 @@
-import { Suspense } from 'react';
-import { ResetPasswordForm } from './reset-password-form';
+import { Suspense } from "react";
+import { ResetPasswordForm } from "./reset-password-form";
+import { Lang, t } from "@/lib/i18n";
+
+const SUPPORTED_LANGS = ["en", "et"] as const;
 
 export default async function ResetPasswordPage({
+  params,
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string }>; // ✅ Now a Promise type
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { token } = await searchParams; // ✅ Directly destructure after await
-  
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+
+  const token = Array.isArray(resolvedSearchParams.token)
+    ? resolvedSearchParams.token[0]
+    : resolvedSearchParams.token;
+
+  const typedLang = (SUPPORTED_LANGS.includes(resolvedParams.lang as Lang)
+    ? resolvedParams.lang
+    : "en") as Lang;
+
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen py-12 bg-gray-50 px-4 sm:px-6 lg:px-8'>
-      <div className='w-full max-w-md'>
-        <div className='text-center'>
-          <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>Create new password</h2>
-          <p className='mt-2 text-sm text-gray-600'>Enter your new password below</p>
+    <div className="flex flex-col items-center justify-center min-h-screen py-12 bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            {t(typedLang, "resetpassword.title")}
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            {t(typedLang, "resetpassword.subtitle")}
+          </p>
         </div>
 
-        <div className='mt-8'>
+        <div className="mt-8">
           <Suspense fallback={<div>Loading...</div>}>
-            <ResetPasswordForm token={token || ''} />
+            <ResetPasswordForm token={token || ""} />
           </Suspense>
         </div>
       </div>

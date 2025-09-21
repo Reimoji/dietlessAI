@@ -8,9 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { formatMessage } from '@/lib/format-message';
 import { useChatStore } from '@/lib/stores/chat';
 import { Loader2, SendHorizontal } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { Lang, t } from '@/lib/i18n';
 
 interface Message {
   id?: string;
@@ -19,23 +20,31 @@ interface Message {
   createdAt: Date;
 }
 
-function SubscriptionRequired() {
+function SubscriptionRequired({ lang }: { lang: Lang }) {
   const router = useRouter();
 
   return (
     <div className='h-full p-4'>
       <Card className='h-full flex flex-col items-center justify-center p-6'>
-        <h2 className='text-2xl font-bold mb-4'>Subscription Required</h2>
+        <h2 className='text-2xl font-bold mb-4'>{t(lang, 'chat.subscription_required')}</h2>
         <p className='text-muted-foreground mb-6'>
-          Chat feature is only available for subscribed users.
+          {t(lang, 'chat.subscription_message')}
         </p>
-        <Button onClick={() => router.push('/pricing')}>View Pricing Plans</Button>
+        <Button onClick={() => router.push(`/${lang}/pricing`)}>
+          {t(lang, 'chat.view_pricing')}
+        </Button>
       </Card>
     </div>
   );
 }
 
 function ChatPage() {
+  // Detect language from pathname
+  const pathname = usePathname();
+  const SUPPORTED_LANGS = ['en', 'et'] as const;
+  const langFromPath = pathname?.split('/')[1] as Lang | undefined;
+  const lang = (SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath : 'en') as Lang;
+
   // ALL HOOKS MUST BE AT THE TOP - BEFORE ANY CONDITIONAL LOGIC
   const [hasSubscription, setHasSubscription] = useState<boolean | null>(null);
   const [input, setInput] = useState('');
@@ -62,7 +71,6 @@ function ChatPage() {
           return;
         }
         const data = await response.json();
-        // Accept both 'trialing' and 'active' statuses
         setHasSubscription(['active', 'trialing'].includes(data.status));
       } catch (error) {
         console.error('Subscription check error:', error);
@@ -80,13 +88,11 @@ function ChatPage() {
     }
   };
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     const timeoutId = setTimeout(scrollToBottom, 100);
     return () => clearTimeout(timeoutId);
   }, [messages]);
 
-  // Scroll to bottom on initial load
   useEffect(() => {
     if (!isInitialLoading) {
       const timeoutId = setTimeout(scrollToBottom, 100);
@@ -94,7 +100,7 @@ function ChatPage() {
     }
   }, [isInitialLoading]);
 
-  // Load messages on mount
+  // Load messages
   useEffect(() => {
     const init = async () => {
       try {
@@ -109,31 +115,27 @@ function ChatPage() {
     init();
   }, [loadMessages]);
 
-  // Handle typing indicator
+  // Typing indicator
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     if (isLoading) {
       setIsTyping(true);
       timeout = setTimeout(() => setIsTyping(false), 1000);
     }
-
     return () => {
       if (timeout) clearTimeout(timeout);
     };
   }, [isLoading]);
 
-  // NOW WE CAN DO CONDITIONAL RENDERING AFTER ALL HOOKS
   if (hasSubscription === false) {
-    return <SubscriptionRequired />;
+    return <SubscriptionRequired lang={lang} />;
   }
 
-  // Extract the core submission logic
   const submitMessage = async () => {
     if (!input.trim() || isLoading) return;
 
     setLoading(true);
 
-    // Add user message to UI immediately
     const userMessage = {
       content: input,
       role: 'user' as const,
@@ -142,23 +144,16 @@ function ChatPage() {
     addMessage(userMessage);
     setInput('');
 
-    // Prepare messages for API
     const validMessages = [...messages, userMessage].filter((msg) => msg.content && msg.role);
 
     try {
-      // Estimate tokens before sending
       const estimatedTokens = input.length / 4;
-      console.log(`Estimated tokens: ${estimatedTokens}`);
-
-      // Client-side validation first
       if (estimatedTokens > 600) {
-        // MAX_INPUT_TOKENS
-        toast.error('Your message is too long. Please shorten it a bit.');
+        toast.error(t(lang, 'chat.error_too_long'));
         setLoading(false);
         return;
       }
 
-      // First, save the user message to ensure a chat exists
       const saveResponse = await fetch('/api/chat/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -167,11 +162,9 @@ function ChatPage() {
 
       if (!saveResponse.ok) {
         const errorData = await saveResponse.json();
-        console.error('Failed to save user message:', errorData);
         throw new Error(errorData.error || 'Failed to save message');
       }
 
-      // Then proceed with the chat request
       const chatResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -180,105 +173,69 @@ function ChatPage() {
 
       const data = await chatResponse.json();
 
-      // Improved error handling
       if (!chatResponse.ok) {
-        console.log('Error response:', { status: chatResponse.status, data });
-
         if (data.errorType === 'message_too_long') {
-          toast.error('Your message is too long. Please shorten it a bit.');
+          toast.error(t(lang, 'chat.error_too_long'));
           setLoading(false);
           return;
         } else if (data.errorType === 'monthly_limit_exceeded') {
-          toast.error(
-            "You've reached your monthly token limit. Try implementing some of the nutrition and fitness advice we've discussed!",
-          );
+          toast.error(t(lang, 'chat.error_limit_exceeded'));
           setLoading(false);
           return;
         }
-
         throw new Error(data.error || 'Failed to get AI response');
       }
 
-      // Show warning if approaching token limit - make it persistent
       if (data.warning && data.warningLevel) {
-        // Different toast styles based on warning level
         switch (data.warningLevel) {
           case 'critical':
-            toast.error(data.warning, {
-              duration: Infinity,
-              dismissible: true,
-            });
+            toast.error(data.warning, { duration: Infinity, dismissible: true });
             break;
           case 'high':
-            toast.warning(data.warning, {
-              duration: Infinity,
-              dismissible: true,
-            });
-            break;
           case 'medium':
-            toast.warning(data.warning, {
-              duration: Infinity,
-              dismissible: true,
-            });
+            toast.warning(data.warning, { duration: Infinity, dismissible: true });
             break;
           case 'low':
-            toast.info(data.warning, {
-              duration: Infinity,
-              dismissible: true,
-            });
+            toast.info(data.warning, { duration: Infinity, dismissible: true });
             break;
-          // Don't show any toast for 'none' or undefined warning levels
         }
       }
 
       if (data.error) throw new Error(data.error);
 
-      // Check if the message content is empty
       if (!data.message?.content || !data.message.content.trim()) {
-        toast.error('Received an empty response from the AI. Please try again.');
+        toast.error(t(lang, 'chat.error_empty_response'));
         throw new Error('Empty response from AI');
       }
 
       const assistantMessage: Message = {
-        id: Date.now().toString(), // Generate a temporary client-side ID
+        id: Date.now().toString(),
         content: data.message.content,
         role: 'assistant',
         createdAt: new Date(),
       };
 
-      // Set this message as the one being revealed in chunks
-      // Only set the typing message ID if it's a valid string
-      if (assistantMessage.id) {
-        console.log('Setting typing message ID:', assistantMessage.id);
-        setTypingMessageId(assistantMessage.id);
-      } else {
-        console.log('No valid ID for assistant message');
-      }
+      if (assistantMessage.id) setTypingMessageId(assistantMessage.id);
 
-      // Add the message to the UI
       addMessage(assistantMessage);
 
-      // Save assistant message
       await fetch('/api/chat/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: assistantMessage }),
       });
     } catch (error: unknown) {
-      console.error('Chat error:', error);
-
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-      // Check if the error is about input being too long
-      if (errorMessage.includes('too long') || errorMessage.includes('under approximately')) {
-        toast.error('Your message is too long. Please shorten it a bit.');
+      if (errorMessage.includes('too long')) {
+        toast.error(t(lang, 'chat.error_too_long'));
       } else {
-        toast.error('Sorry, there was an error processing your request.');
+        toast.error(t(lang, 'chat.error_generic'));
         addMessage({
-          content: 'Sorry, there was an error processing your request. Please try again.',
+          content: t(lang, 'chat.error_generic'),
           role: 'assistant',
           createdAt: new Date(),
-          id: `error-${Date.now()}`, // Use a string ID instead of false
+          id: `error-${Date.now()}`,
         });
       }
     } finally {
@@ -286,13 +243,11 @@ function ChatPage() {
     }
   };
 
-  // Form submit handler
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     submitMessage();
   };
 
-  // Keyboard event handler
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -325,18 +280,16 @@ function ChatPage() {
             <div className='flex items-center justify-center h-full'>
               <div className='text-center text-muted-foreground max-w-md'>
                 <h3 className='text-lg font-semibold mb-2'>
-                  Hey! I&apos;m your nutrition coach - dietlessAI
+                  {t(lang, 'chat.empty_title')}
                 </h3>
-                <p>Ask me anything — from daily meal tips to long-term goals.</p>
+                <p>{t(lang, 'chat.empty_subtitle')}</p>
               </div>
             </div>
           )}
           {messages.map((message, index) => {
-            // Determine if this is the most recent assistant message
             const isLatestAssistantMessage =
               message.role === 'assistant' && message.id === typingMessageId;
 
-            // Pre-format the message content if it's not the latest assistant message
             const messageContent =
               message.role === 'user' || isLatestAssistantMessage
                 ? message.content
@@ -368,10 +321,7 @@ function ChatPage() {
                         content={message.content}
                         chunkDelay={500}
                         className='prose prose-sm max-w-none dark:prose-invert'
-                        onComplete={() => {
-                          console.log('Chunk reveal complete');
-                          setTypingMessageId(null);
-                        }}
+                        onComplete={() => setTypingMessageId(null)}
                         preFormatted={false}
                       />
                     ) : (
@@ -381,7 +331,6 @@ function ChatPage() {
                       />
                     )}
                   </div>
-                  {/* Time stamp */}
                 </div>
               </div>
             );
@@ -395,7 +344,6 @@ function ChatPage() {
               </div>
             </div>
           )}
-          {/* Add this div as the last element in the messages container */}
           <div ref={messagesEndRef} />
         </div>
 
@@ -405,7 +353,7 @@ function ChatPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder='Ask anything...'
+              placeholder={t(lang, 'chat.placeholder')}
               className='min-h-[40px] max-h-[96px] resize-none overflow-auto leading-[24px] py-2'
               disabled={isLoading}
             />

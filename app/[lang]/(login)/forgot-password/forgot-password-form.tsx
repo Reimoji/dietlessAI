@@ -8,19 +8,18 @@ import Link from 'next/link';
 import { useActionState, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { forgotPassword } from '../actions';
+import { Lang, t } from '@/lib/i18n';
 
 const SUPPORTED_LANGS = ['en', 'et'] as const;
-type Lang = (typeof SUPPORTED_LANGS)[number];
 
 export function ForgotPasswordForm() {
-  // Provide a proper initial state that matches all possible return types
   const initialState = { success: '', error: '' };
   const [state, formAction] = useActionState(forgotPassword, initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const pathname = usePathname();
   const langFromPath = pathname?.split('/')[1] as Lang | undefined;
-  const lang = SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath! : 'en';
+  const typedLang = (SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath : 'en') as Lang;
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
@@ -31,7 +30,7 @@ export function ForgotPasswordForm() {
   return (
     <form action={handleSubmit} className="space-y-6">
       <div>
-        <Label htmlFor="email">Email address</Label>
+        <Label htmlFor="email">{t(typedLang, 'forgotform.email_label')}</Label>
         <div className="mt-1">
           <Input
             id="email"
@@ -40,6 +39,7 @@ export function ForgotPasswordForm() {
             autoComplete="email"
             required
             className="block w-full"
+            placeholder={t(typedLang, 'forgotform.email_placeholder')}
           />
         </div>
       </div>
@@ -58,14 +58,16 @@ export function ForgotPasswordForm() {
 
       <div className="flex items-center justify-between">
         <Link
-          href={`/${lang}/sign-in`}
+          href={`/${typedLang}/sign-in`}
           className="text-sm font-medium text-primary hover:text-primary/90"
         >
-          Back to sign in
+          {t(typedLang, 'forgotform.back_to_signin')}
         </Link>
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Sending...' : 'Send reset link'}
+          {isSubmitting
+            ? t(typedLang, 'forgotform.sending')
+            : t(typedLang, 'forgotform.send_link')}
         </Button>
       </div>
     </form>

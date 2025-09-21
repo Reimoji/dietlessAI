@@ -4,21 +4,21 @@ import { Button } from '@/components/ui/button';
 import { MessageSquare, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Lang, t } from '@/lib/i18n';
 
 const SUPPORTED_LANGS = ['en', 'et'] as const;
-type Lang = (typeof SUPPORTED_LANGS)[number];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Determine the current language from the URL
   const langFromPath = pathname?.split('/')[1] as Lang | undefined;
-  const lang = SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath! : 'en';
+  const typedLang = (SUPPORTED_LANGS.includes(langFromPath as Lang) ? langFromPath : 'en') as Lang;
 
   const navItems = [
-    { href: `/${lang}/dashboard/chat`, icon: MessageSquare, label: 'Chat with DietlessAI' },
-    { href: `/${lang}/dashboard`, icon: Users, label: 'User Settings' },
-    { href: `/${lang}/dashboard/general`, icon: Settings, label: 'General' },
+    { href: `/${typedLang}/dashboard/chat`, icon: MessageSquare, label: t(typedLang, 'dashboard.chat') },
+    { href: `/${typedLang}/dashboard`, icon: Users, label: t(typedLang, 'dashboard.user_settings') },
+    { href: `/${typedLang}/dashboard/general`, icon: Settings, label: t(typedLang, 'dashboard.general') },
   ];
 
   return (
