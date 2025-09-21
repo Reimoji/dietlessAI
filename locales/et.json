@@ -142,7 +142,7 @@
     "trial_period": "2-päevast tasuta prooviperioodi",
     "monthly": "Igakuine",
     "annually": "Aastatasu",
-    "monthly_plan": "Igakuine plaan",
+    "monthly_plan": "Kuine plaan",
     "annual_plan": "Aastane plaan",
     "monthly_description": "Alusta personaliseeritud toitumisnõuannetega.",
     "annual_description": "Saa parim väärtus meie aastase tellimusega.",
@@ -153,7 +153,7 @@
       "chat_support": "24/7 AI vestlustugi",
       "recipe_access": "Ligipääs retseptide andmebaasile"
     },
-    "free_trial": "TASUTA 2 päeva",
+    "free_trial": "2 päeva TASUTA",
     "month": "kuu",
     "year": "aasta",
     "afterwards": "",
