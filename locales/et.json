@@ -156,11 +156,11 @@
     "free_trial": "TASUTA 2 päeva",
     "month": "kuu",
     "year": "aasta",
-    "afterwards": "pärast seda",
+    "afterwards": "",
     "savings": "Säästab 24% võrreldes igakuise tellimusega",
     "subscribe_button": "TELLI KOHE",
     "loading": "Laeb...",
-    "cancel_anytime": "Tühista igal ajal. Ükski varjatud tasud."
+    "cancel_anytime": "Tühista iga kell. Puuduvad varjatud tasud."
   },
   "cookie_policy": {
     "title": "Küpsiste poliitika",

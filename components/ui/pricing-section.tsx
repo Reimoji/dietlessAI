@@ -72,11 +72,11 @@ export function PricingSection({
   const currentPrice = prices.find((price) => price.productId === currentPlan?.id);
 
   // Set fixed prices based on billing interval
-  const displayPrice = billingInterval === 'monthly' ? '9.90 €' : '89.90 €';
+  const displayPrice = billingInterval === 'monthly' ? '5.00 €' : '50.00 €';
   const interval = billingInterval === 'monthly' ? t(typedLang, "pricing.month") : t(typedLang, "pricing.year");
 
   // Calculate savings for yearly plan (approximately 24% savings)
-  const monthlyCost = billingInterval === 'monthly' ? 9.9 : (89.9 / 12).toFixed(2);
+ // const monthlyCost = billingInterval === 'monthly' ? 5.0 : (50.0 / 12).toFixed(2); t(typedLang, "pricing.savings");
   const savings = billingInterval === 'annually' ? t(typedLang, "pricing.savings") : '';
 
   // Features are the same for both plans
@@ -182,9 +182,10 @@ export function PricingSection({
                   </div>
 
                   {/* Additional pricing info - can be removed if not needed */}
-                  {billingInterval === 'annually' && (
-                    <p className='text-sm text-primary font-medium mt-2'>{savings}</p>
-                  )}
+                  {billingInterval === 'annually' //&& (
+                    //<p className='text-sm text-primary font-medium mt-2'>{monthlyCost}</p>
+                  //)
+                  }
                 </div>
 
                 <form action={checkoutAction} className="w-full">
