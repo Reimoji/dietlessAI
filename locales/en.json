@@ -1,0 +1,23 @@
+{
+  "common": {
+    "home": "Home",
+    "pricing": "Pricing",
+    "dashboard": "Dashboard",
+    "manageSubscription": "Manage Subscription"
+  },
+  "auth": {
+    "signInTitle": "Sign in to your account",
+    "signUpTitle": "Create your account",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "signIn": "Sign in",
+    "signUp": "Sign up"
+  },
+  "settings": {
+    "userSettings": "User Settings",
+    "deleteAccount": "Delete Account",
+    "deleteChatHistory": "Delete Chat History",
+    "updatePassword": "Update Password"
+  }
+}

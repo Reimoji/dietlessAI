@@ -22,6 +22,8 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import LangToggle from "@/components/layout/LangToggle";
+
 
 export default function UserMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,6 +32,9 @@ export default function UserMenu() {
   const router = useRouter();
   const pathname = usePathname();
   const href = useLangHref();
+
+  // detect current lang
+  const currentLang = pathname?.startsWith("/et") ? "et" : "en";
 
   const navItems = [
     { href: href("/dashboard/chat"), icon: MessageSquare, label: "Chat with DietlessAI" },
@@ -60,7 +65,7 @@ export default function UserMenu() {
       <>
         {SHOW_BLOG && (
           <Link
-            href="/en/blog"
+            href={href("/blog")}
             className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             Blog
@@ -77,18 +82,21 @@ export default function UserMenu() {
           </a>
         ) : (
           <Link
-            href="/pricing"
+            href={href("/pricing")}
             className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             Pricing
           </Link>
         )}
 
+        {/* Always show language toggle */}
+        <LangToggle current={currentLang as "en" | "et"} />
+
         <Button
           asChild
           className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm px-4 py-2 rounded-full"
         >
-          <Link href="/sign-up">Sign Up</Link>
+          <Link href={href("/sign-up")}>Sign Up</Link>
         </Button>
       </>
     );
@@ -96,6 +104,9 @@ export default function UserMenu() {
 
   return (
     <div className="flex items-center gap-2">
+      {/* Always show language toggle */}
+      <LangToggle current={currentLang as "en" | "et"} />
+
       <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon">

@@ -1,0 +1,23 @@
+{
+  "common": {
+    "home": "Avaleht",
+    "pricing": "Hinnakiri",
+    "dashboard": "Töölaud",
+    "manageSubscription": "Halda tellimust"
+  },
+  "auth": {
+    "signInTitle": "Logi oma kontole sisse",
+    "signUpTitle": "Loo konto",
+    "email": "E-post",
+    "password": "Parool",
+    "forgotPassword": "Unustasid parooli?",
+    "signIn": "Logi sisse",
+    "signUp": "Registreeru"
+  },
+  "settings": {
+    "userSettings": "Kasutaja seaded",
+    "deleteAccount": "Kustuta konto",
+    "deleteChatHistory": "Kustuta vestlusajalugu",
+    "updatePassword": "Muuda parooli"
+  }
+}
