@@ -61,36 +61,34 @@ export default function UserMenu() {
     }
   };
 
-  const SHOW_BLOG = true;
-
   if (!user) {
     return (
       <>
-        {SHOW_BLOG && (
           <Link
             href={href("/blog")}
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground ml-2"
           >
             {t(typedLang, "usermenu.blog")}
           </Link>
-        )}
 
-        {pathname === "/" ? (
-          <a
-            href="#pricing"
-            onClick={scrollToPricing}
-            className="text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            {t(typedLang, "usermenu.pricing")}
-          </a>
-        ) : (
-          <Link
-            href={href("/pricing")}
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            {t(typedLang, "usermenu.pricing")}
-          </Link>
-        )}
+          <div className="hidden sm:block">
+            {pathname === "/" ? (
+              <a
+                href="#pricing"
+                onClick={scrollToPricing}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                {t(typedLang, "usermenu.pricing")}
+              </a>
+            ) : (
+              <Link
+                href={href("/pricing")}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
+                {t(typedLang, "usermenu.pricing")}
+              </Link>
+            )}
+          </div>
 
         {/* Always show language toggle */}
         <LangToggle current={typedLang} />
