@@ -8,14 +8,18 @@ const SUPPORTED_LANGS = ['en', 'et'];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get('session');
+  const preferredLangCookie = request.cookies.get('preferred-lang');
   const isProtectedRoute = pathname.startsWith(protectedRoutes);
 
   console.log('Middleware: Processing request for path:', pathname);
 
   // 1. Locale handling
   if (pathname === '/') {
-    // Root → redirect to default locale
-    return NextResponse.redirect(new URL('/en', request.url));
+    // Root → redirect to preferred language or default
+    const preferredLang = preferredLangCookie?.value && SUPPORTED_LANGS.includes(preferredLangCookie.value) 
+      ? preferredLangCookie.value 
+      : 'en';
+    return NextResponse.redirect(new URL(`/${preferredLang}`, request.url));
   }
 
   // Already has supported lang
@@ -28,9 +32,12 @@ export async function middleware(request: NextRequest) {
     !pathname.startsWith('/api') &&
     !pathname.startsWith('/_next')
   ) {
-    // Prefix with default locale (en)
+    // Prefix with preferred locale or default (en)
+    const preferredLang = preferredLangCookie?.value && SUPPORTED_LANGS.includes(preferredLangCookie.value) 
+      ? preferredLangCookie.value 
+      : 'en';
     const url = request.nextUrl.clone();
-    url.pathname = `/en${pathname}`;
+    url.pathname = `/${preferredLang}${pathname}`;
     return NextResponse.redirect(url);
   }
 

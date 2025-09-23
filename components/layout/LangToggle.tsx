@@ -16,9 +16,15 @@ export default function LangToggle({ current }: { current: "en" | "et" }) {
 
   const target = pathname.replace(`/${current}`, `/${other}`);
 
+  const handleLanguageSwitch = () => {
+    // Set language preference cookie for 1 year
+    document.cookie = `preferred-lang=${other}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+  };
+
   return (
     <Link
       href={target}
+      onClick={handleLanguageSwitch}
       className="px-3 py-1 border rounded-full text-sm hover:bg-accent"
     >
       {LABELS[other]}
