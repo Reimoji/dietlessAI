@@ -157,7 +157,9 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 
   // Send welcome email to the new user
   try {
-    await sendWelcomeEmail(email);
+    // Extract language from form or default to 'en'
+    const lang = formData.get('lang') as string || 'en';
+    await sendWelcomeEmail(email, lang);
   } catch (error) {
     console.error('Failed to send welcome email:', error);
     // Continue with sign-up process even if email fails
@@ -288,7 +290,9 @@ export const updatePassword = validatedActionWithUser(
 
     // Send password changed confirmation email
     try {
-      await sendPasswordChangedEmail(user.email, user.name || '');
+      // For password change, we don't have lang from form, so we need to determine it
+      // You could store user's preferred language in database or default to 'en'
+      await sendPasswordChangedEmail(user.email, user.name || '', 'en'); // Default to 'en' for now
     } catch (error) {
       console.error('Failed to send password changed email:', error);
       // Continue even if email fails
@@ -521,7 +525,8 @@ function generatePasswordResetToken(email: string, expirationMinutes = 30): stri
 }
 
 // Action to handle forgot password requests
-export const forgotPassword = validatedAction(forgotPasswordSchema, async (data) => {
+export const forgotPassword = validatedAction(forgotPasswordSchema, async (data, formData) => {
+  const lang = formData.get('lang') as string || 'en';
   const { email } = data;
 
   // Check rate limiting
@@ -562,7 +567,10 @@ export const forgotPassword = validatedAction(forgotPasswordSchema, async (data)
 
   // Send password reset email
   try {
-    await sendPasswordResetEmail(email, resetLink, 30);
+    // Since we don't have formData here, we'll default to 'en' for now
+    // You could enhance this by storing user language preference in database
+    const resetLink = `${process.env.BASE_URL}/en/reset-password?token=${token}`;
+    await sendPasswordResetEmail(email, resetLink, 30, 'en');
   } catch (error) {
     console.error('Failed to send password reset email:', error);
     return { error: 'Failed to send password reset email. Please try again.', success: '' };

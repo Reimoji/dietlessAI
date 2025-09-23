@@ -145,6 +145,7 @@ switch (subscription.status) {
             formatPrice(plan),
             `${process.env.BASE_URL}/${lang}/dashboard`,
             `${process.env.BASE_URL}/${lang}/pricing`,
+            lang // Add this line
           );
 
           // Mark as sent
@@ -185,6 +186,7 @@ switch (subscription.status) {
           formatPrice(plan),
           formatDate(nextBillingDate),
           `${process.env.BASE_URL}/${lang}/dashboard`,
+          lang 
         );
       } catch (error) {
         console.error(

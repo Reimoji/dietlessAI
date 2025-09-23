@@ -1,19 +1,16 @@
-import { PasswordChangedEmail } from '@/components/email/password-changed-email';
-import { ResetPasswordEmail } from '@/components/email/reset-password-email';
-import { SubscriptionActivatedEmail } from '@/components/email/subscription-activated-email';
-import { SubscriptionCancelledEmail } from '@/components/email/subscription-cancelled-email';
-import { TrialEmail } from '@/components/email/trial-email';
 import React from 'react';
 import { sendEmail } from './resend';
 
 // Welcome email
-export async function sendWelcomeEmail(to: string) {
-  // Import directly here to ensure we're using the correct component
-  const { WelcomeEmail } = require('@/components/email/welcome-email');
+export async function sendWelcomeEmail(to: string, lang: string = 'en') {
+  const componentName = lang === 'et' ? 'welcome-email-et' : 'welcome-email';
+  const { WelcomeEmail } = require(`@/components/email/${componentName}`);
+  
+  const subject = lang === 'et' ? 'Tere tulemast dietlessAI-sse' : 'Welcome to dietlessAI';
 
   return sendEmail({
     to,
-    subject: 'Welcome to dietlessAI',
+    subject,
     react: React.createElement(WelcomeEmail, {}),
   });
 }
@@ -23,10 +20,18 @@ export async function sendPasswordResetEmail(
   to: string,
   resetLink: string,
   expirationMinutes = 30,
+  lang: string = 'en',
 ) {
+  const componentName = lang === 'et' ? 'reset-password-email-et' : 'reset-password-email';
+  const { ResetPasswordEmail } = require(`@/components/email/${componentName}`);
+  
+  const subject = lang === 'et'
+    ? 'Lähtesta oma dietlessAI parool'
+    : 'Reset Your dietlessAI Password';
+
   return sendEmail({
     to,
-    subject: 'Reset Your dietlessAI Password',
+    subject,
     react: React.createElement(ResetPasswordEmail, {
       resetLink,
       expirationMinutes,
@@ -35,10 +40,21 @@ export async function sendPasswordResetEmail(
 }
 
 // Password changed confirmation
-export async function sendPasswordChangedEmail(to: string, supportEmail?: string) {
+export async function sendPasswordChangedEmail(
+  to: string, 
+  supportEmail?: string,
+  lang: string = 'en',
+) {
+  const componentName = lang === 'et' ? 'password-changed-email-et' : 'password-changed-email';
+  const { PasswordChangedEmail } = require(`@/components/email/${componentName}`);
+  
+  const subject = lang === 'et'
+    ? 'Sinu dietlessAI parool on muudetud'
+    : 'Your dietlessAI Password Has Been Changed';
+
   return sendEmail({
     to,
-    subject: 'Your dietlessAI Password Has Been Changed',
+    subject,
     react: React.createElement(PasswordChangedEmail, { supportEmail }),
   });
 }
@@ -54,10 +70,18 @@ export async function sendTrialEmail(
   amount: string,
   dashboardLink: string,
   pricingLink: string,
+  lang: string = 'en',
 ) {
+  const componentName = lang === 'et' ? 'trial-email-et' : 'trial-email';
+  const { TrialEmail } = require(`@/components/email/${componentName}`);
+  
+  const subject = lang === 'et' 
+    ? `Sinu ${trialDays}-päevane dietlessAI prooviversioon on alanud`
+    : `Your ${trialDays}-day dietlessAI Trial Has Started`;
+
   return sendEmail({
     to,
-    subject: `Your ${trialDays}-day dietlessAI Trial Has Started`,
+    subject,
     react: React.createElement(TrialEmail, {
       name,
       trialDays,
@@ -80,10 +104,18 @@ export async function sendSubscriptionActivatedEmail(
   amount: string,
   nextBillingDate: string,
   dashboardLink: string,
+  lang: string = 'en',
 ) {
+  const componentName = lang === 'et' ? 'subscription-activated-email-et' : 'subscription-activated-email';
+  const { SubscriptionActivatedEmail } = require(`@/components/email/${componentName}`);
+  
+  const subject = lang === 'et' 
+    ? 'Sinu dietlessAI tellimus on aktiivne'
+    : 'Your dietlessAI Subscription is Active';
+
   return sendEmail({
     to,
-    subject: 'Your dietlessAI Subscription is Active',
+    subject,
     react: React.createElement(SubscriptionActivatedEmail, {
       name,
       planName,
@@ -103,10 +135,18 @@ export async function sendSubscriptionCancelledEmail(
   accessEndDate: string,
   reactivateLink: string,
   feedbackLink?: string,
+  lang: string = 'en',
 ) {
+  const componentName = lang === 'et' ? 'subscription-cancelled-email-et' : 'subscription-cancelled-email';
+  const { SubscriptionCancelledEmail } = require(`@/components/email/${componentName}`);
+  
+  const subject = lang === 'et'
+    ? 'Sinu dietlessAI tellimus on tühistatud'
+    : 'Your dietlessAI Subscription Has Been Cancelled';
+
   return sendEmail({
     to,
-    subject: 'Your dietlessAI Subscription Has Been Cancelled',
+    subject,
     react: React.createElement(SubscriptionCancelledEmail, {
       name,
       planName,

@@ -29,6 +29,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form action={handleSubmit} className="space-y-6">
+      <input type="hidden" name="lang" value={typedLang} />
       <div>
         <Label htmlFor="email">{t(typedLang, 'forgotform.email_label')}</Label>
         <div className="mt-1">

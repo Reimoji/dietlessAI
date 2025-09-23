@@ -43,21 +43,12 @@ export const TrialEmail: React.FC<Readonly<TrialEmailProps>> = ({
       </p>
     </div>
 
-    <p>During your trial, you have full access to all premium features:</p>
+    <p>During your trial, you get full access to our AI chat coach:</p>
     <ul style={{ paddingLeft: '20px' }}>
-      <li>Personalized meal plans tailored to your goals</li>
-      <li>Advanced nutrition tracking and analytics</li>
-      <li>AI coaching conversations</li>
-      <li>Recipe database with thousands of options</li>
+      <li>Ask questions anytime, anywhere</li>
+      <li>Get instant, personalized nutrition advice</li>
+      <li>Stay motivated with real-time support</li>
     </ul>
-
-    <p>To get the most out of your trial:</p>
-    <ol style={{ paddingLeft: '20px' }}>
-      <li>Start chatting with DietlessAI</li>
-      <li>Set your specific health goals and describe yourself</li>
-      <li>Get personalized advice from our state of the art coach</li>
-      <li>Explore the meal planning options</li>
-    </ol>
 
     <p>
       <strong>Important:</strong> Your trial will automatically convert to a paid subscription on{' '}
@@ -67,9 +58,6 @@ export const TrialEmail: React.FC<Readonly<TrialEmailProps>> = ({
     <div style={{ display: 'flex', justifyContent: 'space-between', margin: '20px 0' }}>
       <a href={dashboardLink} className='button'>
         Go to Dashboard
-      </a>
-      <a href={pricingLink} style={{ color: '#6366F1', textDecoration: 'underline' }}>
-        View Pricing Plans
       </a>
     </div>
 

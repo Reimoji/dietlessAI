@@ -3,11 +3,13 @@ import * as React from 'react';
 interface BaseEmailLayoutProps {
   children: React.ReactNode;
   previewText?: string;
+  lang?: string;
 }
 
 export const BaseEmailLayout: React.FC<BaseEmailLayoutProps> = ({
   children,
   previewText = 'Email from dietlessAI',
+  lang = 'en',
 }) => (
   <html>
     <head>
@@ -77,10 +79,12 @@ export const BaseEmailLayout: React.FC<BaseEmailLayoutProps> = ({
         </div>
         <div className='content'>{children}</div>
         <div className='footer'>
-          <p>© {new Date().getFullYear()} dietlessAI. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} dietlessAI. {lang === 'et' ? 'Kõik õigused kaitstud.' : 'All rights reserved.'}</p>
           <p>
-            This email was sent to you because you have an account with dietlessAI. If you have any
-            questions, please contact us at{' '}
+            {lang === 'et' 
+              ? 'See e-kiri saadeti sulle, sest sul on dietlessAI-s konto. Kui sul on küsimusi, võta meiega ühendust aadressil '
+              : 'This email was sent to you because you have an account with dietlessAI. If you have any questions, please contact us at '
+            }
             <a href='mailto:dietlessai@dietless.ai'>dietlessai@dietless.ai</a>
           </p>
         </div>

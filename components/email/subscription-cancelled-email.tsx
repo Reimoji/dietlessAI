@@ -32,14 +32,9 @@ export const SubscriptionCancelledEmail: React.FC<Readonly<SubscriptionCancelled
       Reactivate Subscription
     </a>
 
-    {feedbackLink && (
-      <>
-        <p>We'd love to hear about your experience with dietlessAI and how we could improve:</p>
-        <a href={feedbackLink} style={{ color: '#6366F1' }}>
-          Share Your Feedback
-        </a>
-      </>
-    )}
+
+    <p>We'd love to hear about your experience with dietlessAI and how we could improve, kindly reply to this same e-mail.</p>
+
 
     <p>Thank you for being a dietlessAI customer. We hope to welcome you back soon!</p>
   </BaseEmailLayout>

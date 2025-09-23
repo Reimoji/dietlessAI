@@ -19,10 +19,5 @@ export const PasswordChangedEmail: React.FC<Readonly<PasswordChangedEmailProps>>
       <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
     </p>
 
-    <p>For added security, we recommend:</p>
-    <ul style={{ paddingLeft: '20px' }}>
-      <li>Using a unique password for each of your online accounts</li>
-      <li>Regularly checking your account for any suspicious activity</li>
-    </ul>
   </BaseEmailLayout>
 );
