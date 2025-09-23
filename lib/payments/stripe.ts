@@ -163,6 +163,7 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
         amount,
         `${process.env.BASE_URL}/${lang}/dashboard`,
         `${process.env.BASE_URL}/${lang}/pricing`,
+        lang
       );
 
       // Mark as sent
