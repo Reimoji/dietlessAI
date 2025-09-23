@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
                 formatDate(currentPeriodEnd),
                 `${process.env.BASE_URL}/${lang}/dashboard/billing`,
                 `${process.env.BASE_URL}/${lang}/feedback`,
+                lang
               );
             } catch (e) {
               console.warn(
@@ -160,6 +161,7 @@ export async function POST(request: NextRequest) {
                 formatDate(endedAt ?? new Date()),
                 `${process.env.BASE_URL}/${lang}/dashboard/billing`,
                 `${process.env.BASE_URL}/${lang}/feedback`,
+                lang
               );
             } catch (e) {
               console.warn(
