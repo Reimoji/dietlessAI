@@ -152,7 +152,7 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
       })
       .where(eq(teams.id, team.id));
 
-    if (ownerEmail) {
+    if (ownerEmail && !team.trialEmailSent) {
       await sendTrialEmail(
         ownerEmail,
         ownerName,
@@ -164,6 +164,12 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
         `${process.env.BASE_URL}/${lang}/dashboard`,
         `${process.env.BASE_URL}/${lang}/pricing`,
       );
+
+      // Mark as sent
+      await db
+        .update(teams)
+        .set({ trialEmailSent: true })
+        .where(eq(teams.id, team.id));
     }
   }
 }

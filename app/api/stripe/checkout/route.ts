@@ -122,8 +122,13 @@ export async function GET(request: NextRequest) {
     // 👇 read lang from subscription metadata (default to "en")
     const lang = (subscription.metadata?.lang as string) || 'en';
 
-    if (subscription.status === 'trialing' && trialEndsAt) {
-      if (teamOwner?.user?.email) {
+switch (subscription.status) {
+  case 'trialing':
+    if (trialEndsAt && teamOwner?.user?.email) {
+      // Get current team data to check if email was sent
+      const currentTeam = await db.select().from(teams).where(eq(teams.id, userTeam[0].teamId)).limit(1);
+      
+      if (!currentTeam[0]?.trialEmailSent) {
         const trialStart = new Date();
         const trialDays = Math.ceil(
           (trialEndsAt.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24),
@@ -141,6 +146,13 @@ export async function GET(request: NextRequest) {
             `${process.env.BASE_URL}/${lang}/dashboard`,
             `${process.env.BASE_URL}/${lang}/pricing`,
           );
+
+          // Mark as sent
+          await db
+            .update(teams)
+            .set({ trialEmailSent: true })
+            .where(eq(teams.id, userTeam[0].teamId));
+
         } catch (error) {
           console.error('Failed to send trial email from checkout handler:', error);
         }
@@ -157,40 +169,44 @@ export async function GET(request: NextRequest) {
           console.error('Failed to track trial subscription in Klaviyo:', error);
         }
       }
-    } else if (subscription.status === 'active') {
-      if (teamOwner?.user?.email && nextBillingDate) {
-        const billingPeriod = plan.recurring?.interval === 'year' ? 'Yearly' : 'Monthly';
+    }
+    break;
 
-        try {
-          await sendSubscriptionActivatedEmail(
-            teamOwner.user.email,
-            teamOwner.user.name || 'there',
-            (plan.product as Stripe.Product).name,
-            billingPeriod,
-            formatPrice(plan),
-            formatDate(nextBillingDate),
-            `${process.env.BASE_URL}/${lang}/dashboard`,
-          );
-        } catch (error) {
-          console.error(
-            'Failed to send subscription activated email from checkout handler:',
-            error,
-          );
-        }
+  case 'active':
+    if (teamOwner?.user?.email && nextBillingDate) {
+      const billingPeriod = plan.recurring?.interval === 'year' ? 'Yearly' : 'Monthly';
 
-        try {
-          const subscriptionItem = subscription.items.data[0];
-          const priceId = subscriptionItem?.price.id;
-          const price = priceId ? await stripe.prices.retrieve(priceId) : null;
-          const product = price?.product
-            ? await stripe.products.retrieve(price.product as string)
-            : null;
-          await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
-        } catch (error) {
-          console.error('Failed to track active subscription in Klaviyo:', error);
-        }
+      try {
+        await sendSubscriptionActivatedEmail(
+          teamOwner.user.email,
+          teamOwner.user.name || 'there',
+          (plan.product as Stripe.Product).name,
+          billingPeriod,
+          formatPrice(plan),
+          formatDate(nextBillingDate),
+          `${process.env.BASE_URL}/${lang}/dashboard`,
+        );
+      } catch (error) {
+        console.error(
+          'Failed to send subscription activated email from checkout handler:',
+          error,
+        );
+      }
+
+      try {
+        const subscriptionItem = subscription.items.data[0];
+        const priceId = subscriptionItem?.price.id;
+        const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+        const product = price?.product
+          ? await stripe.products.retrieve(price.product as string)
+          : null;
+        await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
+      } catch (error) {
+        console.error('Failed to track active subscription in Klaviyo:', error);
       }
     }
+    break;
+}
 
     await setSession(user[0]);
 

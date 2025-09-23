@@ -1,5 +1,5 @@
 import { InferModel, relations } from 'drizzle-orm';
-import { integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { boolean, integer, pgTable, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 // Users table
 export const users = pgTable('users', {
@@ -23,6 +23,7 @@ export const teams = pgTable('teams', {
   planName: varchar('plan_name', { length: 100 }),
   subscriptionStatus: varchar('subscription_status', { length: 20 }),
   trialEndsAt: timestamp('trial_ends_at'),
+  trialEmailSent: boolean('trial_email_sent').default(false),
   nextBillingDate: timestamp('next_billing_date'),
   subscriptionEndDate: timestamp('subscription_end_date'),
   createdAt: timestamp('created_at').notNull().defaultNow(),

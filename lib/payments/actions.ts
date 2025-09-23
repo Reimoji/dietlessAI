@@ -18,6 +18,7 @@ function convertTeamData(team: TeamDataWithMembers) {
     planName: team.planName ?? null,
     subscriptionStatus: team.subscriptionStatus ?? null,
     trialEndsAt: team.trialEndsAt ? new Date(team.trialEndsAt) : null,
+    trialEmailSent: false,
     nextBillingDate: team.nextBillingDate ? new Date(team.nextBillingDate) : null,
     subscriptionEndDate: team.subscriptionEndDate ? new Date(team.subscriptionEndDate) : null,
   };
@@ -26,7 +27,7 @@ function convertTeamData(team: TeamDataWithMembers) {
 // 🔑 Checkout action
 export const checkoutAction = withTeam(async (formData, team) => {
   const priceId = formData.get('priceId') as string;
-  const lang = formData.get('lang') as string; // 👈 added
+  const lang = formData.get('lang') as string;
   const convertedTeam = convertTeamData(team);
 
   await createCheckoutSession({ team: convertedTeam, priceId, lang });
@@ -34,7 +35,7 @@ export const checkoutAction = withTeam(async (formData, team) => {
 
 // 🔑 Customer portal action
 export const customerPortalAction = withTeam(async (formData, team) => {
-  const lang = formData.get('lang') as string; // 👈 added
+  const lang = formData.get('lang') as string;
   const convertedTeam = convertTeamData(team);
 
   const portalSession = await createCustomerPortalSession(convertedTeam, lang);
