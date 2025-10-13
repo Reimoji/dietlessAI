@@ -16,6 +16,17 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export const dynamic = 'force-dynamic';
 
+// 🆕 Helper function to find team by customer email
+async function getTeamByCustomerEmail(email: string) {
+  const teamName = `${email}'s Team`;
+  
+  const team = await db.query.teams.findFirst({
+    where: eq(teams.name, teamName),
+  });
+  
+  return team || null;
+}
+
 export async function POST(request: NextRequest) {
   const startedAt = Date.now();
   console.log('[stripe] webhook POST');
@@ -74,10 +85,58 @@ export async function POST(request: NextRequest) {
           console.warn('[stripe] handleSubscriptionChange failed (non-fatal)', e);
         }
 
-        // Find owning team
-        const team = await getTeamByStripeCustomerId(customerId);
+        // 🆕 IMPROVED: Find owning team with email fallback
+        let team = await getTeamByStripeCustomerId(customerId);
+        
         if (!team) {
-          console.warn('[stripe] no team for customer', { customerId });
+          console.log('[stripe] no team found by stripe_customer_id, trying email fallback');
+          
+          // Try to get customer email from subscription or fetch customer
+          let customerEmail: string | null = null;
+          
+          // Method 1: Check if customer object is expanded
+          if (typeof sub.customer === 'object' && sub.customer !== null) {
+            customerEmail = (sub.customer as any).email || null;
+          }
+          
+          // Method 2: Fetch customer from Stripe if needed
+          if (!customerEmail && typeof sub.customer === 'string') {
+            try {
+              const customer = await stripe.customers.retrieve(sub.customer);
+              if (customer && !customer.deleted) {
+                customerEmail = customer.email || null;
+              }
+            } catch (e) {
+              console.warn('[stripe] failed to fetch customer', e);
+            }
+          }
+          
+          if (customerEmail) {
+            console.log('[stripe] attempting to find team by email:', customerEmail);
+            team = await getTeamByCustomerEmail(customerEmail);
+            
+            // 🆕 If found, backfill the stripe_customer_id
+            if (team) {
+              console.log('[stripe] found team by email, backfilling stripe_customer_id');
+              try {
+                await db
+                  .update(teams)
+                  .set({
+                    stripeCustomerId: customerId,
+                    updatedAt: new Date(),
+                  })
+                  .where(eq(teams.id, team.id));
+                
+                console.log('[stripe] successfully backfilled stripe_customer_id for team', team.id);
+              } catch (e) {
+                console.error('[stripe] failed to backfill stripe_customer_id', e);
+              }
+            }
+          }
+        }
+        
+        if (!team) {
+          console.warn('[stripe] no team found for customer (tried both methods)', { customerId });
           break; // still 200 OK
         }
 
@@ -108,7 +167,7 @@ export async function POST(request: NextRequest) {
           console.error('[stripe] DB update failed', e);
         }
 
-        // Side-effects per event (don’t let failures 500 the webhook)
+        // Side-effects per event (don't let failures 500 the webhook)
         if (event.type === 'customer.subscription.created') {
           if (userEmail) {
             try {

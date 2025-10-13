@@ -36,15 +36,68 @@ export async function createCheckoutSession({
     redirect(`/${lang}/sign-up?redirect=checkout&priceId=${priceId}`);
   }
 
+  // 🆕 IMPROVED: Check database first (fast path)
   if (
     team.stripeSubscriptionId &&
     ['active', 'trialing', 'incomplete'].includes(team.subscriptionStatus || '')
   ) {
+    console.log('[checkout] user already has active subscription in DB, redirecting to portal');
     const portalSession = await createCustomerPortalSession(team, lang);
     redirect(portalSession.url);
     return;
   }
 
+  // 🆕 ADDITIONAL: Check Stripe directly as fallback
+  // This catches cases where DB might be out of sync
+  if (team.stripeCustomerId) {
+    try {
+      console.log('[checkout] checking Stripe for existing subscriptions');
+      
+      const subscriptions = await stripe.subscriptions.list({
+        customer: team.stripeCustomerId,
+        status: 'all',
+        limit: 10,
+      });
+
+      // Check if there's any active subscription
+      const activeSubscription = subscriptions.data.find(sub => 
+        ['active', 'trialing', 'incomplete', 'past_due'].includes(sub.status)
+      );
+
+      if (activeSubscription) {
+        console.log('[checkout] found active subscription in Stripe:', activeSubscription.id);
+        
+        // 🆕 Sync the DB if it was missing (self-healing)
+        if (!team.stripeSubscriptionId || team.subscriptionStatus !== activeSubscription.status) {
+          console.log('[checkout] syncing subscription data to DB');
+          try {
+            await db
+              .update(teams)
+              .set({
+                stripeSubscriptionId: activeSubscription.id,
+                subscriptionStatus: activeSubscription.status,
+                updatedAt: new Date(),
+              })
+              .where(eq(teams.id, team.id));
+          } catch (e) {
+            console.error('[checkout] failed to sync subscription to DB', e);
+          }
+        }
+
+        // Redirect to portal instead of creating new subscription
+        const portalSession = await createCustomerPortalSession(team, lang);
+        redirect(portalSession.url);
+        return;
+      }
+
+      console.log('[checkout] no active subscriptions found in Stripe, proceeding with checkout');
+    } catch (error) {
+      console.error('[checkout] error checking Stripe subscriptions:', error);
+      // Continue with checkout creation if Stripe check fails
+    }
+  }
+
+  // 🆕 Add user email to metadata for webhook fallback matching
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
@@ -56,11 +109,22 @@ export async function createCheckoutSession({
     allow_promotion_codes: true,
     subscription_data: {
       trial_period_days: 2,
-      metadata: { lang }, // 👈 ensure subscription carries lang
+      metadata: { 
+        lang,
+        user_id: user.id.toString(),
+        team_id: team.id.toString(),
+        user_email: user.email,
+      },
     },
-    metadata: { lang }, // 👈 also on the session
+    metadata: { 
+      lang,
+      user_id: user.id.toString(),
+      team_id: team.id.toString(),
+      user_email: user.email,
+    },
   });
 
+  console.log('[checkout] created new checkout session:', session.id);
   redirect(session.url!);
 }
 
