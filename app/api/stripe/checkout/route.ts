@@ -16,9 +16,13 @@ import Stripe from 'stripe';
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const sessionId = searchParams.get('session_id');
+  const lang = searchParams.get('lang') || 'en'; // 🆕 Get lang from query params
+
+  console.log('[checkout] Processing checkout success', { sessionId, lang });
 
   if (!sessionId) {
-    return NextResponse.redirect(`${process.env.BASE_URL}/pricing`);
+    console.error('[checkout] No session_id provided');
+    return NextResponse.redirect(`${process.env.BASE_URL}/${lang}/pricing`);
   }
 
   try {
@@ -91,6 +95,8 @@ export async function GET(request: NextRequest) {
         ? new Date(currentPeriodEnd * 1000)
         : null;
 
+    console.log('[checkout] Updating team in database', { teamId: userTeam[0].teamId });
+
     await db
       .update(teams)
       .set({
@@ -119,96 +125,92 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // 👇 read lang from subscription metadata (default to "en")
-    const lang = (subscription.metadata?.lang as string) || 'en';
+    switch (subscription.status) {
+      case 'trialing':
+        if (trialEndsAt && teamOwner?.user?.email) {
+          // Get current team data to check if email was sent
+          const currentTeam = await db.select().from(teams).where(eq(teams.id, userTeam[0].teamId)).limit(1);
+          
+          if (!currentTeam[0]?.trialEmailSent) {
+            const trialStart = new Date();
+            const trialDays = Math.ceil(
+              (trialEndsAt.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24),
+            );
 
-switch (subscription.status) {
-  case 'trialing':
-    if (trialEndsAt && teamOwner?.user?.email) {
-      // Get current team data to check if email was sent
-      const currentTeam = await db.select().from(teams).where(eq(teams.id, userTeam[0].teamId)).limit(1);
-      
-      if (!currentTeam[0]?.trialEmailSent) {
-        const trialStart = new Date();
-        const trialDays = Math.ceil(
-          (trialEndsAt.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24),
-        );
+            try {
+              await sendTrialEmail(
+                teamOwner.user.email,
+                teamOwner.user.name || 'there',
+                trialDays,
+                formatDate(trialStart),
+                formatDate(trialEndsAt),
+                formatDate(trialEndsAt),
+                formatPrice(plan),
+                `${process.env.BASE_URL}/${lang}/dashboard`,
+                `${process.env.BASE_URL}/${lang}/pricing`,
+                lang
+              );
 
-        try {
-          await sendTrialEmail(
-            teamOwner.user.email,
-            teamOwner.user.name || 'there',
-            trialDays,
-            formatDate(trialStart),
-            formatDate(trialEndsAt),
-            formatDate(trialEndsAt),
-            formatPrice(plan),
-            `${process.env.BASE_URL}/${lang}/dashboard`,
-            `${process.env.BASE_URL}/${lang}/pricing`,
-            lang // Add this line
-          );
+              // Mark as sent
+              await db
+                .update(teams)
+                .set({ trialEmailSent: true })
+                .where(eq(teams.id, userTeam[0].teamId));
 
-          // Mark as sent
-          await db
-            .update(teams)
-            .set({ trialEmailSent: true })
-            .where(eq(teams.id, userTeam[0].teamId));
+              console.log('[checkout] Trial email sent successfully');
+            } catch (error) {
+              console.error('[checkout] Failed to send trial email:', error);
+            }
 
-        } catch (error) {
-          console.error('Failed to send trial email from checkout handler:', error);
+            try {
+              const subscriptionItem = subscription.items.data[0];
+              const priceId = subscriptionItem?.price.id;
+              const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+              const product = price?.product
+                ? await stripe.products.retrieve(price.product as string)
+                : null;
+              await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
+            } catch (error) {
+              console.error('[checkout] Failed to track trial subscription in Klaviyo:', error);
+            }
+          }
         }
+        break;
 
-        try {
-          const subscriptionItem = subscription.items.data[0];
-          const priceId = subscriptionItem?.price.id;
-          const price = priceId ? await stripe.prices.retrieve(priceId) : null;
-          const product = price?.product
-            ? await stripe.products.retrieve(price.product as string)
-            : null;
-          await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
-        } catch (error) {
-          console.error('Failed to track trial subscription in Klaviyo:', error);
+      case 'active':
+        if (teamOwner?.user?.email && nextBillingDate) {
+          const billingPeriod = plan.recurring?.interval === 'year' ? 'Yearly' : 'Monthly';
+
+          try {
+            await sendSubscriptionActivatedEmail(
+              teamOwner.user.email,
+              teamOwner.user.name || 'there',
+              (plan.product as Stripe.Product).name,
+              billingPeriod,
+              formatPrice(plan),
+              formatDate(nextBillingDate),
+              `${process.env.BASE_URL}/${lang}/dashboard`,
+              lang 
+            );
+            console.log('[checkout] Subscription activated email sent successfully');
+          } catch (error) {
+            console.error('[checkout] Failed to send subscription activated email:', error);
+          }
+
+          try {
+            const subscriptionItem = subscription.items.data[0];
+            const priceId = subscriptionItem?.price.id;
+            const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+            const product = price?.product
+              ? await stripe.products.retrieve(price.product as string)
+              : null;
+            await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
+          } catch (error) {
+            console.error('[checkout] Failed to track active subscription in Klaviyo:', error);
+          }
         }
-      }
+        break;
     }
-    break;
-
-  case 'active':
-    if (teamOwner?.user?.email && nextBillingDate) {
-      const billingPeriod = plan.recurring?.interval === 'year' ? 'Yearly' : 'Monthly';
-
-      try {
-        await sendSubscriptionActivatedEmail(
-          teamOwner.user.email,
-          teamOwner.user.name || 'there',
-          (plan.product as Stripe.Product).name,
-          billingPeriod,
-          formatPrice(plan),
-          formatDate(nextBillingDate),
-          `${process.env.BASE_URL}/${lang}/dashboard`,
-          lang 
-        );
-      } catch (error) {
-        console.error(
-          'Failed to send subscription activated email from checkout handler:',
-          error,
-        );
-      }
-
-      try {
-        const subscriptionItem = subscription.items.data[0];
-        const priceId = subscriptionItem?.price.id;
-        const price = priceId ? await stripe.prices.retrieve(priceId) : null;
-        const product = price?.product
-          ? await stripe.products.retrieve(price.product as string)
-          : null;
-        await handleSubscriptionCreated(teamOwner.user.email, subscription, product);
-      } catch (error) {
-        console.error('Failed to track active subscription in Klaviyo:', error);
-      }
-    }
-    break;
-}
 
     await setSession(user[0]);
 
@@ -216,16 +218,17 @@ switch (subscription.status) {
     const purchaseValue = plan.unit_amount ? plan.unit_amount / 100 : 0;
     const planInterval = plan.recurring?.interval || 'month';
 
-    // 👇 redirect into correct language dashboard
+    // 🆕 Redirect to correct language dashboard
     const dashboardUrl = new URL(`${process.env.BASE_URL}/${lang}/dashboard`);
     dashboardUrl.searchParams.set('from_checkout', 'true');
     dashboardUrl.searchParams.set('purchase_value', purchaseValue.toString());
     dashboardUrl.searchParams.set('subscription_status', subscription.status);
     dashboardUrl.searchParams.set('plan_interval', planInterval);
 
+    console.log('[checkout] Redirecting to dashboard:', dashboardUrl.toString());
     return NextResponse.redirect(dashboardUrl.toString());
   } catch (error) {
-    console.error('Error handling successful checkout:', error);
-    return NextResponse.redirect(`${process.env.BASE_URL}/error`);
+    console.error('[checkout] Error handling successful checkout:', error);
+    return NextResponse.redirect(`${process.env.BASE_URL}/${lang}/pricing?error=checkout_failed`);
   }
 }

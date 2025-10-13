@@ -150,19 +150,51 @@ export async function POST(request: NextRequest) {
         const userEmail = teamOwner?.user?.email ?? null;
         const userName = (teamOwner?.user?.name || 'there') as string;
 
-        // Persist status & end date for ALL sub events
+        // 🆕 Get full subscription details for complete database update
+        const trialEnd = sub.trial_end ? new Date(sub.trial_end * 1000) : null;
+        const nextBilling = currentPeriodEnd;
         const subEndDate =
           endedAt ?? (cancelAtPeriodEnd && currentPeriodEnd ? currentPeriodEnd : null);
 
+        // 🆕 Get product and plan information
+        let productId: string | null = null;
+        let planName: string | null = null;
+        
+        try {
+          const firstItem = sub.items.data[0];
+          if (firstItem?.price) {
+            const price = firstItem.price;
+            productId = typeof price.product === 'string' 
+              ? price.product 
+              : price.product?.id || null;
+            
+            // Get product name
+            if (productId) {
+              const product = await stripe.products.retrieve(productId);
+              planName = product.name;
+            }
+          }
+        } catch (e) {
+          console.warn('[stripe] failed to fetch product details', e);
+        }
+
+        // 🆕 Update ALL subscription fields in database
         try {
           await db
             .update(teams)
             .set({
+              stripeSubscriptionId: sub.id,
+              stripeProductId: productId,
+              planName: planName,
               subscriptionStatus: status,
+              trialEndsAt: trialEnd,
+              nextBillingDate: nextBilling,
               subscriptionEndDate: subEndDate,
               updatedAt: new Date(),
             })
             .where(eq(teams.id, team.id));
+          
+          console.log('[stripe] successfully updated team with complete subscription data');
         } catch (e) {
           console.error('[stripe] DB update failed', e);
         }
@@ -174,6 +206,54 @@ export async function POST(request: NextRequest) {
               await handleSubscriptionCreated(userEmail, sub, null);
             } catch (e) {
               console.warn('[stripe] handleSubscriptionCreated failed (non-fatal)', e);
+            }
+          }
+          
+          // 🆕 Send trial email if status is trialing
+          if (status === 'trialing' && trialEnd && userEmail) {
+            try {
+              // Check if trial email was already sent
+              const currentTeam = await db.select().from(teams).where(eq(teams.id, team.id)).limit(1);
+              
+              if (!currentTeam[0]?.trialEmailSent) {
+                const trialStart = new Date();
+                const trialDays = Math.ceil(
+                  (trialEnd.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24),
+                );
+                
+                // Import the email function
+                const { sendTrialEmail } = await import('@/lib/email/send-emails');
+                const { formatDate, formatPrice } = await import('@/lib/payments/stripe');
+                
+                // Get price for formatting
+                const firstItem = sub.items.data[0];
+                const price = firstItem?.price || null;
+                
+                await sendTrialEmail(
+                  userEmail,
+                  userName,
+                  trialDays,
+                  formatDate(trialStart),
+                  formatDate(trialEnd),
+                  formatDate(trialEnd),
+                  formatPrice(price),
+                  `${process.env.BASE_URL}/${lang}/dashboard`,
+                  `${process.env.BASE_URL}/${lang}/pricing`,
+                  lang
+                );
+                
+                // Mark as sent
+                await db
+                  .update(teams)
+                  .set({ trialEmailSent: true })
+                  .where(eq(teams.id, team.id));
+                
+                console.log('[stripe] trial email sent successfully');
+              } else {
+                console.log('[stripe] trial email already sent, skipping');
+              }
+            } catch (e) {
+              console.warn('[stripe] failed to send trial email (non-fatal)', e);
             }
           }
         } else if (event.type === 'customer.subscription.updated') {

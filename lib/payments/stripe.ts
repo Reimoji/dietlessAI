@@ -102,7 +102,7 @@ export async function createCheckoutSession({
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
     mode: 'subscription',
-    success_url: `${process.env.BASE_URL}/${lang}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${process.env.BASE_URL}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}&lang=${lang}`,
     cancel_url: `${process.env.BASE_URL}/${lang}/pricing`,
     customer: team.stripeCustomerId || undefined,
     client_reference_id: user.id.toString(),
