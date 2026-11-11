@@ -1,4 +1,6 @@
 import { hashPassword } from '@/lib/auth/session';
+import { demoTrialFields, isDemoMode } from '@/lib/demo';
+import { eq } from 'drizzle-orm';
 import { stripe } from '../payments/stripe';
 import { db } from './drizzle';
 import { teamMembers, teams, users } from './schema';
@@ -46,6 +48,12 @@ async function seed() {
   const password = 'admin123';
   const passwordHash = await hashPassword(password);
 
+  const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  if (existing.length > 0) {
+    console.log(`Seed user ${email} already exists, skipping.`);
+    return;
+  }
+
   const [user] = await db
     .insert(users)
     .values([
@@ -63,6 +71,7 @@ async function seed() {
     .insert(teams)
     .values({
       name: 'Test Team',
+      ...(isDemoMode ? demoTrialFields() : {}),
     })
     .returning();
 
@@ -72,7 +81,11 @@ async function seed() {
     role: 'owner',
   });
 
-  await createStripeProducts();
+  if (isDemoMode) {
+    console.log('Demo mode: skipping Stripe product creation.');
+  } else {
+    await createStripeProducts();
+  }
 }
 
 seed()

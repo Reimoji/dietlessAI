@@ -5,11 +5,11 @@ import OpenAI from 'openai';
 import { systemPrompt } from './system-prompt';
 
 if (!process.env.OPENAI_API_KEY) {
-  throw new Error('OPENAI_API_KEY is not set in environment variables');
+  console.warn('OPENAI_API_KEY is not set: the chat will reply with a configuration notice.');
 }
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'missing-openai-key',
 });
 
 // Use centralized token limits
@@ -47,6 +47,18 @@ export async function getChatCompletion(
       };
     }
 
+    if (!process.env.OPENAI_API_KEY) {
+      return {
+        content: '',
+        role: 'assistant',
+        error: 'The AI coach is not configured on this deployment (OPENAI_API_KEY is missing).',
+        errorType: null,
+        refusal: null,
+        annotations: [],
+        usage: null,
+      };
+    }
+
     // Check if input exceeds token limit (rough estimate)
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.role === 'user') {
@@ -70,7 +82,7 @@ export async function getChatCompletion(
     }
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4.1-2025-04-14',
+      model: process.env.OPENAI_MODEL || 'gpt-4.1-2025-04-14',
       messages: messagesWithSystem,
       store: true,
       temperature: 0.7,

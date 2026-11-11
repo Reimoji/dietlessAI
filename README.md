@@ -1,3 +1,36 @@
+# DietlessAI
+
+## Demo deployment (no domain, no Stripe)
+
+The app runs in **demo mode** when `DEMO_MODE=true` (or when `STRIPE_SECRET_KEY` is unset):
+pricing comes from static plans, "Subscribe" instantly grants a 30-day trial instead of
+charging a card, every new sign-up can chat right away, and emails are only logged.
+
+Quickest way to get a public demo URL (free tiers, `*.vercel.app` address):
+
+1. **Vercel**: *Add New → Project → Import* `Reimoji/dietlessAI` (framework: Next.js, pnpm is auto-detected).
+2. **Database**: in the Vercel project, *Storage → Create → Neon (Postgres)* and connect it.
+   It sets `DATABASE_URL` automatically, which the app accepts.
+3. **Environment variables** (Project → Settings → Environment Variables):
+   - `DEMO_MODE` = `true`
+   - `AUTH_SECRET` = any random string (`openssl rand -hex 32`)
+   - `OPENAI_API_KEY` = your OpenAI key (without it the site works but the chat replies with an error)
+   - `BASE_URL` = the `https://<project>.vercel.app` URL (optional in demo mode)
+   - `OPENAI_MODEL` = optional, defaults to `gpt-4.1-2025-04-14`
+4. **Create the tables and demo user** once, from your machine, using the Neon connection string:
+   ```bash
+   POSTGRES_URL="<neon connection string>" DEMO_MODE=true pnpm db:migrate
+   POSTGRES_URL="<neon connection string>" DEMO_MODE=true pnpm db:seed
+   ```
+   Demo login: `test@test.com` / `admin123` (visitors can also sign up themselves).
+5. Redeploy. Done.
+
+Running the demo locally: `docker compose up -d`, then put
+`POSTGRES_URL=postgres://postgres:postgres@localhost:54322/postgres`, `AUTH_SECRET=...` and
+`DEMO_MODE=true` in `.env`, run `pnpm db:migrate && pnpm db:seed && pnpm dev`.
+
+---
+
 # Next.js SaaS Starter
 
 This is a starter template for building a SaaS application using **Next.js** with support for authentication, Stripe integration for payments, and a dashboard for logged-in users.

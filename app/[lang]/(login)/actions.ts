@@ -25,6 +25,7 @@ import {
   sendPasswordResetEmail,
   sendWelcomeEmail,
 } from '@/lib/email/send-emails';
+import { demoTrialFields, isDemoMode } from '@/lib/demo';
 import { createCheckoutSession } from '@/lib/payments/stripe';
 import { canRequestPasswordReset } from '@/lib/rate-limiting/password-reset-limiter';
 import { randomUUID } from 'crypto';
@@ -205,6 +206,8 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
     // Create a new team if there's no invitation
     const newTeam: NewTeam = {
       name: `${email}'s Team`,
+      // Demo deployments have no billing: give every new account a trial right away.
+      ...(isDemoMode ? demoTrialFields() : {}),
     };
 
     [createdTeam] = await db.insert(teams).values(newTeam).returning();

@@ -7,11 +7,14 @@ import { redirect } from 'next/navigation';
 import Stripe from 'stripe';
 import { getTeamByStripeCustomerId, getUser } from '../db/queries';
 
-if (!process.env.STRIPE_SECRET_KEY) {
+import { demoPrices, demoProducts, demoTrialFields, isDemoMode } from '@/lib/demo';
+
+if (!process.env.STRIPE_SECRET_KEY && !isDemoMode) {
   throw new Error('STRIPE_SECRET_KEY is not set in environment variables');
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+// In demo mode the client is never called; a placeholder key keeps the import safe.
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_demo_mode', {
   apiVersion: '2025-05-28.basil' as any,
 });
 
@@ -34,6 +37,15 @@ export async function createCheckoutSession({
 
   if (!team || !user) {
     redirect(`/${lang}/sign-up?redirect=checkout&priceId=${priceId}`);
+  }
+
+  if (isDemoMode) {
+    const product = demoProducts.find((p) => p.defaultPriceId === priceId);
+    await db
+      .update(teams)
+      .set({ ...demoTrialFields(product?.name), updatedAt: new Date() })
+      .where(eq(teams.id, team.id));
+    redirect(`/${lang}/dashboard/chat`);
   }
 
   // 🆕 IMPROVED: Check database first (fast path)
@@ -129,6 +141,10 @@ export async function createCheckoutSession({
 }
 
 export async function createCustomerPortalSession(team: Team, lang: string) {
+  if (isDemoMode) {
+    redirect(`/${lang}/dashboard`);
+  }
+
   if (!team.stripeCustomerId) {
     redirect(`/${lang}/pricing`);
   }
@@ -240,6 +256,8 @@ export async function handleSubscriptionChange(subscription: Stripe.Subscription
 }
 
 export async function getStripePrices() {
+  if (isDemoMode) return demoPrices;
+
   const prices = await stripe.prices.list({
     expand: ['data.product'],
     active: true,
@@ -257,6 +275,8 @@ export async function getStripePrices() {
 }
 
 export async function getStripeProducts() {
+  if (isDemoMode) return demoProducts;
+
   const products = await stripe.products.list({
     active: true,
     expand: ['data.default_price'],
