@@ -4,7 +4,12 @@
       "title": "Tee tervislik toitumine pingevabaks ja muuda end paremaks koos",
       "highlight": "dietlessAI",
       "subtitle": "Isikupärased toitumiskavad, mis kohanduvad sinu elustiiliga — ilma oletuste ja range dieedita, mis annab püsivad tulemused.",
-      "cta": "Proovi tasuta kohe!"
+      "cta": "Proovi tasuta kohe!",
+      "badge": "Sinu AI toitumisnõustaja",
+      "secondary_cta": "Vaata, kuidas see töötab",
+      "trust1": "2-päevane tasuta prooviperiood",
+      "trust2": "Ilma rangete dieetideta",
+      "trust3": "Tühista igal ajal"
     },
     "features": {
       "title": "Miks Dietless AI muudab sinu toitumist—ja aitab kaalus alla võtta loomulikul viisil",
@@ -19,12 +24,14 @@
       "support": {
         "title": "Sisseehitatud motivatsioon ja tugi",
         "description": "Saa igapäevaseid näpunäiteid ja edusammude tõukeid, mis hoiavad sind keskendununa eesmärkidele. Dietless AI toimib kui sinu isiklik treener, valmis sind igal sammul julgustama."
-      }
+      },
+      "eyebrow": "Miks dietlessAI"
     },
     "science": {
       "title": "Teadus mida saad usaldada",
       "description": "Dietless AI on ehitatud kõige usaldusväärsema ja tunnustatud toitumiseteaduse alusel. See ühendab tõenduspõhiste toitumispõhimõtete teadmisi, tagades, et iga soovitus on kooskõlas tõestatud kaalulanguse ja tervisliku elu strateegiatega. Pole moefänne, pole arvamist—ainult usaldusväärne juhendamine eesmärkide saavutamiseks.",
-      "cta": "Alusta!"
+      "cta": "Alusta!",
+      "eyebrow": "Teaduspõhine"
     },
     "benefits": {
       "shopping": {
@@ -46,7 +53,9 @@
       "insights": {
         "title": "Eesmärgikesksed teadmised",
         "description": "Olenemata sellest, kas tahad kaotada mõned kilod või hoida oma ideaalkaalu, Dietless AI kohaneb, et hoida sind edasi liikumas"
-      }
+      },
+      "eyebrow": "Kõik ühes vestluses",
+      "title": "Plaanid, mis sobivad sinu päris eluga"
     },
     "story": {
       "heading": "Kas tunned ennast ära?",
@@ -69,7 +78,8 @@
         "name": "Taylor K.",
         "role": "Lapsevanem",
         "quote": "Enam pole vaja aimata! Rakenduse targad soovitused on aidanud mul hoida tasakaalustatud dieeti, ilma et tunneksin, et millestki ilma jään."
-      }
+      },
+      "eyebrow": "Hõivatud inimeste lemmik"
     },
     "faq": {
       "title": "Korduma kippuvad küsimused",
@@ -102,7 +112,9 @@
           "question": "Mis teeb Dietless AI usaldusväärseks?",
           "answer": "Dietless AI on ehitatud rangelt uuritud, teaduspõhiste toitumispõhimõtete alusel. Selle soovitused lähtuvad toitumisala kõige usaldusväärsematest teadmistest, tagades, et sinu personaliseeritud plaan on nii tõhus kui ka jätkusuutlik. Olenemata sellest, kas sinu eesmärk on kaalulangetus, praeguse kaalu hoidmine või lihtsalt tervem toitumine, võid olla kindel, et Dietless AI on loodud pakkuma tõenduspõhiseid tulemusi."
         }
-      }
+      },
+      "eyebrow": "KKK",
+      "subtitle": "Kõik, mida pead teadma enne alustamist."
     },
     "cta": {
       "title_part1": "Tee esimene samm",
@@ -278,15 +290,16 @@
       "content": "Küsimuste korral võtke meiega ühendust:"
     }
   },
-    "terminal": {
+  "terminal": {
     "title": "Vestluse näidis",
     "step1": "Kas saad mind DietlessAI-ga alustamisel aidata?",
     "step2": "Muidugi! Loome plaani, mis sobib sinu elustiili ja eesmärkidega. Alustuseks ütle oma kaal, pikkus ja peamine eesmärk.",
     "step3": "Kaalun 84 kg, olen 172 cm pikk ja tahan rasva kaotada.",
     "step4": "Suurepärane. Keskendume rasva põletamisele, samal ajal hoides lihased tugevad 💪",
-    "step5": "Järgmiseks arvutan sinu makrod, koostan toitumisplaani ja panen paika iganädalased kohandused, et sind rajal hoida 🔁"
+    "step5": "Järgmiseks arvutan sinu makrod, koostan toitumisplaani ja panen paika iganädalased kohandused, et sind rajal hoida 🔁",
+    "placeholder": "Küsi midagi…"
   },
-    "usermenu": {
+  "usermenu": {
     "chat": "Vestle DietlessAI-ga",
     "user_settings": "Kasutaja seaded",
     "general": "Üldine",
@@ -328,7 +341,7 @@
     "title": "Loo uus parool",
     "subtitle": "Sisesta oma uus parool allpool",
     "loading": "Laadimine...",
-        "invalid_link": "Vale taastamislink. Palun taotle uus parooli taastamine.",
+    "invalid_link": "Vale taastamislink. Palun taotle uus parooli taastamine.",
     "expired_link": "See parooli taastamise link on aegunud.",
     "request_new_question": "Kas soovid taotleda uut parooli taastamise linki?",
     "request_new_button": "Taotle uut linki",

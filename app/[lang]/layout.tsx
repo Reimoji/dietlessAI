@@ -42,16 +42,10 @@ export default async function LangLayout({
     : "en";
 
   return (
-    <html
-      lang={lang}
-      className="bg-white dark:bg-gray-950 text-black dark:text-white"
-    >
-      <body className="min-h-[100dvh] bg-gray-50">
-        <section className="flex flex-col h-screen bg-background">
-          <Header lang={lang} />
-          {children}
-        </section>
-      </body>
-    </html>
+    // The root layout already renders <html>/<body>; nesting them here caused hydration errors.
+    <section lang={lang} className="flex flex-col h-screen bg-background">
+      <Header lang={lang} />
+      {children}
+    </section>
   );
 }

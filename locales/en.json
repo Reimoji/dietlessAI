@@ -4,8 +4,13 @@
       "title": "Unlock Effortless Nutrition and Achieve a Healthier You with",
       "highlight": "dietlessAI",
       "subtitle": "Personalized Meal Plans That Evolve with Your Lifestyle—No Guesswork, No Strict Rules, Just Sustainable Results",
-      "cta": "Try for free now!"
-    },    
+      "cta": "Try for free now!",
+      "badge": "Your AI nutrition coach",
+      "secondary_cta": "See how it works",
+      "trust1": "2-day free trial",
+      "trust2": "No strict diets",
+      "trust3": "Cancel anytime"
+    },
     "features": {
       "title": "Why Dietless AI Will Transform the Way You Eat—and Help You Lose Weight Naturally",
       "personalized": {
@@ -19,12 +24,14 @@
       "support": {
         "title": "Built-In Motivation and Support",
         "description": "Get daily tips, hacks and progress nudges that keep you focused on your targets. Dietless AI acts like your personal coach, ready to encourage you at every step."
-      }
+      },
+      "eyebrow": "Why dietlessAI"
     },
     "science": {
       "title": "Science You Can Trust",
       "description": "Dietless AI is built on a foundation of the most respected and credible nutrition science. It combines insights from evidence-based dietary principles, ensuring every recommendation aligns with proven strategies for weight loss and healthy living. No fads, no guesswork—just reliable guidance for achieving your goals.",
-      "cta": "Get Started!"
+      "cta": "Get Started!",
+      "eyebrow": "Evidence-based"
     },
     "benefits": {
       "shopping": {
@@ -46,7 +53,9 @@
       "insights": {
         "title": "Goal-Focused Insights",
         "description": "Whether you aim to lose a few pounds or maintain your ideal weight, Dietless AI adapts to keep you moving forward"
-      }
+      },
+      "eyebrow": "Everything in one chat",
+      "title": "Plans that fit your real life"
     },
     "story": {
       "heading": "Story time..",
@@ -69,7 +78,8 @@
         "name": "Taylor K.",
         "role": "Busy Parent",
         "quote": "No more guesswork! The app's smart suggestions have helped me maintain a balanced diet without feeling like I'm missing out on anything."
-      }
+      },
+      "eyebrow": "Loved by busy people"
     },
     "faq": {
       "title": "Frequently Asked Questions",
@@ -102,7 +112,9 @@
           "question": "What makes Dietless AI reliable?",
           "answer": "Dietless AI is built on a foundation of rigorously researched, science-based nutrition principles. Its recommendations are informed by the most trusted insights in the field of nutrition, ensuring that your personalized plan is both effective and sustainable. Whether your goal is weight loss, maintaining your current weight, or simply eating healthier, you can feel confident that Dietless AI is designed to deliver evidence-backed results."
         }
-      }
+      },
+      "eyebrow": "FAQ",
+      "subtitle": "Everything you need to know before you start."
     },
     "cta": {
       "title_part1": "Take the First Step Toward",
@@ -284,7 +296,8 @@
     "step2": "Absolutely! Let’s build a plan that fits your lifestyle and goals. First, tell me your weight, height, and your goal.",
     "step3": "I weigh 84 kg, I’m 172 cm tall, and I want to lose fat.",
     "step4": "Got it. We’ll focus on fat loss while keeping your muscle sharp 💪",
-    "step5": "Next, I’ll generate your macros, meal plan, and weekly tweaks to keep you on track 🔁"
+    "step5": "Next, I’ll generate your macros, meal plan, and weekly tweaks to keep you on track 🔁",
+    "placeholder": "Ask anything…"
   },
   "usermenu": {
     "chat": "Chat with DietlessAI",
