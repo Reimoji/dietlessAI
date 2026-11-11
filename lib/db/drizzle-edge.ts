@@ -3,7 +3,10 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema'; // ✅ make sure this path is correct!
 
-const connectionString = (process.env.DATABASE_URL || process.env.POSTGRES_URL)!;
+const connectionString =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  'postgres://missing-database-url@localhost:5432/missing';
 const isLocal = /@(localhost|127\.0\.0\.1)[:/]/.test(connectionString);
 
 const queryClient = postgres(connectionString, {

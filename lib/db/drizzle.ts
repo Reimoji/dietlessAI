@@ -9,8 +9,10 @@ dotenv.config();
 const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error('POSTGRES_URL (or DATABASE_URL) environment variable is not set');
+  // Don't throw at import time: `next build` loads route modules to collect page data,
+  // and the build should succeed before a database is attached. Queries fail until it is.
+  console.warn('POSTGRES_URL (or DATABASE_URL) environment variable is not set');
 }
 
-export const client = postgres(connectionString);
+export const client = postgres(connectionString || 'postgres://missing-database-url@localhost:5432/missing');
 export const db = drizzle(client, { schema });
